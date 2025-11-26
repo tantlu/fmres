@@ -907,14 +907,14 @@ export default function App() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setSelectedCategory('All')}>
-              <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-2xl shadow-lg shadow-emerald-900/50 text-white group-hover:scale-105 transition-transform">FM</div>
+              <img
+                src="/icon.png" // <-- QUAN TRỌNG: Thay link ảnh của bạn vào đây
+                alt="FM Res Hub Logo"
+                // Class này giúp ảnh có kích thước phù hợp, bo góc và hiệu ứng phóng to khi di chuột như cũ
+                className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-lg shadow-lg shadow-emerald-900/50 group-hover:scale-105 transition-transform bg-[#1e293b]"
+              />
               <div>
-                <img
-                  src="/icon.png" // <-- QUAN TRỌNG: Thay link ảnh của bạn vào đây
-                  alt="FM Res Hub Logo"
-                  // Class này giúp ảnh có kích thước phù hợp, bo góc và hiệu ứng phóng to khi di chuột như cũ
-                  className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-lg shadow-lg shadow-emerald-900/50 group-hover:scale-105 transition-transform bg-[#1e293b]"
-                />
+                <h1 className="text-xl font-bold leading-none tracking-tight text-white">FM RES <span className="text-emerald-500">HUB</span></h1>
                 <p className="text-[10px] text-slate-400 tracking-widest uppercase">Vietnam Community</p>
               </div>
             </div>
