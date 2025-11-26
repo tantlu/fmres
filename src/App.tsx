@@ -319,8 +319,13 @@ const DonateModal = ({
 }) => {
   if (!isOpen || !item) return null;
 
-  const qrData = `Bank:${item.bankName}|Acc:${item.bankAccount}|Name:${item.bankOwner}|Info:Donate FM Resource`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+  const bankId = item.bankName?.trim().toUpperCase();
+  const accountNo = item.bankAccount?.trim();
+  const accountName = encodeURIComponent(item.bankOwner || '');
+  const description = encodeURIComponent(`Donate ${item.author}`);
+
+  // Tạo link VietQR
+  const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.png?amount=0&addInfo=${description}&accountName=${accountName}`;
 
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={onClose}>
