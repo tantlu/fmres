@@ -79,7 +79,7 @@ interface ResourceItem {
 
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Guide', 'Kit 2D', 'Kit 3D'];
 
-// Dữ liệu khởi tạo (Được dùng để hiển thị NGAY LẬP TỨC)
+// Dữ liệu khởi tạo (Hiển thị NGAY LẬP TỨC - Views & Likes = 0)
 const SEED_DATA: ResourceItem[] = [
   // --- FACE PACKS ---
   {
@@ -89,8 +89,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/fbbf24?text=DF11+Faces',
     downloadLink: 'https://drive.google.com/drive/folders/1Rwh5xZuHiXff4aMCQIVY1GnvEZvOoP4N?usp=drive_link',
     description: 'Bản cập nhật đầy đủ DF11 Faces Update 25. Bao gồm hơn 200,000 khuôn mặt cầu thủ với phong cách chân dung hiện đại.',
-    views: 240371,
-    likes: 1250,
+    views: 0,
+    likes: 0,
     date: '2025-11-01',
     isHot: true,
     donateLink: 'https://df11faces.com/Donate',
@@ -102,8 +102,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/10b981?text=Cut-Out',
     downloadLink: 'https://drive.google.com/drive/folders/1GfhpSodXg5L_6yhLlNZZcsGkODf8DtAe?usp=sharing',
     description: 'Bộ mặt cầu thủ kiểu Cut-out phổ biến nhất thế giới.',
-    views: 523012,
-    likes: 3400,
+    views: 0,
+    likes: 0,
     date: '2025-11-24',
     isHot: true,
   },
@@ -114,8 +114,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/38bdf8?text=Gunzo+Face',
     downloadLink: 'https://drive.google.com/drive/folders/1tHoSwXEuUosgCqqvKzw1Qium8rUdDgVe?usp=sharing',
     description: 'Facepack phong cách Gunzo cập nhật mới nhất 2025.',
-    views: 45000,
-    likes: 890,
+    views: 0,
+    likes: 0,
     date: '2025-10-15',
   },
   {
@@ -125,8 +125,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/818cf8?text=OPZ+Style',
     downloadLink: 'https://drive.google.com/file/d/1v8feO8W3VqHCklJySOLFrFmHSG582zrn/view?usp=sharing',
     description: 'Phong cách OPZ độc đáo, dung lượng 4.2GB.',
-    views: 12000,
-    likes: 340,
+    views: 0,
+    likes: 0,
     date: '2024-12-20',
   },
 
@@ -138,8 +138,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/f59e0b?text=FMG+Logos',
     downloadLink: 'https://drive.google.com/drive/folders/11kJc2bPQBHglw5y7SvMd7Pj7OzQ1RtXK?usp=sharing',
     description: 'Bộ Logo FMG chuẩn Standard.',
-    views: 98000,
-    likes: 2200,
+    views: 0,
+    likes: 0,
     date: '2024-11-10',
   },
   {
@@ -149,8 +149,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/f97316?text=TCM+Logos',
     downloadLink: 'https://drive.google.com/drive/folders/1f4AJ3__jDbU4k_RDbT79w8b-uxX9HccR?usp=sharing',
     description: 'Bộ Logo TCM nổi tiếng.',
-    views: 87000,
-    likes: 1800,
+    views: 0,
+    likes: 0,
     date: '2024-10-05',
   },
   {
@@ -160,8 +160,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/94a3b8?text=Lite+Logo',
     downloadLink: 'https://drive.google.com/file/d/1l3d4odGR8bYfYXia8GeMDMoljq_e7Q3P/view?usp=sharing',
     description: 'Bộ Logo tối ưu dung lượng.',
-    views: 15000,
-    likes: 670,
+    views: 0,
+    likes: 0,
     date: '2024-07-20',
   },
 
@@ -173,8 +173,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/60a5fa?text=Kits+2D+24/25',
     downloadLink: 'https://fmslovakia.com/',
     description: 'Bộ Kit 2D đầy đủ cho mùa giải 24/25 mới nhất.',
-    views: 34000,
-    likes: 450,
+    views: 0,
+    likes: 0,
     date: '2025-08-15',
   },
   {
@@ -184,8 +184,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/3b82f6?text=Kit+3D+Mega',
     downloadLink: 'https://drive.google.com/file/d/1x4ezq02onetcoZeLuRnwLNHsL8L3fCpo/view?usp=sharing',
     description: 'Bộ sưu tập Kit 3D hiển thị trong trận đấu (Match Engine) và 2D.',
-    views: 41000,
-    likes: 980,
+    views: 0,
+    likes: 0,
     date: '2025-09-15',
   },
 
@@ -197,8 +197,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/ef4444?text=V.League+26',
     downloadLink: 'https://www.facebook.com/groups/DienDanFMVN/permalink/7242859179092239',
     description: 'Dữ liệu V.League đầy đủ cho FM26. Cập nhật chuyển nhượng, chỉ số cầu thủ Việt Nam chính xác nhất.',
-    views: 5000,
-    likes: 890,
+    views: 0,
+    likes: 0,
     date: '2025-11-26',
     isHot: true,
     bankName: 'MB Bank',
@@ -212,8 +212,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/a855f7?text=Real+Name+Fix',
     downloadLink: 'https://www.fmscout.com/a-fm24-real-names-license-fix.html',
     description: 'Sửa tên thật các giải đấu và CLB bị sai tên bản quyền.',
-    views: 800000,
-    likes: 5000,
+    views: 0,
+    likes: 0,
     date: '2025-11-20',
   },
 
@@ -225,8 +225,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/6366f1?text=OI+Guide',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Hướng dẫn chi tiết cách bắt chết đối thủ bằng Opposition Instructions (OI).',
-    views: 12000,
-    likes: 150,
+    views: 0,
+    likes: 0,
     date: '2024-01-01',
   },
   {
@@ -236,8 +236,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/818cf8?text=Set+Pieces',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Tối ưu hóa các tình huống cố định để ghi bàn nhiều hơn.',
-    views: 8500,
-    likes: 210,
+    views: 0,
+    likes: 0,
     date: '2024-02-15',
   },
   {
@@ -247,8 +247,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/4f46e5?text=Create+Tactic',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Các bước cơ bản để xây dựng một chiến thuật hiệu quả trong FM.',
-    views: 22000,
-    likes: 560,
+    views: 0,
+    likes: 0,
     date: '2024-01-10',
   },
   {
@@ -258,8 +258,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/4338ca?text=Mental+Stats',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Phân tích các chỉ số tâm lý quan trọng cho hậu vệ.',
-    views: 15000,
-    likes: 300,
+    views: 0,
+    likes: 0,
     date: '2024-02-01',
   },
   {
@@ -269,8 +269,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/3730a3?text=Roles+Duties',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Hiểu rõ về cách di chuyển và hoạt động của từng Role.',
-    views: 31000,
-    likes: 890,
+    views: 0,
+    likes: 0,
     date: '2024-03-05',
   },
   {
@@ -280,8 +280,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/a5b4fc?text=Wonderkids',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Bí kíp tìm kiếm những tài năng trẻ (Newgen/Regen) xuất sắc nhất.',
-    views: 45000,
-    likes: 1200,
+    views: 0,
+    likes: 0,
     date: '2024-03-10',
   },
   {
@@ -291,8 +291,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/c7d2fe?text=Attributes',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Giải thích chi tiết ý nghĩa từng chỉ số Mental, Technical, Physical.',
-    views: 67000,
-    likes: 3400,
+    views: 0,
+    likes: 0,
     date: '2024-01-20',
   },
   {
@@ -302,8 +302,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/e0e7ff?text=Positions',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Mỗi vị trí cần những tố chất gì để thi đấu đỉnh cao.',
-    views: 19000,
-    likes: 420,
+    views: 0,
+    likes: 0,
     date: '2024-04-12',
   },
   {
@@ -313,8 +313,8 @@ const SEED_DATA: ResourceItem[] = [
     image: 'https://placehold.co/400x500/1e293b/dbeafe?text=CA+PA',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Tìm hiểu về chỉ số hiện tại và tiềm năng ẩn của cầu thủ.',
-    views: 55000,
-    likes: 2100,
+    views: 0,
+    likes: 0,
     date: '2024-05-01',
   }
 ];
@@ -997,6 +997,7 @@ export default function App() {
     }
   };
 
+  // Tăng Like khi bấm Tim
   const handleLikeItem = async (item: ResourceItem) => {
     if (!user || !item.id) return;
     try {
@@ -1011,9 +1012,24 @@ export default function App() {
     }
   };
 
-  const handleViewDetail = (item: ResourceItem) => {
+  // Tăng View khi bấm Chi tiết
+  const handleViewDetail = async (item: ResourceItem) => {
     setViewingItem(item);
     setIsDetailModalOpen(true);
+
+    // Logic tăng View (chỉ tăng nếu có ID và User)
+    if (user && item.id) {
+      try {
+        const finalDocRef = IS_SANDBOX
+          ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources', item.id)
+          : doc(db, 'fm_resources', item.id);
+        await updateDoc(finalDocRef, {
+          views: increment(1)
+        });
+      } catch (error) {
+        console.error("Error incrementing view:", error);
+      }
+    }
   };
 
   const handleDonateClick = (item: ResourceItem) => {
