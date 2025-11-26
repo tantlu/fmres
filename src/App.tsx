@@ -488,7 +488,7 @@ const DetailPage = ({
                 <Info className="text-blue-400 shrink-0 mt-1" />
                 <div className="text-sm text-blue-200/80">
                   <p className="font-bold text-blue-400 mb-1">Hướng dẫn cài đặt:</p>
-                  <p>Tải file về, giải nén (nếu có) và chép vào thư mục <code>Documents/Sports Interactive/Football Manager 20xx/</code>. Sau đó vào game.</p>
+                  <p>Tải file về, giải nén (nếu có) và chép vào thư mục <code>Documents/Sports Interactive/Football Manager [phiên bản FM]/</code>. Sau đó vào game.</p>
                 </div>
               </div>
             </div>
