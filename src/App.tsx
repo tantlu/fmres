@@ -15,7 +15,7 @@ import {
   signInWithCustomToken, signInWithEmailAndPassword, signOut
 } from 'firebase/auth';
 
-// --- HELPER: GLOBAL SAFE ACCESS ---
+// --- HELPER FUNCTIONS (SAFE GLOBAL ACCESS) ---
 const getGlobal = (key: string) => {
   if (typeof window !== 'undefined') {
     return (window as any)[key];
@@ -23,9 +23,13 @@ const getGlobal = (key: string) => {
   return undefined;
 };
 
-const checkIsSandbox = () => typeof getGlobal('__firebase_config') !== 'undefined';
+// Hàm kiểm tra môi trường an toàn
+const checkIsSandbox = () => {
+  return typeof getGlobal('__firebase_config') !== 'undefined';
+};
 
 // --- FIREBASE CONFIGURATION ---
+
 const YOUR_FIREBASE_CONFIG = {
   apiKey: "AIzaSyCSzggBgIGpa_galV9C2srBjVG8AFmxsYA",
   authDomain: "fmhub-ae832.firebaseapp.com",
@@ -36,6 +40,7 @@ const YOUR_FIREBASE_CONFIG = {
   measurementId: "G-TKF13CZEB0"
 };
 
+// Logic chọn cấu hình
 const sandboxConfig = getGlobal('__firebase_config');
 const firebaseConfig = checkIsSandbox() ? JSON.parse(sandboxConfig) : YOUR_FIREBASE_CONFIG;
 
@@ -46,19 +51,16 @@ const db = getFirestore(app);
 const globalAppId = getGlobal('__app_id');
 const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id';
 
-// --- ADMIN CONFIGURATION ---
-const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
-
-// --- COLLECTION HELPER ---
-// Hàm này giúp lấy đúng đường dẫn dù ở Sandbox hay Production
+// Hàm lấy Collection Reference thống nhất
 const getCollectionRef = () => {
   if (checkIsSandbox()) {
-    // Sandbox path
-    return collection(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public');
+    return collection(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1');
   }
-  // Production path
-  return collection(db, 'fm_resources_public');
+  return collection(db, 'fm_resources_v1');
 };
+
+// --- ADMIN CONFIGURATION ---
+const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
 // --- DATA TYPES & CONSTANTS ---
 type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kits';
@@ -84,7 +86,7 @@ interface ResourceItem {
 
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
-// Dữ liệu khởi tạo rỗng (Lấy từ Firebase)
+// Dữ liệu khởi tạo rỗng
 const SEED_DATA: ResourceItem[] = [];
 
 // --- COMPONENTS ---
@@ -714,8 +716,7 @@ export default function App() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ResourceItem | null>(null);
 
-  // Changed Modal to Page View logic
-  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null); // For DetailPage
+  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null);
 
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
@@ -731,7 +732,6 @@ export default function App() {
         if (globalToken) {
           await signInWithCustomToken(auth, globalToken);
         } else {
-          // Fallback: sign in anonymously so we have a user
           await signInAnonymously(auth);
         }
       } catch (error) {
@@ -749,7 +749,6 @@ export default function App() {
 
   // 2. Fetch Data (BACKGROUND SYNC) - Wait for Auth Ready
   useEffect(() => {
-    // Only fetch if auth is ready AND we have a user (anonymous or not)
     if (!isAuthReady || !user) return;
 
     const colRef = getCollectionRef();
@@ -777,7 +776,7 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [isAuthReady, user]); // Added user to dependencies to be safe
+  }, [isAuthReady, user]);
 
   // --- HANDLERS ---
 
@@ -1004,7 +1003,7 @@ export default function App() {
             <AlertTriangle className="shrink-0 mt-0.5" />
             <div>
               <h3 className="font-bold">Chưa cấu hình quyền truy cập (Firestore Security Rules)</h3>
-              {!IS_SANDBOX ? (
+              {!checkIsSandbox() ? (
                 <>
                   <p className="text-sm mt-1">
                     Bạn đang chạy trên Firebase cá nhân nhưng chưa mở quyền truy cập. Hãy vào <a href="https://console.firebase.google.com/" target="_blank" className="underline font-bold">Firebase Console</a> {'>'} Firestore Database {'>'} Rules và sửa thành:
