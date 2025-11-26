@@ -4,7 +4,6 @@ import {
   Plus, Trash2, Edit, Save, LogIn, LogOut,
   Info, Heart, Coffee, AlertTriangle, Star, Crown,
   Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check,
-  // Thêm icon Shirt cho Kits
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import {
@@ -18,7 +17,6 @@ import {
 
 // --- FIREBASE CONFIGURATION ---
 
-// 1. Cấu hình Firebase của BẠN (Dùng cho Production/Local)
 const YOUR_FIREBASE_CONFIG = {
   apiKey: "AIzaSyCSzggBgIGpa_galV9C2srBjVG8AFmxsYA",
   authDomain: "fmhub-ae832.firebaseapp.com",
@@ -29,7 +27,6 @@ const YOUR_FIREBASE_CONFIG = {
   measurementId: "G-TKF13CZEB0"
 };
 
-// Helper để lấy biến global an toàn trong TypeScript
 const getGlobal = (key: string) => {
   if (typeof window !== 'undefined') {
     return (window as any)[key];
@@ -37,17 +34,14 @@ const getGlobal = (key: string) => {
   return undefined;
 };
 
-// 2. Logic chọn cấu hình (Sandbox vs Real)
 const sandboxConfig = getGlobal('__firebase_config');
 const IS_SANDBOX = typeof sandboxConfig !== 'undefined';
 const firebaseConfig = IS_SANDBOX ? JSON.parse(sandboxConfig) : YOUR_FIREBASE_CONFIG;
 
-// 3. Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// App ID cho Firestore
 const globalAppId = getGlobal('__app_id');
 const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id';
 
@@ -55,7 +49,6 @@ const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id
 const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
 // --- DATA TYPES & CONSTANTS ---
-// Đã gộp Kit 2D/3D thành Kits
 type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kits';
 
 interface ResourceItem {
@@ -71,22 +64,18 @@ interface ResourceItem {
   date: string;
   isHot?: boolean;
   createdAt?: any;
-  // Donate Fields
   donateLink?: string;
   bankName?: string;
   bankAccount?: string;
   bankOwner?: string;
 }
 
-// Danh sách menu hiển thị (Đã cập nhật Kits)
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
-// Dữ liệu khởi tạo TRỐNG (Để bạn tự thêm)
 const SEED_DATA: ResourceItem[] = [];
 
 // --- COMPONENTS ---
 
-// 1. MINI RICH TEXT EDITOR
 const RichTextEditor = ({
   value,
   onChange
@@ -112,7 +101,6 @@ const RichTextEditor = ({
 
   return (
     <div className="border border-slate-600 rounded-lg overflow-hidden bg-[#0f172a]">
-      {/* Toolbar */}
       <div className="flex items-center gap-1 p-2 bg-slate-800 border-b border-slate-700">
         <button
           type="button"
@@ -149,7 +137,6 @@ const RichTextEditor = ({
         </button>
       </div>
 
-      {/* Content Area */}
       <div
         ref={editorRef}
         contentEditable
@@ -165,7 +152,6 @@ const RichTextEditor = ({
   );
 };
 
-// 2. Resource Card
 const ResourceCard = ({
   item,
   onEdit,
@@ -307,7 +293,6 @@ const ResourceCard = ({
   );
 };
 
-// 3. Donate Modal
 const DonateModal = ({
   isOpen,
   onClose,
@@ -380,7 +365,6 @@ const DonateModal = ({
   );
 };
 
-// 3. Detail Page
 const DetailPage = ({
   item,
   onClose,
@@ -496,7 +480,6 @@ const DetailPage = ({
   );
 };
 
-// 4. Admin Modal
 const AdminModal = ({
   isOpen,
   onClose,
@@ -916,7 +899,7 @@ export default function App() {
             </div>
 
             <nav className="hidden lg:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
-              {CATEGORIES.slice(0, 10).map(cat => (
+              {CATEGORIES.slice(0, 9).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
