@@ -4,7 +4,6 @@ import {
   Plus, Trash2, Edit, Save, LogIn, LogOut,
   Info, Heart, Coffee, AlertTriangle, Star, Crown,
   Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check
-  // Đã xóa Shirt và Loader để fix lỗi
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import {
@@ -71,10 +70,16 @@ interface ResourceItem {
   bankOwner?: string;
 }
 
-// Đảm bảo danh sách Menu đầy đủ
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
 const SEED_DATA: ResourceItem[] = [];
+
+// --- HELPER FUNCTIONS ---
+const getCollectionRef = () => {
+  return IS_SANDBOX
+    ? collection(db, 'artifacts', appId, 'public', 'data', 'public_resources')
+    : collection(db, 'public_resources');
+};
 
 // --- COMPONENTS ---
 
@@ -685,9 +690,10 @@ const AdminModal = ({
 // --- MAIN APPLICATION ---
 
 export default function App() {
-  const [items, setItems] = useState<ResourceItem[]>(SEED_DATA); // Bắt đầu với mảng rỗng
-  const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái đang tải
+  const [items, setItems] = useState<ResourceItem[]>(SEED_DATA);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -702,8 +708,7 @@ export default function App() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ResourceItem | null>(null);
 
-  // Changed Modal to Page View logic
-  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null); // For DetailPage
+  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null);
 
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
@@ -719,6 +724,7 @@ export default function App() {
         if (globalToken) {
           await signInWithCustomToken(auth, globalToken);
         } else {
+          // Fallback: sign in anonymously so we have a user
           await signInAnonymously(auth);
         }
       } catch (error) {
@@ -729,23 +735,20 @@ export default function App() {
 
     const unsubscribeAuth = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      setIsAuthReady(true);
     });
     return () => unsubscribeAuth();
   }, []);
 
-  // 2. Fetch Data (BACKGROUND SYNC)
+  // 2. Fetch Data (BACKGROUND SYNC) - Wait for Auth Ready
   useEffect(() => {
-    // Luôn lắng nghe dữ liệu, không cần chờ user đăng nhập xong (vì chế độ Anonymous cũng cần data)
-    // Tuy nhiên, để đảm bảo an toàn, ta đợi init Auth xong 1 chút.
     if (!user) return;
 
-    const colRef = IS_SANDBOX
-      ? collection(db, 'artifacts', appId, 'public', 'data', 'fm_resources')
-      : collection(db, 'fm_resources');
+    const colRef = getCollectionRef();
 
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
       setPermissionError(false);
-      setIsLoading(false); // Đã tải xong (dù có dữ liệu hay không)
+      setIsLoading(false);
 
       if (!snapshot.empty) {
         const fetchedItems = snapshot.docs.map(doc => ({
@@ -755,11 +758,11 @@ export default function App() {
         })) as ResourceItem[];
         setItems(fetchedItems);
       } else {
-        setItems([]); // Nếu rỗng thì set rỗng
+        setItems([]);
       }
     }, (error) => {
       console.error("Error fetching data:", error);
-      setIsLoading(false); // Tắt loading kể cả khi lỗi
+      setIsLoading(false);
       if (error.code === 'permission-denied') {
         setPermissionError(true);
       }
@@ -799,18 +802,16 @@ export default function App() {
 
   const handleSaveItem = async (data: ResourceItem) => {
     if (!user) return;
-    const colRef = IS_SANDBOX
-      ? collection(db, 'artifacts', appId, 'public', 'data', 'fm_resources')
-      : collection(db, 'fm_resources');
+    const colRef = getCollectionRef();
 
     try {
       if (editingItem && editingItem.id) {
-        const finalDocRef = IS_SANDBOX
-          ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources', editingItem.id)
-          : doc(db, 'fm_resources', editingItem.id);
+        const docRef = IS_SANDBOX
+          ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', editingItem.id)
+          : doc(db, 'public_resources', editingItem.id);
 
         const { id, ...updateData } = data;
-        await updateDoc(finalDocRef, updateData);
+        await updateDoc(docRef, updateData);
       } else {
         await addDoc(colRef, { ...data, createdAt: serverTimestamp() });
       }
@@ -818,29 +819,29 @@ export default function App() {
       setEditingItem(null);
     } catch (error) {
       console.error("Error saving:", error);
-      alert("Lỗi khi lưu dữ liệu");
+      alert("Lỗi khi lưu dữ liệu: " + error.message);
     }
   };
 
   const handleDeleteItem = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa item này không?")) return;
     try {
-      const finalDocRef = IS_SANDBOX
-        ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources', id)
-        : doc(db, 'fm_resources', id);
-      await deleteDoc(finalDocRef);
+      const docRef = IS_SANDBOX
+        ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', id)
+        : doc(db, 'public_resources', id);
+      await deleteDoc(docRef);
     } catch (error) {
       console.error("Error deleting:", error);
     }
   };
 
   const handleLikeItem = async (item: ResourceItem) => {
-    if (!user || !item.id) return;
+    if (!item.id) return;
     try {
-      const finalDocRef = IS_SANDBOX
-        ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources', item.id)
-        : doc(db, 'fm_resources', item.id);
-      await updateDoc(finalDocRef, {
+      const docRef = IS_SANDBOX
+        ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', item.id)
+        : doc(db, 'public_resources', item.id);
+      await updateDoc(docRef, {
         likes: increment(1)
       });
     } catch (error) {
@@ -848,16 +849,15 @@ export default function App() {
     }
   };
 
-  // Mở trang chi tiết (DetailPage) và Tăng View
   const handleViewDetail = async (item: ResourceItem) => {
-    setSelectedItem(item); // Mở Page
+    setSelectedItem(item);
 
-    if (user && item.id) {
+    if (item.id) {
       try {
-        const finalDocRef = IS_SANDBOX
-          ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources', item.id)
-          : doc(db, 'fm_resources', item.id);
-        await updateDoc(finalDocRef, {
+        const docRef = IS_SANDBOX
+          ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', item.id)
+          : doc(db, 'public_resources', item.id);
+        await updateDoc(docRef, {
           views: increment(1)
         });
       } catch (error) {
