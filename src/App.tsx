@@ -1146,9 +1146,9 @@ export default function App() {
             Tất cả tài nguyên thuộc bản quyền của tác giả gốc.
           </p>
           <div className="flex justify-center gap-6 text-xs font-bold tracking-wider text-slate-500">
-            <a href="#" className="hover:text-emerald-500 transition-colors">FACEBOOK GROUP</a>
-            <a href="#" className="hover:text-emerald-500 transition-colors">DISCORD</a>
-            <a href="#" className="hover:text-emerald-500 transition-colors">CONTACT</a>
+            <a href="https://www.facebook.com/groups/fmvnofficial" className="hover:text-emerald-500 transition-colors">FACEBOOK GROUP</a>
+            <a href="https://www.youtube.com/@tenfm3024" className="hover:text-emerald-500 transition-colors">YOUTUBE</a>
+            <a href="https://www.facebook.com/tanlan.2001/" className="hover:text-emerald-500 transition-colors">CONTACT</a>
           </div>
         </div>
       </footer>
