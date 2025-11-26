@@ -1143,7 +1143,11 @@ export default function App() {
       {/* ... FOOTER & MODALS code ... */}
       <footer className="bg-[#0b1120] text-slate-400 py-12 border-t border-slate-800 text-sm">
         <div className="container mx-auto px-4 text-center">
-          <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-6 text-emerald-500 font-bold text-xl">FM</div>
+          <img
+            src="https://yt3.ggpht.com/83WfPjeUQMeiK56shkZPb4opoo8vqdP9PpSpf92ayYAUIEocv8GbRvze_tjZumiBAsK0sVWVUQ=s600-c-k-c0x00ffffff-no-rj-rp-mo"
+            alt="FM Res Hub Logo"
+            className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-lg shadow-lg shadow-emerald-900/50 group-hover:scale-105 transition-transform bg-[#1e293b]"
+          />
           <p className="mb-4 font-bold text-white tracking-wide">FM RESOURCE HUB © 2025</p>
           <p className="text-xs max-w-md mx-auto leading-relaxed opacity-60 mb-8">
             Website chia sẻ tài nguyên phi lợi nhuận dành cho cộng đồng Football Manager Việt Nam.
