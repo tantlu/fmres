@@ -63,7 +63,7 @@ const getCollectionRef = () => {
 const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
 // --- DATA TYPES & CONSTANTS ---
-type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kits';
+type Category = 'All' | 'FM Version' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kits';
 
 interface ResourceItem {
   id?: string;
@@ -84,7 +84,7 @@ interface ResourceItem {
   bankOwner?: string;
 }
 
-const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
+const CATEGORIES: Category[] = ['All', 'FM Version', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
 // Dữ liệu khởi tạo rỗng
 const SEED_DATA: ResourceItem[] = [];
