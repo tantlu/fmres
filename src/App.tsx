@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Download, Eye, Calendar, User, Search, X,
   LayoutDashboard, Plus, Trash2, Edit, Save, LogIn, LogOut,
-  Info, Heart, Coffee, AlertTriangle, Star, Crown
+  Info, Heart, Coffee, AlertTriangle, Star
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 // Removed unused analytics import
@@ -373,8 +373,8 @@ const ResourceCard = ({
       <button
         onClick={handleLikeClick}
         className={`absolute top-3 left-3 z-20 p-2 rounded-full transition-all duration-300 shadow-sm border ${liked
-            ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
-            : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
+          ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
+          : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
           }`}
         title="Thả tim"
       >
@@ -1076,8 +1076,8 @@ export default function App() {
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${selectedCategory === cat
-                      ? 'bg-emerald-600 text-white shadow-md'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
                     }`}
                 >
                   {cat}
@@ -1139,8 +1139,8 @@ export default function App() {
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${selectedCategory === cat
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'bg-slate-800 text-slate-400 border border-slate-700'
                   }`}
               >
                 {cat}
