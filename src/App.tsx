@@ -908,7 +908,7 @@ export default function App() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setSelectedCategory('All')}>
               <img
-                src="/icon.png"
+                src="https://yt3.ggpht.com/83WfPjeUQMeiK56shkZPb4opoo8vqdP9PpSpf92ayYAUIEocv8GbRvze_tjZumiBAsK0sVWVUQ=s600-c-k-c0x00ffffff-no-rj-rp-mo"
                 alt="FM Res Hub Logo"
                 className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-lg shadow-lg shadow-emerald-900/50 group-hover:scale-105 transition-transform bg-[#1e293b]"
               />
