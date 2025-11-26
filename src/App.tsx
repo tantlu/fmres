@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Download, Eye, Calendar, User, Search, X,
   LayoutDashboard, Plus, Trash2, Edit, Save, LogIn, LogOut,
-  Info, Heart, Coffee, AlertTriangle
+  Info, Heart, Coffee, AlertTriangle, Star, Crown
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 // Removed unused analytics import
@@ -79,14 +79,14 @@ interface ResourceItem {
 
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Guide', 'Kit 2D', 'Kit 3D'];
 
-// Dữ liệu khởi tạo
+// Dữ liệu khởi tạo (Được dùng để hiển thị NGAY LẬP TỨC)
 const SEED_DATA: ResourceItem[] = [
   // --- FACE PACKS ---
   {
     title: 'DF11 Player Faces Megapack 2025',
     category: 'Face',
     author: 'DF11Faces',
-    image: 'https://placehold.co/400x500/22c55e/ffffff?text=DF11+Faces',
+    image: 'https://placehold.co/400x500/1e293b/fbbf24?text=DF11+Faces',
     downloadLink: 'https://drive.google.com/drive/folders/1Rwh5xZuHiXff4aMCQIVY1GnvEZvOoP4N?usp=drive_link',
     description: 'Bản cập nhật đầy đủ DF11 Faces Update 25. Bao gồm hơn 200,000 khuôn mặt cầu thủ với phong cách chân dung hiện đại.',
     views: 240371,
@@ -99,7 +99,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Cut-Out Player Faces Megapack',
     category: 'Face',
     author: 'Sortitoutsi',
-    image: 'https://placehold.co/400x500/16a34a/ffffff?text=Cut-Out',
+    image: 'https://placehold.co/400x500/1e293b/10b981?text=Cut-Out',
     downloadLink: 'https://drive.google.com/drive/folders/1GfhpSodXg5L_6yhLlNZZcsGkODf8DtAe?usp=sharing',
     description: 'Bộ mặt cầu thủ kiểu Cut-out phổ biến nhất thế giới.',
     views: 523012,
@@ -111,7 +111,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Face Gunzo (Update 2025)',
     category: 'Face',
     author: 'Gunzo',
-    image: 'https://placehold.co/400x500/0ea5e9/ffffff?text=Gunzo+Face',
+    image: 'https://placehold.co/400x500/1e293b/38bdf8?text=Gunzo+Face',
     downloadLink: 'https://drive.google.com/drive/folders/1tHoSwXEuUosgCqqvKzw1Qium8rUdDgVe?usp=sharing',
     description: 'Facepack phong cách Gunzo cập nhật mới nhất 2025.',
     views: 45000,
@@ -122,7 +122,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Face OPZ Style 4.2GB',
     category: 'Face',
     author: 'OPZ',
-    image: 'https://placehold.co/400x500/6366f1/ffffff?text=OPZ+Style',
+    image: 'https://placehold.co/400x500/1e293b/818cf8?text=OPZ+Style',
     downloadLink: 'https://drive.google.com/file/d/1v8feO8W3VqHCklJySOLFrFmHSG582zrn/view?usp=sharing',
     description: 'Phong cách OPZ độc đáo, dung lượng 4.2GB.',
     views: 12000,
@@ -135,7 +135,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'FMG Standard Logos Megapack',
     category: 'Logo',
     author: 'FMG',
-    image: 'https://placehold.co/400x500/eab308/ffffff?text=FMG+Logos',
+    image: 'https://placehold.co/400x500/1e293b/f59e0b?text=FMG+Logos',
     downloadLink: 'https://drive.google.com/drive/folders/11kJc2bPQBHglw5y7SvMd7Pj7OzQ1RtXK?usp=sharing',
     description: 'Bộ Logo FMG chuẩn Standard.',
     views: 98000,
@@ -146,7 +146,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'TCM Logos Pack',
     category: 'Logo',
     author: 'TCMLogos',
-    image: 'https://placehold.co/400x500/f59e0b/ffffff?text=TCM+Logos',
+    image: 'https://placehold.co/400x500/1e293b/f97316?text=TCM+Logos',
     downloadLink: 'https://drive.google.com/drive/folders/1f4AJ3__jDbU4k_RDbT79w8b-uxX9HccR?usp=sharing',
     description: 'Bộ Logo TCM nổi tiếng.',
     views: 87000,
@@ -157,7 +157,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Logo Siêu Nhẹ',
     category: 'Logo',
     author: 'Sưu tầm',
-    image: 'https://placehold.co/400x500/94a3b8/ffffff?text=Lite+Logo',
+    image: 'https://placehold.co/400x500/1e293b/94a3b8?text=Lite+Logo',
     downloadLink: 'https://drive.google.com/file/d/1l3d4odGR8bYfYXia8GeMDMoljq_e7Q3P/view?usp=sharing',
     description: 'Bộ Logo tối ưu dung lượng.',
     views: 15000,
@@ -170,7 +170,7 @@ const SEED_DATA: ResourceItem[] = [
     title: "FC'12 Season 2024/25 Kits (2D)",
     category: 'Kit 2D',
     author: 'FM Slovakia',
-    image: 'https://placehold.co/400x500/3b82f6/ffffff?text=Kits+2D+24/25',
+    image: 'https://placehold.co/400x500/1e293b/60a5fa?text=Kits+2D+24/25',
     downloadLink: 'https://fmslovakia.com/',
     description: 'Bộ Kit 2D đầy đủ cho mùa giải 24/25 mới nhất.',
     views: 34000,
@@ -181,7 +181,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Kit 2D & 3D Megapack 24/25',
     category: 'Kit 3D',
     author: 'Sưu tầm',
-    image: 'https://placehold.co/400x500/1d4ed8/ffffff?text=Kit+3D+Mega',
+    image: 'https://placehold.co/400x500/1e293b/3b82f6?text=Kit+3D+Mega',
     downloadLink: 'https://drive.google.com/file/d/1x4ezq02onetcoZeLuRnwLNHsL8L3fCpo/view?usp=sharing',
     description: 'Bộ sưu tập Kit 3D hiển thị trong trận đấu (Match Engine) và 2D.',
     views: 41000,
@@ -194,7 +194,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'V.League 2025/2026 Data for FM26',
     category: 'Database',
     author: 'Tan Nguyen',
-    image: 'https://placehold.co/400x500/ef4444/ffffff?text=V.League+26',
+    image: 'https://placehold.co/400x500/1e293b/ef4444?text=V.League+26',
     downloadLink: 'https://www.facebook.com/groups/DienDanFMVN/permalink/7242859179092239',
     description: 'Dữ liệu V.League đầy đủ cho FM26. Cập nhật chuyển nhượng, chỉ số cầu thủ Việt Nam chính xác nhất.',
     views: 5000,
@@ -209,7 +209,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Real Names Licence Fix FM26',
     category: 'Database',
     author: 'FM Scout',
-    image: 'https://placehold.co/400x500/8b5cf6/ffffff?text=Real+Name+Fix',
+    image: 'https://placehold.co/400x500/1e293b/a855f7?text=Real+Name+Fix',
     downloadLink: 'https://www.fmscout.com/a-fm24-real-names-license-fix.html',
     description: 'Sửa tên thật các giải đấu và CLB bị sai tên bản quyền.',
     views: 800000,
@@ -222,7 +222,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Hướng dẫn set Opposition Instruction',
     category: 'Guide',
     author: 'FM-VN (Sưu tầm)',
-    image: 'https://placehold.co/400x500/6366f1/ffffff?text=OI+Guide',
+    image: 'https://placehold.co/400x500/1e293b/6366f1?text=OI+Guide',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Hướng dẫn chi tiết cách bắt chết đối thủ bằng Opposition Instructions (OI).',
     views: 12000,
@@ -233,7 +233,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Set Set Pieces hiệu quả (Tấn công & Phòng thủ)',
     category: 'Guide',
     author: 'FM-VN',
-    image: 'https://placehold.co/400x500/818cf8/ffffff?text=Set+Pieces',
+    image: 'https://placehold.co/400x500/1e293b/818cf8?text=Set+Pieces',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Tối ưu hóa các tình huống cố định để ghi bàn nhiều hơn.',
     views: 8500,
@@ -244,7 +244,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Hướng dẫn tạo tactic (Cơ bản)',
     category: 'Guide',
     author: 'FM-VN',
-    image: 'https://placehold.co/400x500/4f46e5/ffffff?text=Create+Tactic',
+    image: 'https://placehold.co/400x500/1e293b/4f46e5?text=Create+Tactic',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Các bước cơ bản để xây dựng một chiến thuật hiệu quả trong FM.',
     views: 22000,
@@ -255,7 +255,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Sự quan trọng của chỉ số Mental (Phòng ngự)',
     category: 'Guide',
     author: 'FM-VN (Sưu tầm)',
-    image: 'https://placehold.co/400x500/4338ca/ffffff?text=Mental+Stats',
+    image: 'https://placehold.co/400x500/1e293b/4338ca?text=Mental+Stats',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Phân tích các chỉ số tâm lý quan trọng cho hậu vệ.',
     views: 15000,
@@ -266,7 +266,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Vị trí của các Role + Duty trên sân',
     category: 'Guide',
     author: 'FM-VN',
-    image: 'https://placehold.co/400x500/3730a3/ffffff?text=Roles+Duties',
+    image: 'https://placehold.co/400x500/1e293b/3730a3?text=Roles+Duties',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Hiểu rõ về cách di chuyển và hoạt động của từng Role.',
     views: 31000,
@@ -277,7 +277,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Cách săn lùng cầu thủ trẻ (Wonderkid)',
     category: 'Guide',
     author: 'FM-VN',
-    image: 'https://placehold.co/400x500/a5b4fc/ffffff?text=Wonderkids',
+    image: 'https://placehold.co/400x500/1e293b/a5b4fc?text=Wonderkids',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Bí kíp tìm kiếm những tài năng trẻ (Newgen/Regen) xuất sắc nhất.',
     views: 45000,
@@ -288,7 +288,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Ý Nghĩa Các Chỉ Số Cầu Thủ (Attributes)',
     category: 'Guide',
     author: 'FM-VN',
-    image: 'https://placehold.co/400x500/c7d2fe/ffffff?text=Attributes',
+    image: 'https://placehold.co/400x500/1e293b/c7d2fe?text=Attributes',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Giải thích chi tiết ý nghĩa từng chỉ số Mental, Technical, Physical.',
     views: 67000,
@@ -299,7 +299,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'Vị trí và Tố chất cầu thủ',
     category: 'Guide',
     author: 'FM Insight',
-    image: 'https://placehold.co/400x500/e0e7ff/ffffff?text=Positions',
+    image: 'https://placehold.co/400x500/1e293b/e0e7ff?text=Positions',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Mỗi vị trí cần những tố chất gì để thi đấu đỉnh cao.',
     views: 19000,
@@ -310,7 +310,7 @@ const SEED_DATA: ResourceItem[] = [
     title: 'CA (Current Ability) & PA (Potential Ability)',
     category: 'Guide',
     author: 'FM-VN',
-    image: 'https://placehold.co/400x500/dbeafe/ffffff?text=CA+PA',
+    image: 'https://placehold.co/400x500/1e293b/dbeafe?text=CA+PA',
     downloadLink: 'http://fm-vn.com/diendan/showthread.php?30606',
     description: 'Tìm hiểu về chỉ số hiện tại và tiềm năng ẩn của cầu thủ.',
     views: 55000,
@@ -321,7 +321,7 @@ const SEED_DATA: ResourceItem[] = [
 
 // --- COMPONENTS ---
 
-// 1. Resource Card
+// 1. Resource Card (Giao diện Dark Mode Luxury)
 const ResourceCard = ({
   item,
   onEdit,
@@ -355,19 +355,26 @@ const ResourceCard = ({
   };
 
   return (
-    <div className="group relative flex flex-col bg-gradient-to-b from-[#6cb968] to-[#4ca048] rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 border border-green-600/30 h-full">
+    <div className="group relative flex flex-col bg-[#1e293b] rounded-xl overflow-hidden border border-slate-700/50 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 h-full">
 
       {/* Category Tag */}
-      <div className="absolute top-2 right-2 bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 rounded shadow-sm z-20 uppercase tracking-wide">
+      <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 z-20 uppercase tracking-wider shadow-sm">
         {item.category}
       </div>
+
+      {/* Hot Badge */}
+      {item.isHot && (
+        <div className="absolute top-3 right-auto left-12 bg-gradient-to-r from-red-600 to-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm z-20 shadow-md animate-pulse">
+          HOT
+        </div>
+      )}
 
       {/* Heart Button */}
       <button
         onClick={handleLikeClick}
-        className={`absolute top-2 left-2 z-20 p-1.5 rounded-full transition-all duration-300 shadow-sm ${liked
-            ? 'bg-red-500 text-white scale-110'
-            : 'bg-black/20 text-white hover:bg-red-500/80 hover:scale-105 backdrop-blur-sm'
+        className={`absolute top-3 left-3 z-20 p-2 rounded-full transition-all duration-300 shadow-sm border ${liked
+            ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
+            : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
           }`}
         title="Thả tim"
       >
@@ -381,7 +388,7 @@ const ResourceCard = ({
             e.stopPropagation();
             onEdit(item);
           }}
-          className="absolute top-10 left-2 bg-blue-600 text-white p-1.5 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+          className="absolute top-14 left-3 bg-blue-600/90 hover:bg-blue-500 text-white p-2 rounded-full z-20 opacity-0 group-hover:opacity-100 transition-all shadow-lg transform hover:scale-110"
           title="Chỉnh sửa"
         >
           <Edit size={14} />
@@ -390,56 +397,59 @@ const ResourceCard = ({
 
       {/* Image Section */}
       <div
-        className="relative h-48 w-full flex items-end justify-center pt-4 overflow-hidden bg-gradient-to-b from-green-400/50 to-transparent cursor-pointer"
+        className="relative h-44 w-full flex items-center justify-center overflow-hidden bg-[#0f172a] cursor-pointer group-hover:bg-[#111827] transition-colors"
         onClick={() => onViewDetail(item)}
       >
-        <div className="absolute w-32 h-32 bg-white/30 rounded-full blur-2xl mb-4"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent opacity-80"></div>
         <img
           src={item.image}
           alt={item.title}
-          onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/cccccc/666666?text=No+Image'; }}
-          className="relative z-10 h-44 object-contain drop-shadow-2xl group-hover:scale-110 transition-transform duration-500 ease-out"
+          onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/1e293b/94a3b8?text=No+Image'; }}
+          className="relative z-10 h-36 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500 ease-out"
         />
       </div>
 
       {/* Content Section */}
-      <div className="flex flex-col items-center text-center p-3 pt-1 flex-grow">
+      <div className="flex flex-col p-4 flex-grow bg-[#1e293b]">
+        {/* Author Credit */}
+        <div className="flex items-center gap-1.5 text-slate-400 text-[10px] mb-2 font-medium">
+          <div className="w-4 h-4 rounded-full bg-slate-700 flex items-center justify-center">
+            <User size={10} />
+          </div>
+          <span className="truncate max-w-[150px] tracking-wide text-slate-300">{item.author}</span>
+        </div>
+
         <h3
-          className="text-white font-bold text-base leading-tight mb-1 drop-shadow-md line-clamp-2 min-h-[40px] flex items-center justify-center cursor-pointer hover:underline"
+          className="text-white font-bold text-sm leading-snug mb-4 line-clamp-2 group-hover:text-amber-400 transition-colors cursor-pointer"
           onClick={() => onViewDetail(item)}
         >
           {item.title}
         </h3>
 
-        {/* Author Credit */}
-        <div className="flex items-center gap-1 text-green-100 text-[11px] mb-3 bg-black/10 px-2 py-0.5 rounded-full">
-          <User size={10} />
-          <span className="truncate max-w-[120px]">{item.author}</span>
-        </div>
-
-        {/* Buttons Layout */}
-        <div className="grid grid-cols-2 gap-2 w-full mb-3 px-2 mt-auto">
+        {/* Buttons Layout - Sang trọng hơn */}
+        <div className="grid grid-cols-2 gap-2 w-full mt-auto">
           {/* Download */}
           <a
             href={item.downloadLink}
             target="_blank"
             rel="noreferrer"
-            className="col-span-2 bg-white hover:bg-gray-100 text-green-700 text-[11px] font-bold py-2 rounded shadow-md transition-colors flex items-center justify-center gap-1 border-b-2 border-green-800"
+            className="col-span-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-2.5 rounded-lg shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
           >
-            <Download size={14} /> DOWNLOAD
+            <Download size={14} /> TẢI VỀ
           </a>
 
-          {/* Details & Donate */}
+          {/* Details */}
           <button
             onClick={() => onViewDetail(item)}
-            className="col-span-1 bg-black/20 hover:bg-black/30 text-white text-[11px] font-bold py-2 rounded border border-white/20 backdrop-blur-sm transition-colors shadow-sm flex items-center justify-center gap-1"
+            className="col-span-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-2 rounded-lg border border-slate-600 transition-colors flex items-center justify-center gap-1.5"
           >
             <Info size={14} /> CHI TIẾT
           </button>
 
+          {/* Donate */}
           <button
             onClick={handleDonateClick}
-            className="col-span-1 bg-yellow-500 hover:bg-yellow-400 text-black text-[11px] font-bold py-2 rounded shadow-sm flex items-center justify-center gap-1 transition-colors border-b-2 border-yellow-700"
+            className="col-span-1 bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold py-2 rounded-lg shadow-md shadow-amber-900/20 transition-colors flex items-center justify-center gap-1.5"
           >
             <Coffee size={14} /> DONATE
           </button>
@@ -447,24 +457,24 @@ const ResourceCard = ({
       </div>
 
       {/* Footer Info */}
-      <div className="bg-black/20 px-3 py-2 flex justify-between items-center text-[10px] text-green-50 font-medium w-full border-t border-white/10">
+      <div className="bg-[#161f2e] px-4 py-2.5 flex justify-between items-center text-[10px] text-slate-400 font-medium w-full border-t border-slate-700/50">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1" title="Lượt xem">
-            <Eye size={10} /> {item.views.toLocaleString()}
+            <Eye size={12} /> {item.views.toLocaleString()}
           </div>
-          <div className="flex items-center gap-1 text-pink-200" title="Lượt thích">
-            <Heart size={10} fill="currentColor" /> {(item.likes || 0).toLocaleString()}
+          <div className="flex items-center gap-1 text-rose-400" title="Lượt thích">
+            <Heart size={12} fill="currentColor" /> {(item.likes || 0).toLocaleString()}
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Calendar size={10} /> {item.date}
+        <div className="flex items-center gap-1 opacity-70">
+          <Calendar size={12} /> {item.date}
         </div>
       </div>
     </div>
   );
 };
 
-// 2. Donate Modal
+// 2. Donate Modal (Giao diện Dark)
 const DonateModal = ({
   isOpen,
   onClose,
@@ -480,53 +490,54 @@ const DonateModal = ({
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative"
+        className="bg-[#1e293b] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative border border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
           <X size={24} />
         </button>
 
-        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-6 text-center">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <Coffee size={32} className="text-orange-500" />
+        <div className="bg-gradient-to-r from-amber-500 to-orange-600 p-8 text-center relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+          <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner border border-white/20 relative z-10">
+            <Coffee size={32} className="text-white" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-1">Mời tác giả ly cà phê!</h2>
-          <p className="text-white/90 text-xs">Ủng hộ trực tiếp cho: <strong>{item.author}</strong></p>
+          <h2 className="text-xl font-bold text-white mb-1 relative z-10">Mời tác giả ly cà phê!</h2>
+          <p className="text-white/90 text-xs relative z-10">Ủng hộ trực tiếp cho: <strong className="text-white">{item.author}</strong></p>
         </div>
 
         <div className="p-6 text-center space-y-6">
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 inline-block bg-gray-50">
-            <div className="w-48 h-48 bg-white flex items-center justify-center mx-auto">
+          <div className="bg-white p-4 inline-block rounded-xl shadow-inner">
+            <div className="w-40 h-40 flex items-center justify-center mx-auto">
               <img
                 src={qrUrl}
                 alt="QR Code Donate"
                 className="w-full h-full object-contain"
               />
             </div>
-            <p className="text-xs text-gray-400 mt-2">Quét mã QR để chuyển khoản</p>
           </div>
+          <p className="text-xs text-slate-400 -mt-2">Quét mã QR để chuyển khoản nhanh</p>
 
           <div className="space-y-3 text-sm">
-            <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-500 uppercase">Ngân hàng</span>
-              <span className="font-bold text-gray-800">{item.bankName}</span>
+            <div className="bg-[#0f172a] p-3 rounded-lg flex items-center justify-between border border-slate-700">
+              <span className="text-xs font-bold text-slate-500 uppercase">Ngân hàng</span>
+              <span className="font-bold text-slate-200">{item.bankName}</span>
             </div>
-            <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-500 uppercase">Số tài khoản</span>
-              <span className="font-bold text-green-600 text-lg tracking-wider">{item.bankAccount}</span>
+            <div className="bg-[#0f172a] p-3 rounded-lg flex items-center justify-between border border-slate-700">
+              <span className="text-xs font-bold text-slate-500 uppercase">Số tài khoản</span>
+              <span className="font-bold text-emerald-400 text-lg tracking-wider font-mono">{item.bankAccount}</span>
             </div>
-            <div className="bg-gray-100 p-3 rounded-lg flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-500 uppercase">Chủ tài khoản</span>
-              <span className="font-bold text-gray-800">{item.bankOwner}</span>
+            <div className="bg-[#0f172a] p-3 rounded-lg flex items-center justify-between border border-slate-700">
+              <span className="text-xs font-bold text-slate-500 uppercase">Chủ tài khoản</span>
+              <span className="font-bold text-slate-200">{item.bankOwner}</span>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 rounded-lg transition-colors"
+            className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors border-t border-slate-600"
           >
             Đóng
           </button>
@@ -536,7 +547,7 @@ const DonateModal = ({
   );
 };
 
-// 3. Detail Modal
+// 3. Detail Modal (Giao diện Dark)
 const DetailModal = ({
   item,
   isOpen,
@@ -551,47 +562,53 @@ const DetailModal = ({
   if (!isOpen || !item) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-md" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-md" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
+        className="bg-[#1e293b] rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] border border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-full md:w-2/5 bg-gray-100 flex items-center justify-center p-6 border-r border-gray-100">
+        <div className="w-full md:w-2/5 bg-[#0f172a] flex items-center justify-center p-8 border-r border-slate-700 relative">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0f172a] to-[#0f172a]"></div>
           <img
             src={item.image}
             alt={item.title}
-            className="max-h-64 md:max-h-full object-contain drop-shadow-xl"
-            onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/cccccc/666666?text=No+Image'; }}
+            className="max-h-64 md:max-h-full w-auto object-contain drop-shadow-2xl relative z-10"
+            onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/1e293b/94a3b8?text=No+Image'; }}
           />
         </div>
 
-        <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto">
-          <div className="flex justify-between items-start mb-4">
-            <span className="bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
+        <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto bg-[#1e293b]">
+          <div className="flex justify-between items-start mb-6">
+            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
               {item.category}
             </span>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-700 rounded-full">
               <X size={24} />
             </button>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 leading-tight">{item.title}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{item.title}</h2>
 
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-6 border-b border-gray-100 pb-4">
-            <div className="flex items-center gap-1">
-              <User size={14} className="text-green-600" /> <span className="font-medium text-gray-700">{item.author}</span>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-8 border-b border-slate-700 pb-6">
+            <div className="flex items-center gap-1.5">
+              <User size={16} className="text-emerald-500" /> <span className="font-medium text-slate-200">{item.author}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Heart size={14} className="text-pink-500" /> <span>{(item.likes || 0).toLocaleString()}</span>
+            <div className="flex items-center gap-1.5">
+              <Heart size={16} className="text-rose-500" /> <span>{(item.likes || 0).toLocaleString()} Likes</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Eye size={14} className="text-green-600" /> <span>{item.views.toLocaleString()}</span>
+            <div className="flex items-center gap-1.5">
+              <Eye size={16} className="text-sky-500" /> <span>{item.views.toLocaleString()} Views</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Calendar size={16} className="text-slate-500" /> <span>{item.date}</span>
             </div>
           </div>
 
           <div className="mb-8 flex-grow">
-            <h4 className="text-sm font-bold text-gray-900 mb-2 uppercase tracking-wide">Mô tả / Hướng dẫn</h4>
-            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+            <h4 className="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wide flex items-center gap-2">
+              <Info size={16} className="text-amber-500" /> Mô tả / Hướng dẫn
+            </h4>
+            <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">
               {item.description || "Chưa có mô tả chi tiết cho tài nguyên này."}
             </p>
           </div>
@@ -601,15 +618,15 @@ const DetailModal = ({
               href={item.downloadLink}
               target="_blank"
               rel="noreferrer"
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg shadow-green-200 transition-all flex items-center justify-center gap-2 text-base"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-900/30 transition-all flex items-center justify-center gap-2 text-sm tracking-wide hover:-translate-y-0.5"
             >
-              <Download size={20} /> TẢI XUỐNG NGAY
+              <Download size={18} /> TẢI XUỐNG NGAY
             </a>
             <button
               onClick={onDonate}
-              className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2.5 px-6 rounded-lg transition-all flex items-center justify-center gap-2 text-sm border-b-2 border-yellow-600"
+              className="w-full bg-[#2d3b4e] hover:bg-[#37465b] text-amber-400 font-bold py-3 px-6 rounded-xl border border-amber-500/20 transition-all flex items-center justify-center gap-2 text-sm hover:text-amber-300"
             >
-              <Coffee size={18} /> ỦNG HỘ TÁC GIẢ (DONATE)
+              <Coffee size={18} /> ỦNG HỘ TÁC GIẢ
             </button>
           </div>
         </div>
@@ -618,7 +635,7 @@ const DetailModal = ({
   );
 };
 
-// 4. Admin Modal
+// 4. Admin Modal (Giữ nguyên chức năng, chỉ đổi màu)
 const AdminModal = ({
   isOpen,
   onClose,
@@ -671,8 +688,9 @@ const AdminModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+        {/* Giữ nguyên nội dung Admin modal màu sáng để dễ nhập liệu */}
         <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
             {initialData ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-green-500" />}
@@ -830,7 +848,8 @@ const AdminModal = ({
 // --- MAIN APPLICATION ---
 
 export default function App() {
-  const [items, setItems] = useState<ResourceItem[]>([]);
+  // OPTIMISTIC UI: KHỞI TẠO STATE VỚI SEED_DATA NGAY LẬP TỨC
+  const [items, setItems] = useState<ResourceItem[]>(SEED_DATA);
   const [user, setUser] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -850,7 +869,7 @@ export default function App() {
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
 
-  // Derived Admin State: Admin is logged in via email AND matches specific admin email
+  // Derived Admin State
   const isAdmin = user && !user.isAnonymous && user.email === ADMIN_EMAIL;
 
   // 1. Initial Auth & Load Data
@@ -875,20 +894,18 @@ export default function App() {
     return () => unsubscribeAuth();
   }, []);
 
-  // 2. Fetch Data
+  // 2. Fetch Data (BACKGROUND SYNC)
+  // Dữ liệu sẽ được tải ngầm. Nếu có thay đổi so với SEED_DATA, giao diện sẽ tự cập nhật.
   useEffect(() => {
     if (!user) return;
 
-    // Switch path based on Environment (Sandbox vs Custom)
     const colRef = IS_SANDBOX
       ? collection(db, 'artifacts', appId, 'public', 'data', 'fm_resources')
       : collection(db, 'fm_resources');
 
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      setPermissionError(false); // Clear previous errors
+      setPermissionError(false);
       if (snapshot.empty) {
-        // Only seed if we have write permission (which we might not initially)
-        // In real app, seeding usually done manually or via admin script
         if (isAdmin || IS_SANDBOX) {
           SEED_DATA.forEach(async (item) => {
             try { await addDoc(colRef, { ...item, createdAt: serverTimestamp() }); } catch (e) { }
@@ -1021,30 +1038,30 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] font-sans text-slate-800 flex flex-col">
+    <div className="min-h-screen bg-[#0f172a] font-sans text-slate-200 flex flex-col">
 
       {/* HEADER */}
-      <header className="bg-[#1a1f2c] text-white shadow-xl sticky top-0 z-40">
+      <header className="bg-[#1e293b]/80 backdrop-blur-md border-b border-slate-800 shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setSelectedCategory('All')}>
-              <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center font-bold text-xl shadow-lg shadow-green-500/50">FM</div>
+            <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setSelectedCategory('All')}>
+              <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-2xl shadow-lg shadow-emerald-900/50 text-white group-hover:scale-105 transition-transform">FM</div>
               <div>
-                <h1 className="text-lg font-bold leading-none tracking-tight">FM RES HUB</h1>
-                <p className="text-[10px] text-gray-400 tracking-wider">VIETNAM COMMUNITY</p>
+                <h1 className="text-xl font-bold leading-none tracking-tight text-white">FM RES <span className="text-emerald-500">HUB</span></h1>
+                <p className="text-[10px] text-slate-400 tracking-widest uppercase">Vietnam Community</p>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
               {CATEGORIES.slice(0, 6).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${selectedCategory === cat
-                      ? 'bg-green-600 text-white shadow-md'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${selectedCategory === cat
+                      ? 'bg-emerald-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
                     }`}
                 >
                   {cat}
@@ -1055,31 +1072,31 @@ export default function App() {
             {/* Actions */}
             <div className="flex items-center gap-3">
               <div className="relative hidden sm:block">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Tìm face, logo..."
+                  placeholder="Tìm kiếm..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-gray-800 border border-gray-700 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:ring-1 focus:ring-green-500 outline-none w-32 md:w-48 transition-all focus:w-64"
+                  className="bg-slate-800 border border-slate-700 rounded-full py-2 pl-10 pr-4 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none w-32 md:w-48 transition-all focus:w-64 placeholder-slate-500"
                 />
               </div>
 
               {isAdmin ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
                   <button
                     onClick={() => {
                       setEditingItem(null);
                       setIsEditModalOpen(true);
                     }}
-                    className="bg-green-600 hover:bg-green-500 text-white p-2 rounded-full shadow-lg transition-transform hover:scale-105"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-full shadow-lg hover:shadow-emerald-900/30 transition-all"
                     title="Thêm Item Mới"
                   >
                     <Plus size={18} />
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="bg-red-500/20 text-red-400 hover:text-red-300 p-2 rounded-full"
+                    className="bg-slate-800 hover:bg-slate-700 text-rose-400 p-2 rounded-full border border-slate-700"
                     title="Đăng xuất Admin"
                   >
                     <LogOut size={18} />
@@ -1088,10 +1105,10 @@ export default function App() {
               ) : (
                 <button
                   onClick={() => setShowLogin(true)}
-                  className="text-gray-400 hover:text-white p-2"
+                  className="text-slate-500 hover:text-white p-2 transition-colors"
                   title="Admin Login"
                 >
-                  <User size={18} />
+                  <User size={20} />
                 </button>
               )}
             </div>
@@ -1099,13 +1116,15 @@ export default function App() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="md:hidden border-t border-gray-800 overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <div className="flex p-2 space-x-2 items-center">
+        <div className="lg:hidden border-t border-slate-800 overflow-x-auto whitespace-nowrap scrollbar-hide bg-[#1e293b]">
+          <div className="flex p-3 space-x-2 items-center">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1 rounded-full text-xs font-medium ${selectedCategory === cat ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-300'
+                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${selectedCategory === cat
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700'
                   }`}
               >
                 {cat}
@@ -1117,9 +1136,9 @@ export default function App() {
 
       {/* ADMIN STATUS */}
       {isAdmin && (
-        <div className="bg-yellow-500/10 border-b border-yellow-500/20 py-1 text-center">
-          <p className="text-xs text-yellow-700 font-bold flex items-center justify-center gap-2">
-            <LayoutDashboard size={12} /> ADMIN MODE ACTIVE (Email: {user.email})
+        <div className="bg-amber-500/10 border-b border-amber-500/20 py-1.5 text-center backdrop-blur-sm">
+          <p className="text-xs text-amber-500 font-bold flex items-center justify-center gap-2 tracking-wide">
+            <LayoutDashboard size={14} /> ADMIN MODE ACTIVE <span className="opacity-50">|</span> {user.email}
           </p>
         </div>
       )}
@@ -1150,22 +1169,32 @@ export default function App() {
         </div>
       )}
 
-      {/* HERO */}
-      <div className="bg-[#1a1f2c] border-b border-gray-800">
+      {/* HERO BANNER */}
+      <div className="relative bg-[#0f172a] border-b border-slate-800 overflow-hidden">
+        {/* Background Glow */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-[128px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px] pointer-events-none"></div>
+
         <div
-          className="container mx-auto px-4 py-8 md:py-12 bg-cover bg-center rounded-b-3xl relative overflow-hidden"
+          className="container mx-auto px-4 py-16 md:py-24 relative z-10 text-center md:text-left"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-green-900/90 to-[#1a1f2c]"></div>
-          <div className="relative z-10 max-w-2xl">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
-              KHO TÀI NGUYÊN <span className="text-green-500">FOOTBALL MANAGER</span>
+          <div className="max-w-3xl mx-auto md:mx-0">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-emerald-400 text-[10px] font-bold mb-6 uppercase tracking-widest">
+              <Star size={12} className="fill-emerald-400" /> Top 1 Cộng đồng FM Việt Nam
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight leading-tight">
+              KHO TÀI NGUYÊN <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">FOOTBALL MANAGER</span>
             </h2>
-            <p className="text-gray-300 text-sm md:text-base mb-6 max-w-lg leading-relaxed">
-              Nơi tổng hợp tất cả tài nguyên Facepack, Logo, Kits, Guide và Việt Hóa chất lượng cao nhất cho cộng đồng FM Việt Nam.
+            <p className="text-slate-400 text-base md:text-lg mb-8 max-w-xl leading-relaxed font-light mx-auto md:mx-0">
+              Tổng hợp tất cả tài nguyên Facepack, Logo, Kits, Guide và Việt Hóa chất lượng cao nhất. Cập nhật liên tục, tải xuống tốc độ cao.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <button className="bg-green-600 hover:bg-green-500 text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-green-900/50 transition-all transform hover:-translate-y-0.5">
-                TẢI MỚI NHẤT
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <button className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/50 transition-all transform hover:-translate-y-1 flex items-center gap-2">
+                <Download size={18} /> TẢI MỚI NHẤT
+              </button>
+              <button className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-3 rounded-xl font-bold text-sm border border-slate-700 transition-all flex items-center gap-2">
+                <Info size={18} /> HƯỚNG DẪN
               </button>
             </div>
           </div>
@@ -1173,37 +1202,42 @@ export default function App() {
       </div>
 
       {/* MAIN CONTENT */}
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex justify-between items-end mb-6 border-b border-gray-200 pb-2">
-          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-green-600 rounded-full block"></span>
-            {selectedCategory === 'All' ? 'Tài nguyên nổi bật' : selectedCategory}
-          </h3>
-          <span className="text-xs text-gray-500 font-medium">Hiển thị {filteredItems.length} kết quả</span>
+      <main className="flex-grow container mx-auto px-4 py-12">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-8 border-b border-slate-800 pb-4 gap-4">
+          <div>
+            <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+              <span className="w-1.5 h-8 bg-emerald-500 rounded-full block shadow-[0_0_15px_rgba(16,185,129,0.6)]"></span>
+              {selectedCategory === 'All' ? 'Tài nguyên nổi bật' : selectedCategory}
+            </h3>
+            <p className="text-slate-500 text-xs mt-2 ml-4">Cập nhật mới nhất từ cộng đồng</p>
+          </div>
+          <span className="text-xs text-slate-500 font-mono bg-slate-900 px-3 py-1 rounded border border-slate-800">
+            Hiển thị {filteredItems.length} kết quả
+          </span>
         </div>
 
         {filteredItems.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
-            <div className="inline-block p-4 bg-gray-50 rounded-full mb-3">
-              <Search size={32} className="text-gray-400" />
+          <div className="text-center py-24 bg-[#161f2e] rounded-2xl border border-dashed border-slate-800">
+            <div className="inline-block p-5 bg-slate-800/50 rounded-full mb-4">
+              <Search size={40} className="text-slate-600" />
             </div>
-            <p className="text-gray-500">Chưa có dữ liệu cho mục này.</p>
+            <p className="text-slate-500 font-medium">Không tìm thấy dữ liệu phù hợp.</p>
             {isAdmin && (
               <button
                 onClick={() => {
                   setEditingItem(null);
                   setIsEditModalOpen(true);
                 }}
-                className="mt-4 text-green-600 font-bold text-sm hover:underline"
+                className="mt-6 text-emerald-500 font-bold text-sm hover:text-emerald-400 flex items-center gap-2 mx-auto"
               >
-                + Thêm bài viết ngay
+                <Plus size={16} /> Thêm bài viết ngay
               </button>
             )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredItems.map((item) => (
-              <div key={item.id} className="relative group/card">
+              <div key={item.id || item.title} className="relative group/card h-full">
                 <ResourceCard
                   item={item}
                   onEdit={isAdmin ? () => {
@@ -1218,7 +1252,7 @@ export default function App() {
                 {isAdmin && item.id && (
                   <button
                     onClick={() => handleDeleteItem(item.id!)}
-                    className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md opacity-0 group-hover/card:opacity-100 transition-all z-30 hover:bg-red-600 hover:scale-110"
+                    className="absolute top-3 right-12 bg-rose-500/90 hover:bg-rose-600 text-white p-2 rounded-full shadow-lg opacity-0 group-hover/card:opacity-100 transition-all z-30 hover:scale-110"
                     title="Xóa"
                   >
                     <Trash2 size={14} />
@@ -1231,54 +1265,67 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-[#1a1f2c] text-gray-400 py-8 border-t border-gray-800 text-sm">
+      <footer className="bg-[#0b1120] text-slate-400 py-12 border-t border-slate-800 text-sm">
         <div className="container mx-auto px-4 text-center">
-          <p className="mb-2 font-medium text-gray-300">FM Resources Hub © 2025</p>
+          <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-6 text-emerald-500 font-bold text-xl">FM</div>
+          <p className="mb-4 font-bold text-white tracking-wide">FM RESOURCE HUB © 2025</p>
+          <p className="text-xs max-w-md mx-auto leading-relaxed opacity-60 mb-8">
+            Website chia sẻ tài nguyên phi lợi nhuận dành cho cộng đồng Football Manager Việt Nam.
+            Tất cả tài nguyên thuộc bản quyền của tác giả gốc.
+          </p>
+          <div className="flex justify-center gap-6 text-xs font-bold tracking-wider text-slate-500">
+            <a href="#" className="hover:text-emerald-500 transition-colors">FACEBOOK GROUP</a>
+            <a href="#" className="hover:text-emerald-500 transition-colors">DISCORD</a>
+            <a href="#" className="hover:text-emerald-500 transition-colors">CONTACT</a>
+          </div>
         </div>
       </footer>
 
       {/* MODALS */}
 
-      {/* 1. Login Modal (Real Firebase Auth) */}
+      {/* 1. Login Modal */}
       {showLogin && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-2xl transform transition-all">
-            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <LogIn size={20} className="text-green-600" /> Admin Login
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
+          <div className="bg-[#1e293b] rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all border border-slate-700">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3 justify-center">
+              <div className="p-2 bg-emerald-500/10 rounded-lg">
+                <LogIn size={24} className="text-emerald-500" />
+              </div>
+              Admin Login
             </h3>
             <form onSubmit={handleAdminLogin}>
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+              <div className="mb-5">
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Email</label>
                 <input
                   type="email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-green-500 outline-none"
+                  className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
                   placeholder="admin@example.com"
                   autoFocus
                 />
               </div>
-              <div className="mb-4">
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Password</label>
+              <div className="mb-8">
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider">Password</label>
                 <input
                   type="password"
                   value={loginPass}
                   onChange={(e) => setLoginPass(e.target.value)}
-                  className="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="******"
+                  className="w-full bg-[#0f172a] border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                  placeholder="••••••••"
                 />
               </div>
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowLogin(false)}
-                  className="px-3 py-1.5 text-gray-500 hover:bg-gray-100 rounded text-sm"
+                  className="px-5 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg text-sm font-bold transition-colors"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-green-600 text-white rounded font-bold hover:bg-green-700 text-sm shadow-md"
+                  className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold hover:bg-emerald-500 text-sm shadow-lg shadow-emerald-900/20 transition-all"
                 >
                   Đăng nhập
                 </button>
