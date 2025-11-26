@@ -3,7 +3,7 @@ import {
   Download, Eye, Calendar, User, Search, X,
   Plus, Trash2, Edit, Save, LogIn, LogOut,
   Info, Heart, Coffee, AlertTriangle, Star, Crown,
-  Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check,
+  Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import {
@@ -200,8 +200,8 @@ const ResourceCard = ({
       <button
         onClick={handleLikeClick}
         className={`absolute top-3 left-3 z-20 p-2 rounded-full transition-all duration-300 shadow-sm border ${liked
-          ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
-          : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
+            ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
+            : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
           }`}
         title="Thả tim"
       >
@@ -683,7 +683,8 @@ const AdminModal = ({
 // --- MAIN APPLICATION ---
 
 export default function App() {
-  const [items, setItems] = useState<ResourceItem[]>(SEED_DATA);
+  const [items, setItems] = useState<ResourceItem[]>(SEED_DATA); // Bắt đầu với mảng rỗng
+  const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái đang tải
   const [user, setUser] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -732,6 +733,8 @@ export default function App() {
 
   // 2. Fetch Data (BACKGROUND SYNC)
   useEffect(() => {
+    // Luôn lắng nghe dữ liệu, không cần chờ user đăng nhập xong (vì chế độ Anonymous cũng cần data)
+    // Tuy nhiên, để đảm bảo an toàn, ta đợi init Auth xong 1 chút.
     if (!user) return;
 
     const colRef = IS_SANDBOX
@@ -740,29 +743,28 @@ export default function App() {
 
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
       setPermissionError(false);
-      if (snapshot.empty) {
-        if (isAdmin || IS_SANDBOX) {
-          SEED_DATA.forEach(async (item) => {
-            try { await addDoc(colRef, { ...item, createdAt: serverTimestamp() }); } catch (e) { }
-          });
-        }
-      } else {
+      setIsLoading(false); // Đã tải xong (dù có dữ liệu hay không)
+
+      if (!snapshot.empty) {
         const fetchedItems = snapshot.docs.map(doc => ({
           id: doc.id,
           likes: 0,
           ...doc.data()
         })) as ResourceItem[];
         setItems(fetchedItems);
+      } else {
+        setItems([]); // Nếu rỗng thì set rỗng
       }
     }, (error) => {
       console.error("Error fetching data:", error);
+      setIsLoading(false); // Tắt loading kể cả khi lỗi
       if (error.code === 'permission-denied') {
         setPermissionError(true);
       }
     });
 
     return () => unsubscribe();
-  }, [user, isAdmin]);
+  }, [user]);
 
   // --- HANDLERS ---
 
@@ -904,8 +906,8 @@ export default function App() {
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${selectedCategory === cat
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                      ? 'bg-emerald-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
                     }`}
                 >
                   {cat}
@@ -965,8 +967,8 @@ export default function App() {
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${selectedCategory === cat
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700'
                   }`}
               >
                 {cat}
@@ -1053,11 +1055,26 @@ export default function App() {
             <p className="text-slate-500 text-xs mt-2 ml-4">Cập nhật mới nhất từ cộng đồng</p>
           </div>
           <span className="text-xs text-slate-500 font-mono bg-slate-900 px-3 py-1 rounded border border-slate-800">
-            Hiển thị {filteredItems.length} kết quả
+            Hiển thị {isLoading ? '...' : filteredItems.length} kết quả
           </span>
         </div>
 
-        {filteredItems.length === 0 ? (
+        {/* LOADING STATE & EMPTY STATE HANDLING */}
+        {isLoading ? (
+          // SKELETON LOADING UI (Hiệu ứng chờ tải)
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-[#1e293b] rounded-xl overflow-hidden border border-slate-800 h-96 animate-pulse">
+                <div className="h-44 bg-slate-800"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-slate-800 rounded w-1/2"></div>
+                  <div className="h-6 bg-slate-800 rounded w-3/4"></div>
+                  <div className="h-10 bg-slate-800 rounded mt-8"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredItems.length === 0 ? (
           <div className="text-center py-24 bg-[#161f2e] rounded-2xl border border-dashed border-slate-800">
             <div className="inline-block p-5 bg-slate-800/50 rounded-full mb-4">
               <Search size={40} className="text-slate-600" />
@@ -1105,7 +1122,7 @@ export default function App() {
         )}
       </main>
 
-      {/* FOOTER */}
+      {/* ... FOOTER & MODALS code ... */}
       <footer className="bg-[#0b1120] text-slate-400 py-12 border-t border-slate-800 text-sm">
         <div className="container mx-auto px-4 text-center">
           <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-6 text-emerald-500 font-bold text-xl">FM</div>
