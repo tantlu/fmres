@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Download, Eye, Calendar, User, Search, Menu, X,
-  LayoutDashboard, Plus, Trash2, Edit, Save, LogIn, LogOut, Link as LinkIcon,
-  Info, Heart, Coffee, QrCode, CreditCard, ExternalLink, Lock, AlertTriangle
+  Download, Eye, Calendar, User, Search, X,
+  LayoutDashboard, Plus, Trash2, Edit, Save, LogIn, LogOut,
+  Info, Heart, Coffee, AlertTriangle
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from "firebase/analytics";
+// Removed unused analytics import
 import {
   getFirestore, collection, addDoc, updateDoc, deleteDoc,
-  doc, onSnapshot, query, orderBy, serverTimestamp, increment
+  doc, onSnapshot, serverTimestamp, increment
 } from 'firebase/firestore';
 import {
   getAuth, signInAnonymously, onAuthStateChanged,
@@ -28,27 +28,27 @@ const YOUR_FIREBASE_CONFIG = {
   measurementId: "G-TKF13CZEB0"
 };
 
+// Helper để lấy biến global an toàn trong TypeScript
+const getGlobal = (key: string) => {
+  if (typeof window !== 'undefined') {
+    return (window as any)[key];
+  }
+  return undefined;
+};
+
 // 2. Logic chọn cấu hình (Sandbox vs Real)
-const IS_SANDBOX = typeof __firebase_config !== 'undefined';
-const firebaseConfig = IS_SANDBOX ? JSON.parse(__firebase_config) : YOUR_FIREBASE_CONFIG;
+const sandboxConfig = getGlobal('__firebase_config');
+const IS_SANDBOX = typeof sandboxConfig !== 'undefined';
+const firebaseConfig = IS_SANDBOX ? JSON.parse(sandboxConfig) : YOUR_FIREBASE_CONFIG;
 
 // 3. Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Analytics
-let analytics;
-if (typeof window !== 'undefined' && !IS_SANDBOX) {
-  try {
-    analytics = getAnalytics(app);
-  } catch (e) {
-    console.log("Analytics not supported in this environment");
-  }
-}
-
-// App ID cho Firestore
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+// App ID cho Firestore (Fix TS error bằng cách dùng helper)
+const globalAppId = getGlobal('__app_id');
+const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id';
 
 // --- ADMIN CONFIGURATION ---
 // Chỉ email này mới có quyền Thêm/Sửa/Xóa
@@ -857,8 +857,9 @@ export default function App() {
   useEffect(() => {
     const init = async () => {
       try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
+        const globalToken = getGlobal('__initial_auth_token');
+        if (globalToken) {
+          await signInWithCustomToken(auth, globalToken);
         } else {
           await signInAnonymously(auth);
         }
