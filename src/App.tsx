@@ -4,6 +4,7 @@ import {
   Plus, Trash2, Edit, Save, LogIn, LogOut,
   Info, Heart, Coffee, AlertTriangle, Star, Crown,
   Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check
+  // Đã xóa Shirt và Loader để fix lỗi
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import {
@@ -70,6 +71,7 @@ interface ResourceItem {
   bankOwner?: string;
 }
 
+// Đảm bảo danh sách Menu đầy đủ
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
 const SEED_DATA: ResourceItem[] = [];
