@@ -916,7 +916,7 @@ export default function App() {
             </div>
 
             <nav className="hidden lg:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
-              {CATEGORIES.slice(0, 6).map(cat => (
+              {CATEGORIES.slice(0, 10).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
