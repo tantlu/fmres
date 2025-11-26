@@ -693,6 +693,9 @@ export default function App() {
   const [items, setItems] = useState<ResourceItem[]>(SEED_DATA);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  // Removed isAuthReady if we want to show loading even if auth is not ready,
+  // BUT we need it to prevent fetching before auth. 
+  // Let's keep it but use it in the JSX to control loading state.
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -708,7 +711,8 @@ export default function App() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ResourceItem | null>(null);
 
-  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null);
+  // Changed Modal to Page View logic
+  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null); // For DetailPage
 
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
@@ -742,7 +746,8 @@ export default function App() {
 
   // 2. Fetch Data (BACKGROUND SYNC) - Wait for Auth Ready
   useEffect(() => {
-    if (!user) return;
+    // Only fetch if auth is ready AND we have a user (anonymous or not)
+    if (!isAuthReady || !user) return;
 
     const colRef = getCollectionRef();
 
@@ -769,7 +774,7 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [isAuthReady, user]); // Added user to dependencies to be safe
 
   // --- HANDLERS ---
 
@@ -817,7 +822,7 @@ export default function App() {
       }
       setIsEditModalOpen(false);
       setEditingItem(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving:", error);
       alert("Lỗi khi lưu dữ liệu: " + error.message);
     }
