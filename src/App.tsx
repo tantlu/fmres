@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Download, Eye, Calendar, User, Search, X,
-  LayoutDashboard, Plus, Trash2, Edit, Save, LogIn, LogOut,
+  Plus, Trash2, Edit, Save, LogIn, LogOut,
   Info, Heart, Coffee, AlertTriangle, Star, Crown,
-  Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check
+  Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check,
+  Shirt // Thêm icon Shirt cho Kits
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
-// Removed unused analytics import
 import {
   getFirestore, collection, addDoc, updateDoc, deleteDoc,
   doc, onSnapshot, serverTimestamp, increment
@@ -55,8 +55,8 @@ const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id
 const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
 // --- DATA TYPES & CONSTANTS ---
-// Đã thêm 'Tactics' vào danh sách Category
-type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kit 2D' | 'Kit 3D';
+// Đã gộp Kit 2D/3D thành Kits
+type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kits';
 
 interface ResourceItem {
   id?: string;
@@ -78,8 +78,8 @@ interface ResourceItem {
   bankOwner?: string;
 }
 
-// Danh sách menu hiển thị
-const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kit 2D', 'Kit 3D'];
+// Danh sách menu hiển thị (Đã cập nhật Kits)
+const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
 // Dữ liệu khởi tạo TRỐNG (Để bạn tự thêm)
 const SEED_DATA: ResourceItem[] = [];
