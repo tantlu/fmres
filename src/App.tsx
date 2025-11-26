@@ -15,8 +15,17 @@ import {
   signInWithCustomToken, signInWithEmailAndPassword, signOut
 } from 'firebase/auth';
 
-// --- FIREBASE CONFIGURATION ---
+// --- HELPER: GLOBAL SAFE ACCESS ---
+const getGlobal = (key: string) => {
+  if (typeof window !== 'undefined') {
+    return (window as any)[key];
+  }
+  return undefined;
+};
 
+const checkIsSandbox = () => typeof getGlobal('__firebase_config') !== 'undefined';
+
+// --- FIREBASE CONFIGURATION ---
 const YOUR_FIREBASE_CONFIG = {
   apiKey: "AIzaSyCSzggBgIGpa_galV9C2srBjVG8AFmxsYA",
   authDomain: "fmhub-ae832.firebaseapp.com",
@@ -27,16 +36,8 @@ const YOUR_FIREBASE_CONFIG = {
   measurementId: "G-TKF13CZEB0"
 };
 
-const getGlobal = (key: string) => {
-  if (typeof window !== 'undefined') {
-    return (window as any)[key];
-  }
-  return undefined;
-};
-
 const sandboxConfig = getGlobal('__firebase_config');
-const IS_SANDBOX = typeof sandboxConfig !== 'undefined';
-const firebaseConfig = IS_SANDBOX ? JSON.parse(sandboxConfig) : YOUR_FIREBASE_CONFIG;
+const firebaseConfig = checkIsSandbox() ? JSON.parse(sandboxConfig) : YOUR_FIREBASE_CONFIG;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -47,6 +48,17 @@ const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id
 
 // --- ADMIN CONFIGURATION ---
 const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
+
+// --- COLLECTION HELPER ---
+// Hàm này giúp lấy đúng đường dẫn dù ở Sandbox hay Production
+const getCollectionRef = () => {
+  if (checkIsSandbox()) {
+    // Sandbox path
+    return collection(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public');
+  }
+  // Production path
+  return collection(db, 'fm_resources_public');
+};
 
 // --- DATA TYPES & CONSTANTS ---
 type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kits';
@@ -72,14 +84,8 @@ interface ResourceItem {
 
 const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kits'];
 
+// Dữ liệu khởi tạo rỗng (Lấy từ Firebase)
 const SEED_DATA: ResourceItem[] = [];
-
-// --- HELPER FUNCTIONS ---
-const getCollectionRef = () => {
-  return IS_SANDBOX
-    ? collection(db, 'artifacts', appId, 'public', 'data', 'public_resources')
-    : collection(db, 'public_resources');
-};
 
 // --- COMPONENTS ---
 
@@ -693,9 +699,6 @@ export default function App() {
   const [items, setItems] = useState<ResourceItem[]>(SEED_DATA);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  // Removed isAuthReady if we want to show loading even if auth is not ready,
-  // BUT we need it to prevent fetching before auth. 
-  // Let's keep it but use it in the JSX to control loading state.
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchTerm, setSearchTerm] = useState('');
@@ -811,9 +814,9 @@ export default function App() {
 
     try {
       if (editingItem && editingItem.id) {
-        const docRef = IS_SANDBOX
-          ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', editingItem.id)
-          : doc(db, 'public_resources', editingItem.id);
+        const docRef = checkIsSandbox()
+          ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', editingItem.id)
+          : doc(db, 'fm_resources_public', editingItem.id);
 
         const { id, ...updateData } = data;
         await updateDoc(docRef, updateData);
@@ -831,9 +834,9 @@ export default function App() {
   const handleDeleteItem = async (id: string) => {
     if (!confirm("Bạn có chắc chắn muốn xóa item này không?")) return;
     try {
-      const docRef = IS_SANDBOX
-        ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', id)
-        : doc(db, 'public_resources', id);
+      const docRef = checkIsSandbox()
+        ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', id)
+        : doc(db, 'fm_resources_public', id);
       await deleteDoc(docRef);
     } catch (error) {
       console.error("Error deleting:", error);
@@ -843,9 +846,9 @@ export default function App() {
   const handleLikeItem = async (item: ResourceItem) => {
     if (!item.id) return;
     try {
-      const docRef = IS_SANDBOX
-        ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', item.id)
-        : doc(db, 'public_resources', item.id);
+      const docRef = checkIsSandbox()
+        ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', item.id)
+        : doc(db, 'fm_resources_public', item.id);
       await updateDoc(docRef, {
         likes: increment(1)
       });
@@ -859,9 +862,9 @@ export default function App() {
 
     if (item.id) {
       try {
-        const docRef = IS_SANDBOX
-          ? doc(db, 'artifacts', appId, 'public', 'data', 'public_resources', item.id)
-          : doc(db, 'public_resources', item.id);
+        const docRef = checkIsSandbox()
+          ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', item.id)
+          : doc(db, 'fm_resources_public', item.id);
         await updateDoc(docRef, {
           views: increment(1)
         });
