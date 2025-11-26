@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Download, Eye, Calendar, User, Search, X,
   LayoutDashboard, Plus, Trash2, Edit, Save, LogIn, LogOut,
-  Info, Heart, Coffee, AlertTriangle, Star
+  Info, Heart, Coffee, AlertTriangle, Star, Crown,
+  Bold, Italic, List, Image as ImageIcon, ArrowLeft, Check
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 // Removed unused analytics import
@@ -46,16 +47,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// App ID cho Firestore (Fix TS error bằng cách dùng helper)
+// App ID cho Firestore
 const globalAppId = getGlobal('__app_id');
 const appId = typeof globalAppId !== 'undefined' ? globalAppId : 'default-app-id';
 
 // --- ADMIN CONFIGURATION ---
-// Chỉ email này mới có quyền Thêm/Sửa/Xóa
 const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
 // --- DATA TYPES & CONSTANTS ---
-type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Guide' | 'Kit 2D' | 'Kit 3D';
+// Đã thêm 'Tactics' vào danh sách Category
+type Category = 'All' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Tactics' | 'Guide' | 'Kit 2D' | 'Kit 3D';
 
 interface ResourceItem {
   id?: string;
@@ -77,13 +78,94 @@ interface ResourceItem {
   bankOwner?: string;
 }
 
-const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Guide', 'Kit 2D', 'Kit 3D'];
+// Danh sách menu hiển thị
+const CATEGORIES: Category[] = ['All', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Guide', 'Kit 2D', 'Kit 3D'];
 
-// Dữ liệu khởi tạo (Hiển thị NGAY LẬP TỨC - Views & Likes = 0)
+// Dữ liệu khởi tạo TRỐNG (Để bạn tự thêm)
+const SEED_DATA: ResourceItem[] = [];
 
 // --- COMPONENTS ---
 
-// 1. Resource Card (Giao diện Dark Mode Luxury)
+// 1. MINI RICH TEXT EDITOR
+const RichTextEditor = ({
+  value,
+  onChange
+}: {
+  value: string;
+  onChange: (html: string) => void;
+}) => {
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const execCommand = (command: string, value: string | undefined = undefined) => {
+    document.execCommand(command, false, value);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleAddImage = () => {
+    const url = prompt("Nhập đường dẫn (URL) ảnh của bạn:");
+    if (url) {
+      execCommand('insertImage', url);
+    }
+  };
+
+  return (
+    <div className="border border-slate-600 rounded-lg overflow-hidden bg-[#0f172a]">
+      {/* Toolbar */}
+      <div className="flex items-center gap-1 p-2 bg-slate-800 border-b border-slate-700">
+        <button
+          type="button"
+          onClick={() => execCommand('bold')}
+          className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded"
+          title="In đậm"
+        >
+          <Bold size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => execCommand('italic')}
+          className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded"
+          title="In nghiêng"
+        >
+          <Italic size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => execCommand('insertUnorderedList')}
+          className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded"
+          title="Danh sách"
+        >
+          <List size={16} />
+        </button>
+        <div className="w-px h-4 bg-slate-600 mx-1"></div>
+        <button
+          type="button"
+          onClick={handleAddImage}
+          className="p-1.5 text-emerald-400 hover:text-emerald-300 hover:bg-slate-700 rounded flex items-center gap-1"
+          title="Chèn ảnh từ URL"
+        >
+          <ImageIcon size={16} /> <span className="text-xs font-bold">Ảnh</span>
+        </button>
+      </div>
+
+      {/* Content Area */}
+      <div
+        ref={editorRef}
+        contentEditable
+        className="min-h-[200px] p-4 text-slate-300 focus:outline-none prose prose-invert prose-sm max-w-none"
+        onInput={(e) => onChange(e.currentTarget.innerHTML)}
+        dangerouslySetInnerHTML={{ __html: value }}
+        style={{ whiteSpace: 'pre-wrap' }}
+      />
+      <p className="text-[10px] text-slate-500 p-2 bg-slate-900 italic">
+        Mẹo: Bạn có thể copy ảnh từ nơi khác và paste trực tiếp vào đây.
+      </p>
+    </div>
+  );
+};
+
+// 2. Resource Card
 const ResourceCard = ({
   item,
   onEdit,
@@ -119,31 +201,27 @@ const ResourceCard = ({
   return (
     <div className="group relative flex flex-col bg-[#1e293b] rounded-xl overflow-hidden border border-slate-700/50 hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300 h-full">
 
-      {/* Category Tag */}
       <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 z-20 uppercase tracking-wider shadow-sm">
         {item.category}
       </div>
 
-      {/* Hot Badge */}
       {item.isHot && (
         <div className="absolute top-3 right-auto left-12 bg-gradient-to-r from-red-600 to-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm z-20 shadow-md animate-pulse">
           HOT
         </div>
       )}
 
-      {/* Heart Button */}
       <button
         onClick={handleLikeClick}
         className={`absolute top-3 left-3 z-20 p-2 rounded-full transition-all duration-300 shadow-sm border ${liked
-          ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
-          : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
+            ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
+            : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
           }`}
         title="Thả tim"
       >
         <Heart size={14} fill={liked ? "currentColor" : "none"} />
       </button>
 
-      {/* Admin Edit Button */}
       {onEdit && (
         <button
           onClick={(e) => {
@@ -157,7 +235,6 @@ const ResourceCard = ({
         </button>
       )}
 
-      {/* Image Section */}
       <div
         className="relative h-44 w-full flex items-center justify-center overflow-hidden bg-[#0f172a] cursor-pointer group-hover:bg-[#111827] transition-colors"
         onClick={() => onViewDetail(item)}
@@ -171,14 +248,13 @@ const ResourceCard = ({
         />
       </div>
 
-      {/* Content Section */}
       <div className="flex flex-col p-4 flex-grow bg-[#1e293b]">
-        {/* Author Credit */}
         <div className="flex items-center gap-1.5 text-slate-400 text-[10px] mb-2 font-medium">
           <div className="w-4 h-4 rounded-full bg-slate-700 flex items-center justify-center">
             <User size={10} />
           </div>
           <span className="truncate max-w-[150px] tracking-wide text-slate-300">{item.author}</span>
+          <Check size={12} className="text-emerald-500 ml-0.5" strokeWidth={3} />
         </div>
 
         <h3
@@ -188,9 +264,7 @@ const ResourceCard = ({
           {item.title}
         </h3>
 
-        {/* Buttons Layout - Sang trọng hơn */}
         <div className="grid grid-cols-2 gap-2 w-full mt-auto">
-          {/* Download */}
           <a
             href={item.downloadLink}
             target="_blank"
@@ -200,7 +274,6 @@ const ResourceCard = ({
             <Download size={14} /> TẢI VỀ
           </a>
 
-          {/* Details */}
           <button
             onClick={() => onViewDetail(item)}
             className="col-span-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-2 rounded-lg border border-slate-600 transition-colors flex items-center justify-center gap-1.5"
@@ -208,7 +281,6 @@ const ResourceCard = ({
             <Info size={14} /> CHI TIẾT
           </button>
 
-          {/* Donate */}
           <button
             onClick={handleDonateClick}
             className="col-span-1 bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold py-2 rounded-lg shadow-md shadow-amber-900/20 transition-colors flex items-center justify-center gap-1.5"
@@ -218,7 +290,6 @@ const ResourceCard = ({
         </div>
       </div>
 
-      {/* Footer Info */}
       <div className="bg-[#161f2e] px-4 py-2.5 flex justify-between items-center text-[10px] text-slate-400 font-medium w-full border-t border-slate-700/50">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1" title="Lượt xem">
@@ -236,7 +307,7 @@ const ResourceCard = ({
   );
 };
 
-// 2. Donate Modal (Giao diện Dark)
+// 3. Donate Modal
 const DonateModal = ({
   isOpen,
   onClose,
@@ -252,7 +323,7 @@ const DonateModal = ({
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[60] p-4 backdrop-blur-sm" onClick={onClose}>
       <div
         className="bg-[#1e293b] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative border border-slate-700"
         onClick={(e) => e.stopPropagation()}
@@ -309,95 +380,123 @@ const DonateModal = ({
   );
 };
 
-// 3. Detail Modal (Giao diện Dark)
-const DetailModal = ({
+// 3. Detail Page
+const DetailPage = ({
   item,
-  isOpen,
   onClose,
   onDonate
 }: {
   item: ResourceItem | null;
-  isOpen: boolean;
   onClose: () => void;
   onDonate: () => void;
 }) => {
-  if (!isOpen || !item) return null;
+  if (!item) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 backdrop-blur-md" onClick={onClose}>
-      <div
-        className="bg-[#1e293b] rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] border border-slate-700"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-full md:w-2/5 bg-[#0f172a] flex items-center justify-center p-8 border-r border-slate-700 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0f172a] to-[#0f172a]"></div>
-          <img
-            src={item.image}
-            alt={item.title}
-            className="max-h-64 md:max-h-full w-auto object-contain drop-shadow-2xl relative z-10"
-            onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/1e293b/94a3b8?text=No+Image'; }}
-          />
+    <div className="fixed inset-0 z-50 bg-[#0f172a] overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+      {/* Navbar for Detail Page */}
+      <div className="sticky top-0 z-10 bg-[#1e293b]/90 backdrop-blur-md border-b border-slate-800 px-4 h-16 flex items-center justify-between shadow-lg">
+        <button
+          onClick={onClose}
+          className="flex items-center gap-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg font-bold text-sm transition-all"
+        >
+          <ArrowLeft size={18} /> Quay lại
+        </button>
+        <div className="flex items-center gap-3">
+          <span className="hidden md:inline text-slate-400 text-xs">Bạn đang xem chi tiết tài nguyên</span>
+          <div className="w-px h-4 bg-slate-700 hidden md:block"></div>
+          <button
+            onClick={onDonate}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-900 px-4 py-2 rounded-lg font-bold text-xs shadow-md flex items-center gap-2"
+          >
+            <Coffee size={14} /> DONATE
+          </button>
         </div>
+      </div>
 
-        <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col overflow-y-auto bg-[#1e293b]">
-          <div className="flex justify-between items-start mb-6">
-            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-              {item.category}
-            </span>
-            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-700 rounded-full">
-              <X size={24} />
-            </button>
-          </div>
+      {/* Content Container */}
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">{item.title}</h2>
-
-          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400 mb-8 border-b border-slate-700 pb-6">
-            <div className="flex items-center gap-1.5">
-              <User size={16} className="text-emerald-500" /> <span className="font-medium text-slate-200">{item.author}</span>
+          {/* Left Column: Image & Main Actions */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-[#1e293b] p-2 rounded-2xl border border-slate-700 shadow-2xl">
+              <div className="bg-[#0f172a] rounded-xl overflow-hidden relative aspect-[4/5] flex items-center justify-center">
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#0f172a] to-[#0f172a]"></div>
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-full object-contain relative z-10 hover:scale-105 transition-transform duration-500"
+                  onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/1e293b/94a3b8?text=No+Image'; }}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Heart size={16} className="text-rose-500" /> <span>{(item.likes || 0).toLocaleString()} Likes</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Eye size={16} className="text-sky-500" /> <span>{item.views.toLocaleString()} Views</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Calendar size={16} className="text-slate-500" /> <span>{item.date}</span>
-            </div>
-          </div>
 
-          <div className="mb-8 flex-grow">
-            <h4 className="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wide flex items-center gap-2">
-              <Info size={16} className="text-amber-500" /> Mô tả / Hướng dẫn
-            </h4>
-            <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">
-              {item.description || "Chưa có mô tả chi tiết cho tài nguyên này."}
-            </p>
-          </div>
+            <div className="bg-[#1e293b] rounded-xl border border-slate-700 p-5 space-y-4">
+              <div className="flex justify-between text-sm text-slate-400 border-b border-slate-700 pb-3">
+                <span>Lượt xem</span>
+                <span className="text-white font-mono flex items-center gap-1"><Eye size={14} className="text-sky-500" /> {item.views.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm text-slate-400 border-b border-slate-700 pb-3">
+                <span>Yêu thích</span>
+                <span className="text-white font-mono flex items-center gap-1"><Heart size={14} className="text-rose-500" /> {item.likes.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm text-slate-400">
+                <span>Ngày đăng</span>
+                <span className="text-white font-mono">{item.date}</span>
+              </div>
+            </div>
 
-          <div className="mt-auto pt-4 space-y-3">
             <a
               href={item.downloadLink}
               target="_blank"
               rel="noreferrer"
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-900/30 transition-all flex items-center justify-center gap-2 text-sm tracking-wide hover:-translate-y-0.5"
+              className="w-full block bg-emerald-600 hover:bg-emerald-500 text-white text-center font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/40 transition-all transform hover:-translate-y-1 text-lg flex items-center justify-center gap-2"
             >
-              <Download size={18} /> TẢI XUỐNG NGAY
+              <Download size={24} /> TẢI XUỐNG NGAY
             </a>
-            <button
-              onClick={onDonate}
-              className="w-full bg-[#2d3b4e] hover:bg-[#37465b] text-amber-400 font-bold py-3 px-6 rounded-xl border border-amber-500/20 transition-all flex items-center justify-center gap-2 text-sm hover:text-amber-300"
-            >
-              <Coffee size={18} /> ỦNG HỘ TÁC GIẢ
-            </button>
           </div>
+
+          {/* Right Column: Content */}
+          <div className="lg:col-span-2">
+            <div className="bg-[#1e293b] rounded-2xl border border-slate-700 p-8 min-h-[500px]">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                  {item.category}
+                </span>
+                <div className="flex items-center gap-2 text-slate-400 text-sm bg-slate-800/50 px-3 py-1 rounded-full">
+                  <User size={14} /> <span>Tác giả: <strong className="text-slate-200">{item.author}</strong></span>
+                  <Check size={14} className="text-emerald-500" strokeWidth={3} />
+                </div>
+              </div>
+
+              <h1 className="text-3xl md:text-4xl font-black text-white mb-8 leading-tight">
+                {item.title}
+              </h1>
+
+              {/* Render HTML Content Here */}
+              <div className="prose prose-invert prose-lg max-w-none text-slate-300 space-y-4">
+                <div dangerouslySetInnerHTML={{ __html: item.description }} />
+              </div>
+
+              {/* Additional Helper Info */}
+              <div className="mt-12 p-4 bg-blue-900/20 border border-blue-500/20 rounded-xl flex items-start gap-3">
+                <Info className="text-blue-400 shrink-0 mt-1" />
+                <div className="text-sm text-blue-200/80">
+                  <p className="font-bold text-blue-400 mb-1">Hướng dẫn cài đặt:</p>
+                  <p>Tải file về, giải nén (nếu có) và chép vào thư mục <code>Documents/Sports Interactive/Football Manager 20xx/graphics</code>. Sau đó vào game, Clear Cache và Reload Skin.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
   );
 };
 
-// 4. Admin Modal (Giữ nguyên chức năng, chỉ đổi màu)
+// 4. Admin Modal
 const AdminModal = ({
   isOpen,
   onClose,
@@ -451,155 +550,146 @@ const AdminModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        {/* Giữ nguyên nội dung Admin modal màu sáng để dễ nhập liệu */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            {initialData ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-green-500" />}
+      <div className="bg-[#1e293b] rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-600">
+        <div className="p-6 border-b border-slate-700 flex justify-between items-center sticky top-0 bg-[#1e293b] z-10">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            {initialData ? <Edit size={20} className="text-blue-500" /> : <Plus size={20} className="text-emerald-500" />}
             {initialData ? 'Chỉnh sửa Item' : 'Tạo Item Mới'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
+          <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full text-slate-400">
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề</label>
+                <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Tiêu đề</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={e => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none"
+                  className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white focus:border-emerald-500 outline-none"
                   placeholder="VD: DF11 Megapack"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
-                <select
-                  value={formData.category}
-                  onChange={e => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none bg-white"
-                >
-                  {CATEGORIES.filter(c => c !== 'All').map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tác giả gốc (Author)</label>
-                <input
-                  type="text"
-                  value={formData.author}
-                  onChange={e => setFormData({ ...formData, author: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="VD: Sortitoutsi"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Danh mục</label>
+                  <select
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value })}
+                    className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white focus:border-emerald-500 outline-none"
+                  >
+                    {CATEGORIES.filter(c => c !== 'All').map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Tác giả gốc</label>
+                  <input
+                    type="text"
+                    value={formData.author}
+                    onChange={e => setFormData({ ...formData, author: e.target.value })}
+                    className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white focus:border-emerald-500 outline-none"
+                    placeholder="VD: Sortitoutsi"
+                  />
+                </div>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Link Ảnh (URL)</label>
+                <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Link Ảnh (URL)</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={formData.image}
                     onChange={e => setFormData({ ...formData, image: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none"
+                    className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white focus:border-emerald-500 outline-none"
                     placeholder="https://..."
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Link Download</label>
+                <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Link Download</label>
                 <input
                   type="text"
                   value={formData.downloadLink}
                   onChange={e => setFormData({ ...formData, downloadLink: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none text-blue-600"
+                  className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-blue-400 focus:border-emerald-500 outline-none"
                   placeholder="Google Drive / Fshare..."
                 />
               </div>
             </div>
           </div>
 
-          <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-            <h4 className="text-sm font-bold text-yellow-800 mb-3 flex items-center gap-2">
+          {/* Rich Text Editor */}
+          <div>
+            <label className="block text-xs font-bold text-slate-400 mb-2 uppercase flex items-center gap-2">
+              Nội dung bài viết <span className="text-emerald-500 text-[10px] normal-case">(Có thể chèn ảnh minh họa)</span>
+            </label>
+            <RichTextEditor
+              value={formData.description}
+              onChange={(html) => setFormData({ ...formData, description: html })}
+            />
+          </div>
+
+          <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+            <h4 className="text-sm font-bold text-amber-500 mb-3 flex items-center gap-2">
               <Coffee size={16} /> Cấu hình Donate (Tùy chọn)
             </h4>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">Link Donate bên ngoài</label>
                 <input
                   type="text"
                   value={formData.donateLink || ''}
                   onChange={e => setFormData({ ...formData, donateLink: e.target.value })}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
-                  placeholder="VD: https://playerduo.net/..."
+                  className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-white"
+                  placeholder="Link Donate (nếu có)..."
                 />
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Tên Ngân hàng</label>
-                  <input
-                    type="text"
-                    value={formData.bankName || ''}
-                    onChange={e => setFormData({ ...formData, bankName: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
-                    placeholder="VD: MB Bank"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Số Tài khoản</label>
-                  <input
-                    type="text"
-                    value={formData.bankAccount || ''}
-                    onChange={e => setFormData({ ...formData, bankAccount: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
-                    placeholder="VD: 0123456789"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Chủ Tài khoản</label>
-                  <input
-                    type="text"
-                    value={formData.bankOwner || ''}
-                    onChange={e => setFormData({ ...formData, bankOwner: e.target.value })}
-                    className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
-                    placeholder="VD: NGUYEN VAN A"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={formData.bankName || ''}
+                  onChange={e => setFormData({ ...formData, bankName: e.target.value })}
+                  className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-white"
+                  placeholder="Tên Ngân hàng"
+                />
+                <input
+                  type="text"
+                  value={formData.bankAccount || ''}
+                  onChange={e => setFormData({ ...formData, bankAccount: e.target.value })}
+                  className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-white"
+                  placeholder="Số Tài khoản"
+                />
+                <input
+                  type="text"
+                  value={formData.bankOwner || ''}
+                  onChange={e => setFormData({ ...formData, bankOwner: e.target.value })}
+                  className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-white"
+                  placeholder="Chủ Tài khoản"
+                />
               </div>
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả chi tiết</label>
-            <textarea
-              value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
-              rows={4}
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 outline-none"
-              placeholder="Nhập hướng dẫn cài đặt hoặc thông tin chi tiết..."
-            />
-          </div>
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
+        <div className="p-6 border-t border-slate-700 flex justify-end gap-3 bg-slate-800/50 rounded-b-xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-200 rounded font-medium transition-colors"
+            className="px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded font-medium transition-colors"
           >
             Hủy bỏ
           </button>
           <button
             onClick={() => onSave(formData)}
-            className="px-6 py-2 bg-green-600 text-white rounded font-bold hover:bg-green-700 shadow-md transition-colors flex items-center gap-2"
+            className="px-6 py-2 bg-emerald-600 text-white rounded font-bold hover:bg-emerald-500 shadow-lg shadow-emerald-900/20 transition-all flex items-center gap-2"
           >
-            <Save size={18} /> Lưu lại
+            <Save size={18} /> Lưu bài viết
           </button>
         </div>
       </div>
@@ -610,7 +700,6 @@ const AdminModal = ({
 // --- MAIN APPLICATION ---
 
 export default function App() {
-  // OPTIMISTIC UI: KHỞI TẠO STATE VỚI SEED_DATA NGAY LẬP TỨC
   const [items, setItems] = useState<ResourceItem[]>(SEED_DATA);
   const [user, setUser] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
@@ -626,8 +715,10 @@ export default function App() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ResourceItem | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [viewingItem, setViewingItem] = useState<ResourceItem | null>(null);
+
+  // Changed Modal to Page View logic
+  const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null); // For DetailPage
+
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
 
@@ -657,7 +748,6 @@ export default function App() {
   }, []);
 
   // 2. Fetch Data (BACKGROUND SYNC)
-  // Dữ liệu sẽ được tải ngầm. Nếu có thay đổi so với SEED_DATA, giao diện sẽ tự cập nhật.
   useEffect(() => {
     if (!user) return;
 
@@ -697,14 +787,12 @@ export default function App() {
     e.preventDefault();
     try {
       const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
-      // Strict Admin Check
       if (userCredential.user.email !== ADMIN_EMAIL) {
         alert("Tài khoản này không có quyền Admin.");
         await signOut(auth);
         await signInAnonymously(auth);
         return;
       }
-
       setShowLogin(false);
       setLoginEmail('');
       setLoginPass('');
@@ -716,7 +804,7 @@ export default function App() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      await signInAnonymously(auth); // Fallback to viewer mode
+      await signInAnonymously(auth);
     } catch (error) {
       console.error("Logout error", error);
     }
@@ -743,7 +831,7 @@ export default function App() {
       setEditingItem(null);
     } catch (error) {
       console.error("Error saving:", error);
-      alert("Lỗi khi lưu dữ liệu (Kiểm tra quyền ghi trong Firestore Rules)");
+      alert("Lỗi khi lưu dữ liệu");
     }
   };
 
@@ -759,7 +847,6 @@ export default function App() {
     }
   };
 
-  // Tăng Like khi bấm Tim
   const handleLikeItem = async (item: ResourceItem) => {
     if (!user || !item.id) return;
     try {
@@ -774,12 +861,10 @@ export default function App() {
     }
   };
 
-  // Tăng View khi bấm Chi tiết
+  // Mở trang chi tiết (DetailPage) và Tăng View
   const handleViewDetail = async (item: ResourceItem) => {
-    setViewingItem(item);
-    setIsDetailModalOpen(true);
+    setSelectedItem(item); // Mở Page
 
-    // Logic tăng View (chỉ tăng nếu có ID và User)
     if (user && item.id) {
       try {
         const finalDocRef = IS_SANDBOX
@@ -822,7 +907,6 @@ export default function App() {
       <header className="bg-[#1e293b]/80 backdrop-blur-md border-b border-slate-800 shadow-lg sticky top-0 z-40">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer group" onClick={() => setSelectedCategory('All')}>
               <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-2xl shadow-lg shadow-emerald-900/50 text-white group-hover:scale-105 transition-transform">FM</div>
               <div>
@@ -831,15 +915,14 @@ export default function App() {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
               {CATEGORIES.slice(0, 6).map(cat => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${selectedCategory === cat
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                      ? 'bg-emerald-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
                     }`}
                 >
                   {cat}
@@ -847,7 +930,6 @@ export default function App() {
               ))}
             </nav>
 
-            {/* Actions */}
             <div className="flex items-center gap-3">
               <div className="relative hidden sm:block">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -893,7 +975,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         <div className="lg:hidden border-t border-slate-800 overflow-x-auto whitespace-nowrap scrollbar-hide bg-[#1e293b]">
           <div className="flex p-3 space-x-2 items-center">
             {CATEGORIES.map(cat => (
@@ -901,8 +982,8 @@ export default function App() {
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${selectedCategory === cat
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 border border-slate-700'
                   }`}
               >
                 {cat}
@@ -916,7 +997,7 @@ export default function App() {
       {isAdmin && (
         <div className="bg-amber-500/10 border-b border-amber-500/20 py-1.5 text-center backdrop-blur-sm">
           <p className="text-xs text-amber-500 font-bold flex items-center justify-center gap-2 tracking-wide">
-            <LayoutDashboard size={14} /> ADMIN MODE ACTIVE <span className="opacity-50">|</span> {user.email}
+            <Crown size={16} className="fill-amber-500 text-amber-500" /> ADMIN MODE ACTIVE <span className="opacity-50">|</span> {user.email}
           </p>
         </div>
       )}
@@ -949,7 +1030,6 @@ export default function App() {
 
       {/* HERO BANNER */}
       <div className="relative bg-[#0f172a] border-b border-slate-800 overflow-hidden">
-        {/* Background Glow */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-[128px] pointer-events-none"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px] pointer-events-none"></div>
 
@@ -1060,8 +1140,6 @@ export default function App() {
       </footer>
 
       {/* MODALS */}
-
-      {/* 1. Login Modal */}
       {showLogin && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
           <div className="bg-[#1e293b] rounded-2xl p-8 w-full max-w-sm shadow-2xl transform transition-all border border-slate-700">
@@ -1113,7 +1191,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 2. Admin Edit/Create Modal */}
       <AdminModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -1121,18 +1198,18 @@ export default function App() {
         onSave={handleSaveItem}
       />
 
-      {/* 3. Detail View Modal */}
-      <DetailModal
-        item={viewingItem}
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
-        onDonate={() => {
-          setIsDetailModalOpen(false);
-          if (viewingItem) handleDonateClick(viewingItem);
-        }}
-      />
+      {/* FULL PAGE DETAIL VIEW */}
+      {selectedItem && (
+        <DetailPage
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onDonate={() => {
+            setDonateItem(selectedItem);
+            setIsDonateModalOpen(true);
+          }}
+        />
+      )}
 
-      {/* 4. Donate Modal */}
       <DonateModal
         isOpen={isDonateModalOpen}
         onClose={() => setIsDonateModalOpen(false)}
