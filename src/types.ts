@@ -8,6 +8,9 @@ export interface ResourceItem {
   image: string;
   downloadLink: string;
   description: string;
+  
+  instructions?: string; // <--- THÊM DÒNG NÀY (Dấu ? nghĩa là không bắt buộc)
+  
   views: number;
   likes: number;
   date: string;
@@ -22,13 +25,12 @@ export interface ResourceItem {
 export const CATEGORIES: Category[] = ['All', 'FM Version', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Mods', 'Guide', 'Kits'];
 export const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
-// Hàm chuyển tên Category thành đường dẫn (slug)
 export const toSlug = (text: string): string => {
   return text.toString().toLowerCase()
-    .replace(/\s+/g, '-')           // Thay khoảng trắng bằng dấu -
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Bỏ dấu tiếng Việt
-    .replace(/[^\w\-]+/g, '')       // Bỏ ký tự đặc biệt
-    .replace(/\-\-+/g, '-')         // Xử lý nhiều dấu - liên tiếp
-    .replace(/^-+/, '')             // Cắt dấu - ở đầu
-    .replace(/-+$/, '');            // Cắt dấu - ở cuối
+    .replace(/\s+/g, '-')
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 };

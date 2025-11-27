@@ -1,9 +1,12 @@
-import { ArrowLeft, Coffee, Download, Info, Eye, Heart, User, Check } from 'lucide-react'; // Xóa React
-import { type ResourceItem } from '../../types'; // Thêm type
+import { ArrowLeft, Coffee, Download, Info, Eye, Heart, User, Check } from 'lucide-react';
+import { type ResourceItem } from '../../types';
 
 export default function DetailPage({ item, onClose, onDonate }: { item: ResourceItem | null; onClose: () => void; onDonate: () => void; }) {
   if (!item) return null;
-  // ... Code render bên dưới giữ nguyên ...
+  
+  // Nội dung mặc định nếu tác giả không nhập gì
+  const defaultInstruction = `<p>Tải file về, giải nén (nếu có) và chép vào thư mục <code>Documents/Sports Interactive/Football Manager [phiên bản]/</code>.</p><p>Sau đó vào game, Clear Cache và Reload Skin.</p>`;
+
   return (
     <div className="fixed inset-0 z-50 bg-[#0f172a] overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="sticky top-0 z-10 bg-[#1e293b]/90 backdrop-blur-md border-b border-slate-800 px-4 h-16 flex items-center justify-between shadow-lg">
@@ -22,14 +25,27 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
           </div>
           <a href={item.downloadLink} target="_blank" rel="noreferrer" className="w-full block bg-emerald-600 hover:bg-emerald-500 text-white text-center font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2"><Download size={24} /> TẢI NGAY</a>
         </div>
+        
         <div className="lg:col-span-2 bg-[#1e293b] rounded-2xl border border-slate-700 p-8">
            <div className="flex items-center gap-3 mb-4">
              <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold uppercase">{item.category}</span>
              <div className="flex items-center gap-2 text-slate-400 text-sm bg-slate-800/50 px-3 py-1 rounded-full"><User size={14} /> <span>{item.author}</span> <Check size={14} className="text-emerald-500"/></div>
            </div>
+           
            <h1 className="text-3xl font-black text-white mb-8">{item.title}</h1>
+           
+           {/* Nội dung chính */}
            <div className="prose prose-invert prose-lg max-w-none text-slate-300" dangerouslySetInnerHTML={{ __html: item.description }} />
-           <div className="mt-12 p-4 bg-blue-900/20 border border-blue-500/20 rounded-xl flex gap-3 text-sm text-blue-200/80"><Info className="text-blue-400 shrink-0" /> <p>Hướng dẫn: Tải về, giải nén vào thư mục Documents/Sports Interactive/Football Manager [version]/</p></div>
+           
+           {/* Hướng dẫn cài đặt (Màu xanh dương) */}
+           <div className="mt-12 p-5 bg-blue-900/20 border border-blue-500/20 rounded-xl flex items-start gap-4">
+             <Info className="text-blue-400 shrink-0 mt-1" size={24} />
+             <div className="text-sm text-blue-200/90 space-y-1 w-full">
+               <p className="font-bold text-blue-400 mb-2 uppercase text-xs tracking-wider">Hướng dẫn cài đặt & Lưu ý:</p>
+               {/* Nếu có hướng dẫn riêng thì dùng, không thì dùng mặc định */}
+               <div className="prose prose-sm prose-invert max-w-none text-blue-100" dangerouslySetInnerHTML={{ __html: item.instructions && item.instructions.trim() !== '' ? item.instructions : defaultInstruction }} />
+             </div>
+           </div>
         </div>
       </div>
     </div>
