@@ -68,15 +68,46 @@ export default function App() {
 
   useEffect(() => {
     if (!isAuthReady || !user) return;
+    
     const unsubscribe = onSnapshot(getCollectionRef(), (snapshot) => {
       setPermissionError(false);
       setIsLoading(false);
-      if (!snapshot.empty) setItems(snapshot.docs.map(doc => ({ id: doc.id, likes: 0, ...doc.data() } as ResourceItem)));
-      else setItems([]);
+      
+      if (!snapshot.empty) {
+        const fetchedItems = snapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          likes: 0, 
+          ...doc.data() 
+        } as ResourceItem));
+
+        // LOGIC SẮP XẾP MỚI NHẤT LÊN ĐẦU
+        fetchedItems.sort((a, b) => {
+          // Hàm lấy thời gian chuẩn hóa
+          const getTime = (item: ResourceItem) => {
+            // Ưu tiên 1: Dùng createdAt (Timestamp từ server)
+            if (item.createdAt && item.createdAt.seconds) {
+              return item.createdAt.seconds * 1000;
+            }
+            // Ưu tiên 2: Dùng ngày đăng thủ công (date string "YYYY-MM-DD")
+            if (item.date) {
+              return new Date(item.date).getTime();
+            }
+            return 0; // Nếu không có gì thì cho về cuối
+          };
+
+          // Sắp xếp giảm dần (Lớn hơn đứng trước)
+          return getTime(b) - getTime(a);
+        });
+
+        setItems(fetchedItems);
+      } else {
+        setItems([]);
+      }
     }, (error) => {
       setIsLoading(false);
       if (error.code === 'permission-denied') setPermissionError(true);
     });
+    
     return () => unsubscribe();
   }, [isAuthReady, user]);
 
