@@ -87,7 +87,7 @@ export default function App() {
     if (!user) return;
     try {
       if (editingItem && editingItem.id) {
-        const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', editingItem.id) : doc(db, 'fm_resources_public', editingItem.id);
+        const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', editingItem.id) : doc(db, 'fm_resources_v1', editingItem.id);
         const { id, ...updateData } = data;
         await updateDoc(docRef, updateData);
       } else {
@@ -99,20 +99,20 @@ export default function App() {
 
   const handleDeleteItem = async (id: string) => {
      if(!confirm("Xóa?")) return;
-     const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', id) : doc(db, 'fm_resources_public', id);
+     const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', id) : doc(db, 'fm_resources_v1', id);
      await deleteDoc(docRef);
   };
   
   const handleLikeItem = async (item: ResourceItem) => {
     if (!item.id) return;
-    const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', item.id) : doc(db, 'fm_resources_public', item.id);
+    const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', item.id) : doc(db, 'fm_resources_v1', item.id);
     await updateDoc(docRef, { likes: increment(1) });
   };
 
   const handleViewDetail = async (item: ResourceItem) => {
     setSelectedItem(item);
     if (item.id) {
-       const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_public', item.id) : doc(db, 'fm_resources_public', item.id);
+       const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', item.id) : doc(db, 'fm_resources_v1', item.id);
        await updateDoc(docRef, { views: increment(1) });
     }
   };
