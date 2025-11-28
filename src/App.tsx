@@ -176,7 +176,7 @@ export default function App() {
             </h3>
             <div className="flex items-center gap-2 mt-3 ml-4">
               <span className="text-xs text-slate-500 uppercase font-bold mr-1">Lọc theo:</span>
-              {(['All', 'FM26', 'FM25', 'FM24'] as GameVersion[]).map(ver => (
+              {(['All', 'FM26', 'FM24'] as GameVersion[]).map(ver => (
                 <button
                   key={ver}
                   onClick={() => setFilterVersion(ver)}
