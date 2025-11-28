@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { X, Save, Edit, Plus, Coffee, Link as LinkIcon, BookOpen } from 'lucide-react'; // Đã thêm icon BookOpen
-import { CATEGORIES, type ResourceItem } from '../../types';
+import { CATEGORIES, type ResourceItem, type GameVersion } from '../../types';
 import RichTextEditor from '../RichTextEditor';
 
 export default function AdminModal({ isOpen, onClose, initialData, onSave }: { isOpen: boolean; onClose: () => void; initialData?: ResourceItem | null; onSave: (data: ResourceItem) => void; }) {
   // 1. Khởi tạo state có thêm trường 'instructions'
   const [formData, setFormData] = useState<ResourceItem>({
-    title: '', category: 'Face', author: '', image: '', downloadLink: '', description: '', 
-    instructions: '', // <--- Trường hướng dẫn riêng
-    views: 0, likes: 0, date: new Date().toISOString().split('T')[0],
+    title: '', category: 'Face', version: 'FM26', author: '', image: '', downloadLink: '', description: '', 
+    instructions: '', views: 0, likes: 0, date: new Date().toISOString().split('T')[0],
     donateLink: '', bankName: '', bankAccount: '', bankOwner: ''
   });
 
@@ -17,9 +16,8 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
       setFormData(initialData);
     } else {
       setFormData({
-        title: '', category: 'Face', author: '', image: '', downloadLink: '', description: '', 
-        instructions: '', // <--- Reset về rỗng khi tạo mới
-        views: 0, likes: 0, date: new Date().toISOString().split('T')[0],
+        title: '', category: 'Face', version: 'FM26', author: '', image: '', downloadLink: '', description: '', 
+        instructions: '', views: 0, likes: 0, date: new Date().toISOString().split('T')[0],
         donateLink: '', bankName: '', bankAccount: '', bankOwner: ''
       });
     }
@@ -54,11 +52,25 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
                    <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white outline-none">{CATEGORIES.filter(c => c !== 'All').map(c => <option key={c} value={c}>{c}</option>)}</select>
                 </div>
                 <div>
+                   <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Phiên bản Game</label>
+                   <select 
+                      value={formData.version || 'FM26'} 
+                      onChange={e => setFormData({ ...formData, version: e.target.value as GameVersion })} 
+                      className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-emerald-400 font-bold outline-none"
+                    >
+                      <option value="All">Tất cả / Chung</option>
+                      <option value="FM26">Football Manager 26</option>
+                      <option value="FM24">Football Manager 24</option>
+                   </select>
+                </div>
+                
+              </div>
+              <div>
                    <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Tác giả</label>
                    <input type="text" value={formData.author} onChange={e => setFormData({ ...formData, author: e.target.value })} className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white outline-none" />
                 </div>
-              </div>
             </div>
+        
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Link Ảnh (URL)</label>

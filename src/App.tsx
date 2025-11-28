@@ -5,8 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 import { auth, db, getCollectionRef, checkIsSandbox, appId } from './firebase';
-// CHÚ Ý DÒNG DƯỚI: Thêm chữ type vào trước interface
-import { CATEGORIES, ADMIN_EMAIL, toSlug, type ResourceItem, type Category } from './types'; 
+import { CATEGORIES, ADMIN_EMAIL, toSlug, type ResourceItem, type Category, type GameVersion } from './types';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
@@ -35,6 +34,7 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState<ResourceItem | null>(null);
   const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
+  const [filterVersion, setFilterVersion] = useState<GameVersion>('All');
 
   const isAdmin = user && !user.isAnonymous && user.email === ADMIN_EMAIL;
 
@@ -152,7 +152,8 @@ export default function App() {
   const filteredItems = items.filter(item => {
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.author.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesVersion = filterVersion === 'All' || !item.version || item.version === 'All' || item.version === filterVersion;
+    return matchesCategory && matchesSearch && matchesVersion;
   });
 
   return (
@@ -173,6 +174,22 @@ export default function App() {
               <span className="w-1.5 h-8 bg-emerald-500 rounded-full block shadow-[0_0_15px_rgba(16,185,129,0.6)]"></span>
               {selectedCategory === 'All' ? 'Tài nguyên nổi bật' : selectedCategory}
             </h3>
+            <div className="flex items-center gap-2 mt-3 ml-4">
+              <span className="text-xs text-slate-500 uppercase font-bold mr-1">Lọc theo:</span>
+              {(['All', 'FM26', 'FM25', 'FM24'] as GameVersion[]).map(ver => (
+                <button
+                  key={ver}
+                  onClick={() => setFilterVersion(ver)}
+                  className={`px-3 py-1 rounded text-[10px] font-bold border transition-all ${
+                    filterVersion === ver
+                      ? 'bg-blue-600 text-white border-blue-500 shadow'
+                      : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
+                  }`}
+                >
+                  {ver === 'All' ? 'TẤT CẢ' : ver}
+                </button>
+              ))}
+            </div>
             <p className="text-slate-500 text-xs mt-2 ml-4">Cập nhật mới nhất từ cộng đồng</p>
           </div>
           <span className="text-xs text-slate-500 font-mono bg-slate-900 px-3 py-1 rounded border border-slate-800">{isLoading ? '...' : filteredItems.length} kết quả</span>
