@@ -1,7 +1,7 @@
 export type Category = 'All' | 'FM Version' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Mods' | 'Tactics' | 'Guide' | 'Kits';
 
 // Định nghĩa các phiên bản game hỗ trợ
-export type GameVersion = 'All' | 'FM24' | 'FM25' | 'FM26'; 
+export type GameVersion = 'All' | 'FM24' | 'FM26'; 
 
 export interface ResourceItem {
   id?: string;
