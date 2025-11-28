@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Save, Edit, Plus, Coffee, Link as LinkIcon, BookOpen, Tag } from 'lucide-react'; // Thêm icon Tag
+import { X, Save, Edit, Plus, Coffee, Link as LinkIcon, BookOpen, Tag } from 'lucide-react';
 import { CATEGORIES, type ResourceItem, type GameVersion } from '../../types';
 import RichTextEditor from '../RichTextEditor';
 
@@ -12,7 +12,6 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
 
   useEffect(() => {
     if (initialData) {
-      // Đảm bảo tags luôn là mảng (để tránh lỗi với dữ liệu cũ)
       setFormData({ ...initialData, tags: initialData.tags || [] });
     } else {
       setFormData({
@@ -23,14 +22,11 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
     }
   }, [initialData, isOpen]);
 
-  // Hàm xử lý khi tick chọn Tag
   const toggleTag = (tag: string) => {
     const currentTags = formData.tags || [];
     if (currentTags.includes(tag)) {
-      // Nếu có rồi thì bỏ ra
       setFormData({ ...formData, tags: currentTags.filter(t => t !== tag) });
     } else {
-      // Nếu chưa có thì thêm vào
       setFormData({ ...formData, tags: [...currentTags, tag] });
     }
   };
@@ -56,7 +52,6 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
                 <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full p-3 bg-[#0f172a] border border-slate-600 rounded-lg text-white outline-none" />
               </div>
 
-              {/* KHU VỰC CHỌN DANH MỤC & VERSION */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                    <label className="block text-xs font-bold text-slate-400 mb-1 uppercase">Danh mục Chính</label>
@@ -72,7 +67,7 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
                 </div>
               </div>
 
-              {/* --- PHẦN MỚI: CHỌN TAGS (MULTI-SELECT) --- */}
+              {/* Tags phụ */}
               <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700">
                 <label className="block text-xs font-bold text-slate-400 mb-2 uppercase flex items-center gap-2">
                   <Tag size={12} /> Tags phụ (Chọn nhiều)
@@ -114,7 +109,14 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
           <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
             <h4 className="text-sm font-bold text-amber-500 mb-3 flex items-center gap-2"><Coffee size={16} /> Donate Info</h4>
             <div className="space-y-3">
-              <input type="text" value={formData.donateLink || ''} onChange={e => setFormData({ ...formData, donateLink: e.target.value })} className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-blue-300" placeholder="Link Donate..." />
+              {/* Đã thêm lại Label sử dụng LinkIcon để fix lỗi */}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-1 uppercase flex items-center gap-1"><LinkIcon size={10}/> Link Donate</label>
+                <input type="text" value={formData.donateLink || ''} onChange={e => setFormData({ ...formData, donateLink: e.target.value })} className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-blue-300" placeholder="Link Donate..." />
+              </div>
+              <div className="relative flex py-1 items-center">
+                 <div className="flex-grow border-t border-slate-700"></div><span className="flex-shrink-0 mx-2 text-[10px] text-slate-500 uppercase">Hoặc chuyển khoản</span><div className="flex-grow border-t border-slate-700"></div>
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 <input type="text" value={formData.bankName || ''} onChange={e => setFormData({ ...formData, bankName: e.target.value })} className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-white" placeholder="Tên NH" />
                 <input type="text" value={formData.bankAccount || ''} onChange={e => setFormData({ ...formData, bankAccount: e.target.value })} className="w-full p-2 bg-[#0f172a] border border-slate-600 rounded text-sm text-white" placeholder="Số TK" />
