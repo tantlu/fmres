@@ -150,9 +150,14 @@ export default function App() {
 
   // 4. Filter Logic
   const filteredItems = items.filter(item => {
-    const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+    const matchesCategory = 
+        selectedCategory === 'All' || 
+        item.category === selectedCategory || 
+        (item.tags && item.tags.includes(selectedCategory));
+
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.author.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesVersion = filterVersion === 'All' || !item.version || item.version === 'All' || item.version === filterVersion;
+
     return matchesCategory && matchesSearch && matchesVersion;
   });
 

@@ -14,7 +14,7 @@ interface CardProps {
 const getVersionColor = (ver?: string) => {
   switch (ver) {
     case 'FM26': return 'bg-purple-600 text-white border-purple-500 shadow-purple-900/20';
-    case 'FM25': return 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-900/20';
+    case 'Tất cả': return 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-900/20';
     case 'FM24': return 'bg-blue-600 text-white border-blue-500 shadow-blue-900/20';
     default: return 'bg-slate-700 text-slate-300 border-slate-600';
   }
@@ -23,7 +23,7 @@ const getVersionColor = (ver?: string) => {
 export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDonate }: CardProps) {
   const [liked, setLiked] = useState(false);
 
-  // Reset trạng thái like khi item thay đổi (để tránh lỗi hiển thị khi filter/sort)
+  // Reset trạng thái like khi item thay đổi
   useEffect(() => {
     setLiked(false);
   }, [item.id]);
@@ -39,28 +39,28 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
   return (
     <div className="group relative flex flex-col bg-[#1e293b] rounded-xl overflow-hidden border border-slate-700/50 hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 h-full">
       
-      {/* --- CÁC TAG NỔI (BADGES) --- */}
+      {/* --- CÁC BADGES (TAG NỔI) --- */}
 
-      {/* 1. Category (Góc Phải trên cùng) */}
+      {/* 1. Category chính (Góc Phải) */}
       <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 z-20 uppercase shadow-sm">
         {item.category}
       </div>
 
-      {/* 2. Version Tag (Góc Trái, cạnh nút tim) - Chỉ hiện nếu không phải All */}
+      {/* 2. Version Tag (Góc Trái, cạnh nút tim) */}
       {item.version && item.version !== 'All' && (
         <div className={`absolute top-3 left-12 z-20 text-[9px] font-bold px-2 py-1 rounded-md border shadow-sm ${getVersionColor(item.version)}`}>
           {item.version}
         </div>
       )}
 
-      {/* 3. HOT Tag (Góc Phải, dưới Category) */}
+      {/* 3. HOT Tag */}
       {item.isHot && (
         <div className="absolute top-10 right-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm z-20 animate-pulse shadow-md">
           HOT
         </div>
       )}
 
-      {/* --- CÁC NÚT TƯƠNG TÁC TRÊN ẢNH --- */}
+      {/* --- CÁC NÚT TÁC VỤ TRÊN ẢNH --- */}
 
       {/* Nút Thả tim */}
       <button
@@ -75,7 +75,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         <Heart size={14} fill={liked ? "currentColor" : "none"} />
       </button>
 
-      {/* Nút Edit (Chỉ hiện khi là Admin - tức là có hàm onEdit) */}
+      {/* Nút Edit (Chỉ hiện khi là Admin) */}
       {onEdit && (
         <button
           onClick={(e) => {
@@ -89,14 +89,12 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         </button>
       )}
 
-      {/* --- PHẦN HÌNH ẢNH --- */}
+      {/* --- KHUNG ẢNH --- */}
       <div
         className="relative h-44 w-full flex items-center justify-center overflow-hidden bg-[#0f172a] cursor-pointer group-hover:bg-[#111827] transition-colors"
         onClick={() => onViewDetail(item)}
       >
-        {/* Hiệu ứng mờ bên dưới ảnh */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent opacity-80"></div>
-        
         <img
           src={item.image}
           alt={item.title}
@@ -118,26 +116,38 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
 
         {/* Tiêu đề */}
         <h3
-          className="text-white font-bold text-sm leading-snug mb-4 line-clamp-2 group-hover:text-amber-400 transition-colors cursor-pointer"
+          className="text-white font-bold text-sm leading-snug mb-2 line-clamp-2 group-hover:text-amber-400 transition-colors cursor-pointer"
           onClick={() => onViewDetail(item)}
         >
           {item.title}
         </h3>
 
-        {/* Cụm nút bấm hành động */}
+        {/* --- HIỂN THỊ TAGS PHỤ (Nằm dưới tiêu đề) --- */}
+        {item.tags && item.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-4">
+            {item.tags.slice(0, 3).map(tag => (
+              <span key={tag} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+                #{tag}
+              </span>
+            ))}
+            {item.tags.length > 3 && (
+              <span className="text-[9px] text-slate-500 py-0.5 px-1">+{item.tags.length - 3}</span>
+            )}
+          </div>
+        )}
+
+        {/* Cụm nút hành động */}
         <div className="grid grid-cols-2 gap-2 w-full mt-auto">
-          {/* Nút Tải về */}
           <a
             href={item.downloadLink}
             target="_blank"
             rel="noreferrer"
             className="col-span-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-2.5 rounded-lg shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
-            onClick={(e) => e.stopPropagation()} // Chặn click xuyên qua card
+            onClick={(e) => e.stopPropagation()}
           >
             <Download size={14} /> TẢI VỀ
           </a>
 
-          {/* Nút Chi tiết */}
           <button
             onClick={() => onViewDetail(item)}
             className="col-span-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-2 rounded-lg border border-slate-600 transition-colors flex items-center justify-center gap-1.5"
@@ -145,7 +155,6 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
             <Info size={14} /> CHI TIẾT
           </button>
 
-          {/* Nút Donate */}
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -158,7 +167,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         </div>
       </div>
 
-      {/* --- FOOTER CARD (Thông số) --- */}
+      {/* --- FOOTER CARD --- */}
       <div className="bg-[#161f2e] px-4 py-2.5 flex justify-between items-center text-[10px] text-slate-400 font-medium w-full border-t border-slate-700/50">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1" title="Lượt xem">

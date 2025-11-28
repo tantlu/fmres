@@ -1,13 +1,12 @@
 export type Category = 'All' | 'FM Version' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Mods' | 'Tactics' | 'Guide' | 'Kits';
-
-// Định nghĩa các phiên bản game hỗ trợ
-export type GameVersion = 'All' | 'FM24' | 'FM26'; 
+export type GameVersion = 'All' | 'FM24' | 'FM26';
 
 export interface ResourceItem {
   id?: string;
   title: string;
-  category: string;
-  version?: GameVersion; // <--- THÊM DÒNG NÀY
+  category: string; // Đây là Category CHÍNH (để định danh URL)
+  tags?: string[];  // <--- THÊM DÒNG NÀY: Các Category PHỤ (Tags)
+  version?: GameVersion;
   author: string;
   image: string;
   downloadLink: string;
@@ -27,7 +26,6 @@ export interface ResourceItem {
 export const CATEGORIES: Category[] = ['All', 'FM Version', 'Face', 'Logo', 'Database', 'Việt hóa', 'Tactics', 'Mods', 'Guide', 'Kits'];
 export const ADMIN_EMAIL = 'nguyentan7799@gmail.com';
 
-// ... (hàm toSlug giữ nguyên)
 export const toSlug = (text: string): string => {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')
