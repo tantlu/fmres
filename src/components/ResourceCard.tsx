@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { Download, Eye, Calendar, User, Heart, Coffee, Info, Edit, Check } from 'lucide-react';
 import { type ResourceItem } from '../types';
 
