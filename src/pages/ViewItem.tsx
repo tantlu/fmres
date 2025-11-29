@@ -7,17 +7,27 @@ import DetailPage from '../components/modals/DetailPage';
 import DonateModal from '../components/modals/DonateModal';
 
 export default function ViewItem() {
-  const { id } = useParams(); // Lấy ID từ URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [item, setItem] = useState<ResourceItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
 
+  // --- HÀM XỬ LÝ QUAY LẠI THÔNG MINH ---
+  const handleBack = () => {
+    // window.history.state.idx: Chỉ số lịch sử của React Router
+    // Nếu > 0 nghĩa là người dùng đã duyệt qua các trang trước đó trong web này
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1); // Quay lại trang trước (giữ vị trí scroll)
+    } else {
+      navigate('/', { replace: true }); // Về trang chủ (nếu là link trực tiếp)
+    }
+  };
+
   useEffect(() => {
     const fetchItem = async () => {
       if (!id) return;
       try {
-        // Logic tìm đúng đường dẫn collection y hệt file App
         const docRef = checkIsSandbox() 
           ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', id) 
           : doc(db, 'fm_resources_v1', id);
@@ -27,8 +37,9 @@ export default function ViewItem() {
         if (docSnap.exists()) {
           setItem({ id: docSnap.id, ...docSnap.data() } as ResourceItem);
         } else {
+          // Nếu bài không tồn tại, tự động về trang chủ sau thông báo
           alert("Bài viết không tồn tại hoặc đã bị xóa!");
-          navigate('/');
+          navigate('/', { replace: true });
         }
       } catch (error) {
         console.error("Lỗi lấy dữ liệu:", error);
@@ -39,13 +50,20 @@ export default function ViewItem() {
     fetchItem();
   }, [id, navigate]);
 
-  if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">Đang tải...</div>;
+  if (loading) return (
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-400 text-sm font-bold animate-pulse">Đang tải dữ liệu...</p>
+      </div>
+    </div>
+  );
 
   return (
     <>
       <DetailPage 
         item={item} 
-        onClose={() => navigate(-1)} // Quay lại trang trước
+        onClose={handleBack} // <-- Sử dụng hàm xử lý mới ở đây
         onDonate={() => setIsDonateOpen(true)}
       />
       <DonateModal 
