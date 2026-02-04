@@ -1,6 +1,6 @@
-import { Search, LogOut, User, Plus, Crown } from 'lucide-react'; // Xóa React
+import { Search, LogOut, User, Plus, Crown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { CATEGORIES, toSlug, type Category } from '../types'; // Thêm chữ type
+import { CATEGORIES, toSlug, type Category } from '../types';
 
 interface HeaderProps {
   selectedCategory: Category;
@@ -13,92 +13,95 @@ interface HeaderProps {
   onAddItemClick: () => void;
 }
 
-export default function Header({ 
-  selectedCategory, searchTerm, setSearchTerm, 
-  isAdmin, userEmail, onLoginClick, onLogoutClick, onAddItemClick 
+export default function Header({
+  selectedCategory, searchTerm, setSearchTerm,
+  isAdmin, userEmail, onLoginClick, onLogoutClick, onAddItemClick
 }: HeaderProps) {
   const navigate = useNavigate();
 
-  const handleCategoryClick = (cat: Category) => {
-    if (cat === 'All') {
-      navigate('/');
-    } else {
-      navigate(`/${toSlug(cat)}`);
-    }
-  };
-
   return (
-    <>
-      <header className="bg-[#1e293b]/80 backdrop-blur-md border-b border-slate-800 shadow-lg sticky top-0 z-40">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
-              <img src="https://yt3.ggpht.com/83WfPjeUQMeiK56shkZPb4opoo8vqdP9PpSpf92ayYAUIEocv8GbRvze_tjZumiBAsK0sVWVUQ=s600-c-k-c0x00ffffff-no-rj-rp-mo" alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#1e293b]" />
-              <div>
-                <h1 className="text-xl font-bold leading-none text-white">FM RES <span className="text-emerald-500">HUB</span></h1>
-                <p className="text-[10px] text-slate-400 tracking-widest uppercase">Vietnam Community</p>
-              </div>
-            </div>
-
-            <nav className="hidden lg:flex items-center space-x-1 bg-slate-800/50 p-1 rounded-full border border-slate-700/50">
-              {CATEGORIES.slice(0, 10).map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => handleCategoryClick(cat)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-                    selectedCategory === cat 
-                      ? 'bg-emerald-600 text-white shadow-md' 
-                      : 'text-slate-400 hover:text-white hover:bg-slate-700'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <div className="relative hidden sm:block">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-slate-800 border border-slate-700 rounded-full py-2 pl-10 pr-4 text-xs text-white focus:ring-2 focus:ring-emerald-500 outline-none w-32 md:w-48 focus:w-64 transition-all"
-                />
-              </div>
-              {isAdmin ? (
-                <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
-                  <button onClick={onAddItemClick} className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-full shadow-lg"><Plus size={18} /></button>
-                  <button onClick={onLogoutClick} className="bg-slate-800 hover:bg-slate-700 text-rose-400 p-2 rounded-full border border-slate-700"><LogOut size={18} /></button>
-                </div>
-              ) : (
-                <button onClick={onLoginClick} className="text-slate-500 hover:text-white p-2"><User size={20} /></button>
-              )}
-            </div>
+    <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-background/70 border-b border-white/5">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        {/* Logo Area */}
+        <div
+          className="flex items-center gap-3 cursor-pointer select-none"
+          onClick={() => navigate('/')}
+        >
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-emerald-800 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+            <span className="font-black text-white text-lg">FM</span>
+          </div>
+          <div className="hidden sm:block">
+            <h1 className="text-lg font-bold text-white tracking-tight leading-none">
+              Res<span className="text-primary">Hub</span>
+            </h1>
+            <p className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-0.5">Vietnam</p>
           </div>
         </div>
-        <div className="lg:hidden border-t border-slate-800 overflow-x-auto whitespace-nowrap scrollbar-hide bg-[#1e293b]">
-          <div className="flex p-3 space-x-2 items-center">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryClick(cat)}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap ${selectedCategory === cat ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}
-              >
-                {cat}
-              </button>
-            ))}
+
+        {/* Navigation Pills - Desktop */}
+        <nav className="hidden lg:flex items-center bg-surface/50 p-1 rounded-full border border-white/5 shadow-inner">
+          {CATEGORIES.slice(0, 8).map(cat => (
+            <button
+              key={cat}
+              onClick={() => cat === 'All' ? navigate('/') : navigate(`/${toSlug(cat)}`)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${selectedCategory === cat
+                  ? 'bg-primary text-black shadow-lg shadow-primary/25'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </nav>
+
+        {/* Actions Area */}
+        <div className="flex items-center gap-3">
+          {/* Search Bar */}
+          <div className="relative group">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-primary transition-colors" />
+            <input
+              type="text"
+              placeholder="Tìm kiếm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-surface border border-white/5 rounded-full py-2 pl-10 pr-4 text-xs text-white focus:ring-2 focus:ring-primary/50 focus:border-primary/50 outline-none w-32 md:w-60 transition-all placeholder:text-zinc-600"
+            />
           </div>
+
+          {isAdmin ? (
+            <div className="flex items-center gap-2">
+              <button onClick={onAddItemClick} className="bg-primary hover:bg-emerald-400 text-black p-2 rounded-full shadow-lg hover:shadow-primary/30 transition-all"><Plus size={18} /></button>
+              <button onClick={onLogoutClick} className="bg-surface hover:bg-red-500/20 text-red-500 hover:text-red-400 p-2 rounded-full border border-white/5 transition-all"><LogOut size={18} /></button>
+            </div>
+          ) : (
+            <button onClick={onLoginClick} className="p-2 text-zinc-400 hover:text-white transition-colors bg-surface hover:bg-white/5 rounded-full border border-white/5">
+              <User size={18} />
+            </button>
+          )}
         </div>
-      </header>
+      </div>
+
+      {/* Mobile Nav Scrollable */}
+      <div className="lg:hidden border-t border-white/5 bg-background/50 backdrop-blur-md">
+        <div className="flex overflow-x-auto p-2 gap-2 scrollbar-hide">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => cat === 'All' ? navigate('/') : navigate(`/${toSlug(cat)}`)}
+              className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${selectedCategory === cat ? 'bg-primary text-black border-primary' : 'bg-surface text-zinc-400 border-white/5'
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {isAdmin && (
-        <div className="bg-amber-500/10 border-b border-amber-500/20 py-1.5 text-center backdrop-blur-sm">
-          <p className="text-xs text-amber-500 font-bold flex items-center justify-center gap-2 tracking-wide">
-            <Crown size={16} className="fill-amber-500 text-amber-500" /> ADMIN MODE ACTIVE <span className="opacity-50">|</span> {userEmail}
-          </p>
+        <div className="bg-amber-500 text-black text-[10px] font-bold text-center py-0.5 flex justify-center items-center gap-2">
+          <Crown size={12} /> ADMIN: {userEmail}
         </div>
       )}
-    </>
+    </header>
   );
 }

@@ -69,3 +69,42 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  /* Tạo nền Gradient nhẹ để có chiều sâu */
+  background: radial-gradient(circle at 50% 0%, #1e293b 0%, #09090b 70%);
+  background-attachment: fixed;
+  color: #e4e4e7;
+  /* Zinc-200 */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tùy chỉnh thanh cuộn cho đẹp */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Hiệu ứng Glass cơ bản */
+.glass-panel {
+  background: rgba(24, 24, 27, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

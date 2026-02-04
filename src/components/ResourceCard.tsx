@@ -1,5 +1,5 @@
 import { useState, useEffect, type MouseEvent } from 'react';
-import { Download, Eye, Calendar, User, Heart, Coffee, Info, Edit, Check } from 'lucide-react';
+import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2 } from 'lucide-react';
 import { type ResourceItem } from '../types';
 
 interface CardProps {
@@ -10,176 +10,124 @@ interface CardProps {
   onDonate: (item: ResourceItem) => void;
 }
 
-// Hàm chọn màu sắc cho Tag Phiên bản
-const getVersionColor = (ver?: string) => {
-  switch (ver) {
-    case 'FM26': return 'bg-purple-600 text-white border-purple-500 shadow-purple-900/20';
-    case 'Tất cả': return 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-900/20';
-    case 'FM24': return 'bg-blue-600 text-white border-blue-500 shadow-blue-900/20';
-    default: return 'bg-slate-700 text-slate-300 border-slate-600';
-  }
-};
-
 export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDonate }: CardProps) {
   const [liked, setLiked] = useState(false);
 
-  // Reset trạng thái like khi item thay đổi
-  useEffect(() => {
-    setLiked(false);
-  }, [item.id]);
+  useEffect(() => { setLiked(false); }, [item.id]);
 
   const handleLikeClick = (e: MouseEvent) => {
     e.stopPropagation();
-    if (!liked) {
-      setLiked(true);
-      onLike(item);
-    }
+    if (!liked) { setLiked(true); onLike(item); }
   };
 
   return (
-    <div className="group relative flex flex-col bg-[#1e293b] rounded-xl overflow-hidden border border-slate-700/50 hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 h-full">
-      
-      {/* --- CÁC BADGES (TAG NỔI) --- */}
-
-      {/* 1. Category chính (Góc Phải) */}
-      <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-slate-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-slate-700 z-20 uppercase shadow-sm">
-        {item.category}
-      </div>
-
-      {/* 2. Version Tag (Góc Trái, cạnh nút tim) */}
-      {item.version && item.version !== 'All' && (
-        <div className={`absolute top-3 left-12 z-20 text-[9px] font-bold px-2 py-1 rounded-md border shadow-sm ${getVersionColor(item.version)}`}>
-          {item.version}
+    <div
+      className="group relative flex flex-col bg-surface/50 backdrop-blur-sm rounded-2xl border border-white/5 hover:border-primary/30 transition-all duration-300 hover:shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] hover:-translate-y-1 overflow-hidden h-full cursor-pointer"
+      onClick={() => onViewDetail(item)}
+    >
+      {/* === IMAGE SECTION === */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-surfaceHighlight">
+        {/* Badges Overlay */}
+        <div className="absolute top-3 left-3 z-20 flex gap-2">
+          <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide bg-black/60 backdrop-blur-md text-white rounded-lg border border-white/10 shadow-sm">
+            {item.category}
+          </span>
+          {item.isHot && (
+            <span className="px-2 py-1 text-[10px] font-bold uppercase bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg animate-pulse">
+              HOT
+            </span>
+          )}
         </div>
-      )}
 
-      {/* 3. HOT Tag */}
-      {item.isHot && (
-        <div className="absolute top-10 right-3 bg-gradient-to-r from-red-600 to-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm z-20 animate-pulse shadow-md">
-          HOT
-        </div>
-      )}
-
-      {/* --- CÁC NÚT TÁC VỤ TRÊN ẢNH --- */}
-
-      {/* Nút Thả tim */}
-      <button
-        onClick={handleLikeClick}
-        className={`absolute top-3 left-3 z-20 p-2 rounded-full transition-all duration-300 shadow-sm border ${
-          liked
-            ? 'bg-rose-500/10 border-rose-500/50 text-rose-500 scale-110'
-            : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:bg-rose-500/20 hover:text-rose-500 hover:border-rose-500/30 backdrop-blur-md'
-        }`}
-        title="Thả tim"
-      >
-        <Heart size={14} fill={liked ? "currentColor" : "none"} />
-      </button>
-
-      {/* Nút Edit (Chỉ hiện khi là Admin) */}
-      {onEdit && (
+        {/* Nút Like nổi */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(item);
-          }}
-          className="absolute top-14 left-3 bg-blue-600/90 hover:bg-blue-500 text-white p-2 rounded-full z-30 opacity-0 group-hover:opacity-100 transition-all shadow-lg transform hover:scale-110"
-          title="Chỉnh sửa (Admin)"
+          onClick={handleLikeClick}
+          className={`absolute top-3 right-3 z-20 p-2 rounded-full transition-all duration-300 backdrop-blur-md border ${liked
+              ? 'bg-rose-500 text-white border-rose-500 shadow-lg scale-110'
+              : 'bg-black/40 text-white/70 border-white/10 hover:bg-rose-500 hover:text-white'
+            }`}
         >
-          <Edit size={14} />
+          <Heart size={16} fill={liked ? "currentColor" : "none"} />
         </button>
-      )}
 
-      {/* --- KHUNG ẢNH --- */}
-      <div
-        className="relative h-44 w-full flex items-center justify-center overflow-hidden bg-[#0f172a] cursor-pointer group-hover:bg-[#111827] transition-colors"
-        onClick={() => onViewDetail(item)}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1e293b] via-transparent to-transparent opacity-80"></div>
+        {/* Ảnh với hiệu ứng Zoom */}
         <img
           src={item.image}
           alt={item.title}
-          onError={(e) => { e.currentTarget.src = 'https://placehold.co/400x500/1e293b/94a3b8?text=No+Image'; }}
-          className="relative z-10 h-36 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500 ease-out"
+          onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x400/1e293b/94a3b8?text=FM+Res'; }}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
+
+        {/* Gradient Overlay để text dễ đọc nếu muốn đè text lên ảnh */}
+        <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent opacity-60"></div>
       </div>
 
-      {/* --- PHẦN NỘI DUNG --- */}
-      <div className="flex flex-col p-4 flex-grow bg-[#1e293b]">
-        {/* Tác giả */}
-        <div className="flex items-center gap-1.5 text-slate-400 text-[10px] mb-2 font-medium">
-          <div className="w-4 h-4 rounded-full bg-slate-700 flex items-center justify-center">
-            <User size={10} />
+      {/* === CONTENT SECTION === */}
+      <div className="flex flex-col p-5 flex-grow gap-3">
+        {/* Meta Info */}
+        <div className="flex items-center justify-between text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5 hover:text-primary transition-colors">
+            <User size={12} />
+            <span className="font-medium truncate max-w-[100px]">{item.author}</span>
+            <CheckCircle2 size={12} className="text-primary" />
           </div>
-          <span className="truncate max-w-[150px] tracking-wide text-slate-300">{item.author}</span>
-          <Check size={12} className="text-emerald-500 ml-0.5" strokeWidth={3} />
+          <div className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded text-[10px]">
+            <Calendar size={10} /> {item.date}
+          </div>
         </div>
 
-        {/* Tiêu đề */}
-        <h3
-          className="text-white font-bold text-sm leading-snug mb-2 line-clamp-2 group-hover:text-amber-400 transition-colors cursor-pointer"
-          onClick={() => onViewDetail(item)}
-        >
+        {/* Title */}
+        <h3 className="text-lg font-bold text-zinc-100 leading-snug group-hover:text-primary transition-colors line-clamp-2">
           {item.title}
         </h3>
 
-        {/* --- HIỂN THỊ TAGS PHỤ (Nằm dưới tiêu đề) --- */}
-        {item.tags && item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
-            {item.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
-                #{tag}
-              </span>
-            ))}
-            {item.tags.length > 3 && (
-              <span className="text-[9px] text-slate-500 py-0.5 px-1">+{item.tags.length - 3}</span>
-            )}
-          </div>
-        )}
-
-        {/* Cụm nút hành động */}
-        <div className="grid grid-cols-2 gap-2 w-full mt-auto">
-          <a
-            href={item.downloadLink}
-            target="_blank"
-            rel="noreferrer"
-            className="col-span-2 bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-2.5 rounded-lg shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Download size={14} /> TẢI VỀ
-          </a>
-
-          <button
-            onClick={() => onViewDetail(item)}
-            className="col-span-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-bold py-2 rounded-lg border border-slate-600 transition-colors flex items-center justify-center gap-1.5"
-          >
-            <Info size={14} /> CHI TIẾT
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDonate(item);
-            }}
-            className="col-span-1 bg-amber-500 hover:bg-amber-400 text-slate-900 text-[11px] font-bold py-2 rounded-lg shadow-md shadow-amber-900/20 transition-colors flex items-center justify-center gap-1.5"
-          >
-            <Coffee size={14} /> DONATE
-          </button>
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
+          {item.version && item.version !== 'All' && (
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              {item.version}
+            </span>
+          )}
+          {item.tags?.slice(0, 2).map(tag => (
+            <span key={tag} className="px-2 py-0.5 text-[10px] font-medium rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+              #{tag}
+            </span>
+          ))}
         </div>
       </div>
 
-      {/* --- FOOTER CARD --- */}
-      <div className="bg-[#161f2e] px-4 py-2.5 flex justify-between items-center text-[10px] text-slate-400 font-medium w-full border-t border-slate-700/50">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1" title="Lượt xem">
-            <Eye size={12} /> {item.views.toLocaleString()}
-          </div>
-          <div className="flex items-center gap-1 text-rose-400" title="Lượt thích">
-            <Heart size={12} fill="currentColor" /> {(item.likes || 0).toLocaleString()}
-          </div>
-        </div>
-        <div className="flex items-center gap-1 opacity-70">
-          <Calendar size={12} /> {item.date}
-        </div>
+      {/* === FOOTER ACTION === */}
+      <div className="p-4 pt-0 mt-auto grid grid-cols-5 gap-2">
+        <a
+          href={item.downloadLink}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="col-span-3 flex items-center justify-center gap-2 bg-zinc-100 hover:bg-white text-zinc-900 text-xs font-bold py-2.5 rounded-lg transition-all shadow-lg shadow-white/5 hover:-translate-y-0.5"
+        >
+          <Download size={14} /> Tải Xuống
+        </a>
+        <button
+          onClick={(e) => { e.stopPropagation(); onDonate(item); }}
+          className="col-span-1 flex items-center justify-center bg-amber-500/10 hover:bg-amber-500 text-amber-500 hover:text-white border border-amber-500/30 hover:border-amber-500 rounded-lg transition-all"
+          title="Donate"
+        >
+          <Coffee size={16} />
+        </button>
+        {onEdit && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(item); }}
+            className="col-span-1 flex items-center justify-center bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-500/30 hover:border-blue-500 rounded-lg transition-all"
+          >
+            <Edit size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Stats Bar */}
+      <div className="bg-black/20 px-5 py-2 flex items-center justify-between text-[10px] font-medium text-zinc-500 border-t border-white/5">
+        <span className="flex items-center gap-1"><Eye size={12} /> {item.views.toLocaleString()} view</span>
+        <span className="flex items-center gap-1 text-rose-500/80"><Heart size={10} fill="currentColor" /> {item.likes}</span>
       </div>
     </div>
   );
