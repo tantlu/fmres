@@ -23,18 +23,11 @@ export default function Header({
     <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-background/70 border-b border-white/5">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo Area */}
-        <div
-          className="flex items-center gap-3 cursor-pointer select-none"
-          onClick={() => navigate('/')}
-        >
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-emerald-800 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-            <span className="font-black text-white text-lg">FM</span>
-          </div>
-          <div className="hidden sm:block">
-            <h1 className="text-lg font-bold text-white tracking-tight leading-none">
-              Res<span className="text-primary">Hub</span>
-            </h1>
-            <p className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase mt-0.5">Vietnam</p>
+        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/')}>
+          <img src="https://yt3.ggpht.com/83WfPjeUQMeiK56shkZPb4opoo8vqdP9PpSpf92ayYAUIEocv8GbRvze_tjZumiBAsK0sVWVUQ=s600-c-k-c0x00ffffff-no-rj-rp-mo" alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-[#1e293b]" />
+          <div>
+            <h1 className="text-xl font-bold leading-none text-white">FM RES <span className="text-emerald-500">HUB</span></h1>
+            <p className="text-[10px] text-slate-400 tracking-widest uppercase">Vietnam Community</p>
           </div>
         </div>
 
@@ -45,8 +38,8 @@ export default function Header({
               key={cat}
               onClick={() => cat === 'All' ? navigate('/') : navigate(`/${toSlug(cat)}`)}
               className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${selectedCategory === cat
-                  ? 'bg-primary text-black shadow-lg shadow-primary/25'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                ? 'bg-primary text-black shadow-lg shadow-primary/25'
+                : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
             >
               {cat}
