@@ -1,23 +1,23 @@
 /** @type {import('tailwindcss').Config} */
-exportdXCXwfCZdefault {
+export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-    theme: {
+  theme: {
     extend: {
       colors: {
         // Màu nền tối sâu hơn, sang hơn slate-900
         background: '#09090b',
-          surface: '#18181b',
-            surfaceHighlight: '#27272a',
-              primary: '#10b981', // Emerald 500
-                secondary: '#3b82f6', // Blue 500
+        surface: '#18181b',
+        surfaceHighlight: '#27272a',
+        primary: '#10b981', // Emerald 500
+        secondary: '#3b82f6', // Blue 500
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
-          'slide-up': 'slideUp 0.5s ease-out',
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slide-up': 'slideUp 0.5s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         fadeIn: {
@@ -32,6 +32,6 @@ exportdXCXwfCZdefault {
     },
   },
   plugins: [
-    require('@tailwindcss/typography'), // Đảm bảo bạn đã cài: npm install -D @tailwindcss/typography
+    require('@tailwindcss/typography'),
   ],
 }
