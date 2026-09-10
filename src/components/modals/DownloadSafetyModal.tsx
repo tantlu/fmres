@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink, ShieldCheck, AlertCircle, X, Flag, Check, FileCheck, ArrowRight } from 'lucide-react';
 import { type ResourceItem } from '../../types';
+import InstallPathHelper from '../InstallPathHelper';
 
 interface Props {
   isOpen: boolean;
@@ -77,6 +78,13 @@ export default function DownloadSafetyModal({ isOpen, onClose, item }: Props) {
               {item.downloadLink}
             </div>
           </div>
+
+          {/* Interactive Install Path Helper (1-Click) */}
+          <InstallPathHelper 
+            category={item.category} 
+            version={item.version} 
+            compact={true} 
+          />
 
           {/* Safety Notice for Users and Google Crawlers */}
           <div className="bg-gradient-to-br from-[#1d163d] to-[#140c2b] p-4 rounded-2xl border border-cyan-500/20 space-y-2">

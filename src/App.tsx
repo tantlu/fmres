@@ -15,6 +15,7 @@ import LoginModal from './components/modals/LoginModal';
 import DownloadSafetyModal from './components/modals/DownloadSafetyModal';
 import PolicyModal from './components/modals/PolicyModal';
 import DonateModal from './components/modals/DonateModal';
+import CommandPalette from './components/CommandPalette';
 import ViewItem from './pages/ViewItem'; // Import trang chi tiết mới
 
 export default function App() {
@@ -38,6 +39,19 @@ export default function App() {
   const [safetyModalItem, setSafetyModalItem] = useState<ResourceItem | null>(null);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const isAdmin = user && !user.isAnonymous && user.email === ADMIN_EMAIL;
 
@@ -156,6 +170,7 @@ export default function App() {
         isAdmin={isAdmin || false} userEmail={user?.email || undefined}
         onLoginClick={() => setShowLogin(true)} onLogoutClick={handleLogout}
         onAddItemClick={() => { setEditingItem(null); setIsEditModalOpen(true); }}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
       {permissionError && (
         <div className="bg-rose-500/10 border-b border-rose-500/30 p-4 text-rose-300 flex items-center justify-center gap-3 text-sm font-semibold">
@@ -241,6 +256,14 @@ export default function App() {
       <DownloadSafetyModal isOpen={!!safetyModalItem} onClose={() => setSafetyModalItem(null)} item={safetyModalItem} />
       <PolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} />
       <DonateModal isOpen={!!donateItem} onClose={() => setDonateItem(null)} item={donateItem} />
+      <CommandPalette 
+        isOpen={isCommandPaletteOpen} 
+        onClose={() => setIsCommandPaletteOpen(false)} 
+        items={items}
+        onSelectItem={handleViewDetail}
+        onSelectCategory={(cat) => navigate(cat === 'All' ? '/' : `/${toSlug(cat as Category)}`)}
+        onSelectVersion={(v) => setFilterVersion(v)}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, type MouseEvent } from 'react';
-import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles } from 'lucide-react';
+import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles, ShieldCheck } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import { getProviderName, sanitizeGameVersion } from '../utils';
 
@@ -28,19 +28,33 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
 
   const displayVersion = sanitizeGameVersion(item.version);
   const isFm26 = displayVersion === 'FM26';
+  const providerName = getProviderName(item.downloadLink);
+
+  // Detect tactical formation (e.g. 4-2-3-1, 4-3-3, 3-4-2-1)
+  const formationMatch = item.title.match(/(\d-\d-\d-\d|\d-\d-\d)/);
+  const formation = formationMatch ? formationMatch[0] : null;
 
   return (
     <div
-      className="group relative flex flex-col bg-[#1e153c]/90 hover:bg-[#261b4a] backdrop-blur-md rounded-2xl border border-violet-500/20 hover:border-violet-400/50 transition-all duration-300 hover:shadow-[0_10px_30px_-5px_rgba(124,58,237,0.35)] hover:-translate-y-1.5 overflow-hidden h-full cursor-pointer"
+      className={`group relative flex flex-col bg-[#1e153c]/90 hover:bg-[#261b4a] backdrop-blur-md rounded-2xl border transition-all duration-300 hover:shadow-[0_12px_32px_-4px_rgba(124,58,237,0.4)] hover:-translate-y-1.5 overflow-hidden h-full cursor-pointer ${
+        isFm26 
+          ? 'border-violet-500/30 hover:border-cyan-400/60 ring-1 ring-violet-500/20' 
+          : 'border-violet-500/20 hover:border-violet-400/50'
+      }`}
       onClick={() => onViewDetail(item)}
     >
       {/* === IMAGE SECTION === */}
       <div className="relative aspect-[16/10] overflow-hidden bg-[#241846]">
         {/* Badges Overlay */}
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-1.5 items-center">
-          <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[#130d25]/85 backdrop-blur-md text-violet-200 rounded-lg border border-violet-400/30 shadow-sm">
+          <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[#130d25]/90 backdrop-blur-md text-violet-200 rounded-lg border border-violet-400/30 shadow-sm">
             {item.category}
           </span>
+          {formation && (
+            <span className="px-2 py-1 text-[10px] font-black uppercase bg-[#0f172a]/90 text-emerald-300 rounded-lg border border-emerald-500/40 shadow-sm flex items-center gap-1 font-mono">
+              ⚽ {formation}
+            </span>
+          )}
           {item.isHot && (
             <span className="px-2 py-1 text-[10px] font-extrabold uppercase bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg shadow-md animate-pulse">
               HOT
@@ -70,7 +84,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         />
 
         {/* Gradient Overlay để text dễ đọc */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1e153c] via-transparent to-transparent opacity-75"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1e153c] via-transparent to-transparent opacity-80"></div>
       </div>
 
       {/* === CONTENT SECTION === */}
@@ -98,7 +112,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
             <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-md flex items-center gap-1 ${
               isFm26 
                 ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm border border-cyan-400/40' 
-                : 'bg-violet-950 text-violet-300 border border-violet-500/30'
+                : 'bg-violet-950 text-cyan-300 border border-cyan-500/30'
             }`}>
               {isFm26 && <Sparkles size={10} className="text-cyan-200" />}
               {displayVersion}
@@ -109,6 +123,10 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
               #{tag}
             </span>
           ))}
+          <span className="ml-auto text-[10px] text-slate-400 font-medium flex items-center gap-1">
+            <ShieldCheck size={11} className="text-emerald-400" />
+            {providerName}
+          </span>
         </div>
       </div>
 
@@ -119,10 +137,10 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
             type="button"
             onClick={(e) => { e.stopPropagation(); onDownload(item); }}
             className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
-            title={`Tải từ ${getProviderName(item.downloadLink)}`}
+            title={`Tải từ ${providerName}`}
           >
             <Download size={14} className="text-cyan-300 shrink-0" />
-            <span className="truncate">{getProviderName(item.downloadLink)}</span>
+            <span className="truncate">Tải từ {providerName}</span>
           </button>
         ) : (
           <a
@@ -133,7 +151,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
             className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
           >
             <Download size={14} className="text-cyan-300 shrink-0" />
-            <span className="truncate">{getProviderName(item.downloadLink)}</span>
+            <span className="truncate">Tải từ {providerName}</span>
           </a>
         )}
         <button

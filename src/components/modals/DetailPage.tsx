@@ -2,15 +2,12 @@ import { useState } from 'react';
 import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Info, ShieldCheck, Sparkles, User } from 'lucide-react';
 import { type ResourceItem } from '../../types';
 import DownloadSafetyModal from './DownloadSafetyModal';
+import InstallPathHelper from '../InstallPathHelper';
 import { getProviderName, sanitizeGameVersion } from '../../utils';
 
 export default function DetailPage({ item, onClose, onDonate }: { item: ResourceItem | null; onClose: () => void; onDonate: () => void; }) {
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   if (!item) return null;
-
-  const defaultInstruction = `<p>Giải nén file và chép vào thư mục đồ họa Football Manager:</p>
-  <code>Documents/Sports Interactive/Football Manager 2026/graphics/</code>
-  <p class="mt-2">Vào game: <strong>Preferences (Tùy chọn) &gt; Advanced &gt; Interface &gt; Bỏ chọn 'Use caching' &gt; Bấm 'Reload Skin'</strong>.</p>`;
 
   const displayVersion = sanitizeGameVersion(item.version);
   const isFm26 = displayVersion === 'FM26';
@@ -152,20 +149,25 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
           </div>
 
           {/* Installation Guide */}
-          <div className="bg-[#1c1439]/90 rounded-2xl border border-violet-500/20 p-6 md:p-8 backdrop-blur-md shadow-lg">
-            <div className="flex items-center gap-2.5 mb-4 text-white font-bold text-lg font-display">
+          <div className="bg-[#1c1439]/90 rounded-2xl border border-violet-500/20 p-6 md:p-8 backdrop-blur-md shadow-lg space-y-5">
+            <div className="flex items-center gap-2.5 text-white font-bold text-lg font-display">
               <div className="p-1.5 bg-violet-600/20 rounded-lg text-cyan-300 border border-violet-400/30">
                 <Info size={18} />
               </div>
-              <span>Hướng dẫn cài đặt</span>
+              <span>Hướng dẫn cài đặt & Đường dẫn thư mục</span>
             </div>
             
-            <div className="bg-[#150d2c] rounded-xl border border-violet-500/20 p-5 shadow-inner">
-              <div 
-                className="prose prose-sm prose-invert max-w-none text-slate-300 leading-relaxed font-sans" 
-                dangerouslySetInnerHTML={{ __html: item.instructions && item.instructions.trim() !== '' ? item.instructions : defaultInstruction }} 
-              />
-            </div>
+            {/* Interactive Path Helper Widget */}
+            <InstallPathHelper category={item.category} version={item.version} />
+
+            {item.instructions && item.instructions.trim() !== '' && (
+              <div className="bg-[#150d2c] rounded-xl border border-violet-500/20 p-5 shadow-inner">
+                <div 
+                  className="prose prose-sm prose-invert max-w-none text-slate-300 leading-relaxed font-sans" 
+                  dangerouslySetInnerHTML={{ __html: item.instructions }} 
+                />
+              </div>
+            )}
           </div>
 
           {/* Direct Download Call to Action Bar */}

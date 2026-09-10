@@ -11,11 +11,13 @@ interface HeaderProps {
   onLoginClick: () => void;
   onLogoutClick: () => void;
   onAddItemClick: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
 export default function Header({
   selectedCategory, searchTerm, setSearchTerm,
-  isAdmin, userEmail, onLoginClick, onLogoutClick, onAddItemClick
+  isAdmin, userEmail, onLoginClick, onLogoutClick, onAddItemClick,
+  onOpenCommandPalette
 }: HeaderProps) {
   const navigate = useNavigate();
 
@@ -69,17 +71,17 @@ export default function Header({
 
         {/* Actions Area */}
         <div className="flex items-center gap-2.5">
-          {/* Search Bar */}
+          {/* Search Bar with Command Palette trigger */}
           <div className="relative group">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-violet-300/60 group-focus-within:text-violet-400 transition-colors" />
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-violet-300/60 group-focus-within:text-violet-400 transition-colors pointer-events-none" />
             <input
               type="text"
               placeholder="Tìm kiếm tài nguyên..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-[#1c1439]/90 border border-violet-500/20 rounded-full py-2 pl-9 pr-8 text-xs text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-400 outline-none w-36 sm:w-56 md:w-64 transition-all placeholder:text-slate-400/70 shadow-inner"
+              className="bg-[#1c1439]/90 border border-violet-500/20 rounded-full py-2 pl-9 pr-14 sm:pr-16 text-xs text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-400 outline-none w-36 sm:w-56 md:w-64 transition-all placeholder:text-slate-400/70 shadow-inner"
             />
-            {searchTerm && (
+            {searchTerm ? (
               <button 
                 onClick={() => setSearchTerm('')} 
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
@@ -87,7 +89,16 @@ export default function Header({
               >
                 <X size={14} />
               </button>
-            )}
+            ) : onOpenCommandPalette ? (
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                className="absolute right-2 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-0.5 text-[10px] font-mono font-bold bg-[#140b28] hover:bg-violet-900/40 text-violet-300 px-1.5 py-0.5 rounded border border-violet-500/30 transition-colors"
+                title="Mở tìm kiếm nhanh (Ctrl + K)"
+              >
+                <span>⌘K</span>
+              </button>
+            ) : null}
           </div>
 
           {isAdmin ? (
