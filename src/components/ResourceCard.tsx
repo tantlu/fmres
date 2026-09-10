@@ -1,7 +1,7 @@
 import { useState, type MouseEvent } from 'react';
 import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles } from 'lucide-react';
 import { type ResourceItem } from '../types';
-import { getProviderName } from '../utils';
+import { getProviderName, sanitizeGameVersion } from '../utils';
 
 interface CardProps {
   item: ResourceItem;
@@ -26,7 +26,8 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
     if (!liked) { setLiked(true); onLike(item); }
   };
 
-  const isFm26 = item.version === 'FM26';
+  const displayVersion = sanitizeGameVersion(item.version);
+  const isFm26 = displayVersion === 'FM26';
 
   return (
     <div
@@ -93,14 +94,14 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
 
         {/* Tags & Version */}
         <div className="flex flex-wrap gap-1.5 mt-auto pt-2 items-center">
-          {item.version && item.version !== 'All' && (
+          {displayVersion && (
             <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-md flex items-center gap-1 ${
               isFm26 
                 ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm border border-cyan-400/40' 
                 : 'bg-violet-950 text-violet-300 border border-violet-500/30'
             }`}>
               {isFm26 && <Sparkles size={10} className="text-cyan-200" />}
-              {item.version}
+              {displayVersion}
             </span>
           )}
           {item.tags?.slice(0, 2).map(tag => (

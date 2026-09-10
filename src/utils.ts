@@ -13,3 +13,10 @@ export function getProviderName(url?: string): string {
     return 'Tải Xuống';
   }
 }
+
+export function sanitizeGameVersion(version?: string): string {
+  if (!version || version === 'All') return '';
+  // FM25 was cancelled, normalize any legacy references to FM24
+  if (version === 'FM25') return 'FM24';
+  return version;
+}

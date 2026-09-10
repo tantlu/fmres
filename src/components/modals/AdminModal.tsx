@@ -81,10 +81,11 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
                      onChange={e => setFormData({ ...formData, version: e.target.value as GameVersion })} 
                      className="w-full p-3 bg-[#130d25] border border-violet-500/20 rounded-xl text-cyan-300 font-bold outline-none focus:border-violet-400 text-sm"
                    >
-                      <option value="All">Tất cả</option>
                       <option value="FM26">FM26</option>
-                      <option value="FM25">FM25</option>
                       <option value="FM24">FM24</option>
+                      <option value="FM23">FM23</option>
+                      <option value="FM Cũ hơn">FM Cũ hơn (FM22 trở xuống)</option>
+                      <option value="All">Tất cả phiên bản</option>
                    </select>
                 </div>
               </div>

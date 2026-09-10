@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Info, ShieldCheck, Sparkles, User } from 'lucide-react';
 import { type ResourceItem } from '../../types';
 import DownloadSafetyModal from './DownloadSafetyModal';
-import { getProviderName } from '../../utils';
+import { getProviderName, sanitizeGameVersion } from '../../utils';
 
 export default function DetailPage({ item, onClose, onDonate }: { item: ResourceItem | null; onClose: () => void; onDonate: () => void; }) {
   const [showSafetyModal, setShowSafetyModal] = useState(false);
@@ -12,7 +12,8 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
   <code>Documents/Sports Interactive/Football Manager 2026/graphics/</code>
   <p class="mt-2">Vào game: <strong>Preferences (Tùy chọn) &gt; Advanced &gt; Interface &gt; Bỏ chọn 'Use caching' &gt; Bấm 'Reload Skin'</strong>.</p>`;
 
-  const isFm26 = item.version === 'FM26';
+  const displayVersion = sanitizeGameVersion(item.version);
+  const isFm26 = displayVersion === 'FM26';
   const providerName = getProviderName(item.downloadLink);
 
   return (
@@ -61,14 +62,20 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
               onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x400/1e153c/a78bfa?text=FM26+Resource'; }}
               className="w-full h-auto object-cover" 
             />
-            <div className="absolute top-3 left-3 flex gap-2">
+            <div className="absolute top-3 left-3 flex flex-wrap gap-2">
               <span className="px-3 py-1 text-xs font-bold uppercase bg-[#130d25]/90 backdrop-blur-md text-violet-200 rounded-lg border border-violet-400/30 shadow-sm">
                 {item.category}
               </span>
-              {isFm26 && (
-                <span className="px-2.5 py-1 text-xs font-extrabold bg-gradient-to-r from-violet-600 to-cyan-500 text-white rounded-lg shadow-md border border-cyan-400/30 flex items-center gap-1">
-                  <Sparkles size={12} className="text-cyan-200" /> FM26
-                </span>
+              {displayVersion && (
+                isFm26 ? (
+                  <span className="px-2.5 py-1 text-xs font-extrabold bg-gradient-to-r from-violet-600 to-cyan-500 text-white rounded-lg shadow-md border border-cyan-400/30 flex items-center gap-1">
+                    <Sparkles size={12} className="text-cyan-200" /> FM26
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 text-xs font-extrabold bg-[#130d25]/90 backdrop-blur-md text-cyan-300 rounded-lg shadow-md border border-cyan-500/30">
+                    {displayVersion}
+                  </span>
+                )
               )}
             </div>
           </div>
@@ -77,6 +84,13 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
           <div className="bg-[#1c1439]/90 rounded-2xl border border-violet-500/20 p-5 space-y-3.5 backdrop-blur-md shadow-lg">
             <h3 className="text-xs font-extrabold text-violet-300 uppercase tracking-wider font-display">Thông số tài nguyên</h3>
             
+            {displayVersion && (
+              <div className="flex justify-between items-center text-sm border-b border-violet-500/15 pb-2.5">
+                <span className="text-slate-400 flex items-center gap-2"><Sparkles size={15} className="text-cyan-400" /> Phiên bản</span>
+                <span className="font-bold text-cyan-300">{displayVersion}</span>
+              </div>
+            )}
+
             <div className="flex justify-between items-center text-sm border-b border-violet-500/15 pb-2.5">
               <span className="text-slate-400 flex items-center gap-2"><Eye size={15} className="text-violet-400" /> Lượt xem</span>
               <span className="font-mono font-bold text-white">{item.views.toLocaleString()}</span>

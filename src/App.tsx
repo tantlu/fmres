@@ -5,7 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom'; // Thêm Routes, Route, useNavigate
 
 import { auth, db, getCollectionRef, checkIsSandbox, appId } from './firebase';
-import { CATEGORIES, ADMIN_EMAIL, toSlug, type ResourceItem, type Category, type GameVersion } from './types';
+import { CATEGORIES, GAME_VERSIONS, ADMIN_EMAIL, toSlug, type ResourceItem, type Category, type GameVersion } from './types';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
@@ -135,7 +135,15 @@ export default function App() {
   const filteredItems = items.filter(item => {
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory || (item.tags && item.tags.includes(selectedCategory));
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || item.author.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesVersion = filterVersion === 'All' || !item.version || item.version === 'All' || item.version === filterVersion;
+    const matchesVersion = (() => {
+      if (filterVersion === 'All') return true;
+      const v = item.version;
+      if (!v || v === 'All') return true;
+      if (filterVersion === 'FM Cũ hơn') {
+        return v === 'FM Cũ hơn' || (v !== 'FM26' && v !== 'FM24' && v !== 'FM23');
+      }
+      return v === filterVersion;
+    })();
     return matchesCategory && matchesSearch && matchesVersion;
   });
 
@@ -179,7 +187,7 @@ export default function App() {
                   {/* Version Pill Filter */}
                   <div className="flex items-center gap-2 mt-3.5 flex-wrap">
                     <span className="text-xs text-violet-300/70 uppercase font-bold tracking-wider mr-1">Phiên bản:</span>
-                    {(['All', 'FM26', 'FM25', 'FM24'] as GameVersion[]).map(ver => {
+                    {GAME_VERSIONS.map(ver => {
                       const isSelected = filterVersion === ver;
                       const isFm26 = ver === 'FM26';
                       return (
@@ -195,7 +203,7 @@ export default function App() {
                           }`}
                         >
                           {isFm26 && <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse"></span>}
-                          {ver === 'All' ? 'TẤT CẢ' : ver}
+                          {ver === 'All' ? 'TẤT CẢ' : ver === 'FM Cũ hơn' ? 'CŨ HƠN (<=FM22)' : ver}
                         </button>
                       );
                     })}

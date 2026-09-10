@@ -45,7 +45,7 @@ export default function Hero() {
             </h2>
 
             <p className="text-slate-300 text-sm sm:text-base md:text-lg mb-8 max-w-2xl leading-relaxed mx-auto lg:mx-0 font-normal">
-              Kho dữ liệu toàn diện với Facepack chất lượng cao, Logo bản quyền, Bộ Kits mùa giải mới nhất, Tactic đỉnh cao và Bản dịch Tiếng Việt chuẩn xác cho FM26, FM25, FM24.
+              Kho dữ liệu toàn diện với Facepack chất lượng cao, Logo bản quyền, Bộ Kits mùa giải mới nhất, Tactic đỉnh cao và Bản dịch Tiếng Việt chuẩn xác cho FM26, FM24, FM23 và các phiên bản cũ hơn.
             </p>
 
             <div className="flex flex-wrap justify-center lg:justify-start gap-3.5">

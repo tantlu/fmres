@@ -1,5 +1,7 @@
 export type Category = 'All' | 'FM Version' | 'Face' | 'Logo' | 'Database' | 'Việt hóa' | 'Mods' | 'Tactics' | 'Guide' | 'Kits';
-export type GameVersion = 'All' | 'FM24' | 'FM26';
+export type GameVersion = 'All' | 'FM26' | 'FM24' | 'FM23' | 'FM Cũ hơn';
+
+export const GAME_VERSIONS: GameVersion[] = ['All', 'FM26', 'FM24', 'FM23', 'FM Cũ hơn'];
 
 export interface ResourceItem {
   id?: string;
