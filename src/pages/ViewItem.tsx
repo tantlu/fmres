@@ -51,10 +51,10 @@ export default function ViewItem() {
   }, [id, navigate]);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-400 text-sm font-bold animate-pulse">Đang tải dữ liệu...</p>
+    <div className="min-h-screen bg-[#110b22] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-violet-500 border-t-cyan-400 rounded-full animate-spin"></div>
+        <p className="text-violet-300 text-sm font-bold animate-pulse font-display">Đang tải tài nguyên...</p>
       </div>
     </div>
   );

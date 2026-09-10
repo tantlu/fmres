@@ -6,6 +6,23 @@ import {
   Quote, Undo, Redo, Heading1, Heading2, Minus 
 } from 'lucide-react';
 
+interface ToolButtonProps {
+  onClick: () => void;
+  icon: React.ComponentType<{ size?: number }>;
+  title: string;
+}
+
+const ToolButton = ({ onClick, icon: Icon, title }: ToolButtonProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
+    title={title}
+  >
+    <Icon size={16} />
+  </button>
+);
+
 export default function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void; }) {
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -38,18 +55,6 @@ export default function RichTextEditor({ value, onChange }: { value: string; onC
     const url = prompt("Nhập đường dẫn (URL) ảnh của bạn:");
     if (url) execCommand('insertImage', url);
   };
-
-  // Component nút bấm nhỏ gọn
-  const ToolButton = ({ onClick, icon: Icon, title }: { onClick: () => void, icon: any, title: string }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors"
-      title={title}
-    >
-      <Icon size={16} />
-    </button>
-  );
 
   return (
     <div className="border border-slate-600 rounded-lg overflow-hidden bg-[#0f172a] shadow-sm">

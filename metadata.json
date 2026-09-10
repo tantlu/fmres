@@ -1,0 +1,8 @@
+{
+  "name": "FM Hub",
+  "description": "Football Manager community resources, tactics, graphics, and database hub",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

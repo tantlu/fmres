@@ -16,7 +16,7 @@ export interface ResourceItem {
   likes: number;
   date: string;
   isHot?: boolean;
-  createdAt?: any;
+  createdAt?: { seconds: number; nanoseconds?: number } | null | Record<string, unknown>;
   donateLink?: string;
   bankName?: string;
   bankAccount?: string;
@@ -30,8 +30,8 @@ export const toSlug = (text: string): string => {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\-]+/g, '')
-    .replace(/\-\-+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 };
