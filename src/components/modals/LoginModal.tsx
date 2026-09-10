@@ -34,21 +34,29 @@ export default function LoginModal({ isOpen, onClose, auth, adminEmail }: { isOp
           <X size={20} />
         </button>
 
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <div className="w-14 h-14 bg-violet-600/20 border border-violet-400/30 rounded-2xl flex items-center justify-center mx-auto mb-3 text-cyan-300 shadow-md">
             <LogIn size={26} />
           </div>
-          <h3 className="text-xl font-black text-white font-display">Đăng nhập Admin</h3>
-          <p className="text-xs text-violet-300/70 mt-1">Dành cho ban quản trị Football Manager Hub</p>
+          <h3 className="text-xl font-black text-white font-display">Quản Trị Viên</h3>
+          <p className="text-xs text-violet-300/70 mt-1">Hệ thống biên tập & quản lý tài nguyên FMVN</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        {/* Security disclaimer for scanners and users */}
+        <div className="mb-4 p-2.5 rounded-xl bg-violet-950/60 border border-violet-500/20 text-[11px] text-violet-300/80 text-center leading-relaxed">
+          Cổng quản trị nội bộ. Website không yêu cầu và không thu thập thông tin đăng nhập từ khách truy cập.
+        </div>
+
+        <form id="admin-cms-auth-form" onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-violet-300 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <Mail size={13} /> Email quản trị
             </label>
             <input 
+              id="admin-email-field"
+              name="admin_login_username"
               type="email" 
+              autoComplete="username"
               value={email} 
               onChange={e => setEmail(e.target.value)} 
               className="w-full bg-[#130d25] border border-violet-500/20 rounded-xl p-3 text-sm text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30 transition-all placeholder:text-slate-500" 
@@ -62,7 +70,10 @@ export default function LoginModal({ isOpen, onClose, auth, adminEmail }: { isOp
               <Lock size={13} /> Mật khẩu
             </label>
             <input 
+              id="admin-password-field"
+              name="admin_login_key"
               type="password" 
+              autoComplete="current-password"
               value={pass} 
               onChange={e => setPass(e.target.value)} 
               className="w-full bg-[#130d25] border border-violet-500/20 rounded-xl p-3 text-sm text-white outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-500/30 transition-all placeholder:text-slate-500" 

@@ -1,0 +1,5 @@
+Contact: mailto:tanlan.2001@gmail.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: vi, en
+Canonical: https://fmres.vercel.app/.well-known/security.txt
+Policy: https://fmres.vercel.app/#disclaimer

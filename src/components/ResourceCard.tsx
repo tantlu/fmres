@@ -1,6 +1,7 @@
 import { useState, type MouseEvent } from 'react';
 import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles } from 'lucide-react';
 import { type ResourceItem } from '../types';
+import { getProviderName } from '../utils';
 
 interface CardProps {
   item: ResourceItem;
@@ -8,9 +9,10 @@ interface CardProps {
   onViewDetail: (item: ResourceItem) => void;
   onLike: (item: ResourceItem) => void;
   onDonate: (item: ResourceItem) => void;
+  onDownload?: (item: ResourceItem) => void;
 }
 
-export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDonate }: CardProps) {
+export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDonate, onDownload }: CardProps) {
   const [prevItemId, setPrevItemId] = useState(item.id);
   const [liked, setLiked] = useState(false);
 
@@ -111,15 +113,28 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
 
       {/* === FOOTER ACTION === */}
       <div className="p-4 pt-0 mt-auto grid grid-cols-5 gap-2">
-        <a
-          href={item.downloadLink}
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
-        >
-          <Download size={14} className="text-cyan-300" /> <span>Tải Xuống</span>
-        </a>
+        {onDownload ? (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onDownload(item); }}
+            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
+            title={`Tải từ ${getProviderName(item.downloadLink)}`}
+          >
+            <Download size={14} className="text-cyan-300 shrink-0" />
+            <span className="truncate">{getProviderName(item.downloadLink)}</span>
+          </button>
+        ) : (
+          <a
+            href={item.downloadLink}
+            target="_blank"
+            rel="nofollow noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
+          >
+            <Download size={14} className="text-cyan-300 shrink-0" />
+            <span className="truncate">{getProviderName(item.downloadLink)}</span>
+          </a>
+        )}
         <button
           onClick={(e) => { e.stopPropagation(); onDonate(item); }}
           className="col-span-1 flex items-center justify-center bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 hover:border-amber-400 rounded-xl transition-all shadow-sm"

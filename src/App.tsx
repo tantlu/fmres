@@ -12,6 +12,9 @@ import Footer from './components/Footer';
 import ResourceList from './components/ResourceList';
 import AdminModal from './components/modals/AdminModal';
 import LoginModal from './components/modals/LoginModal';
+import DownloadSafetyModal from './components/modals/DownloadSafetyModal';
+import PolicyModal from './components/modals/PolicyModal';
+import DonateModal from './components/modals/DonateModal';
 import ViewItem from './pages/ViewItem'; // Import trang chi tiết mới
 
 export default function App() {
@@ -32,6 +35,9 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ResourceItem | null>(null);
+  const [safetyModalItem, setSafetyModalItem] = useState<ResourceItem | null>(null);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
 
   const isAdmin = user && !user.isAnonymous && user.email === ADMIN_EMAIL;
 
@@ -212,7 +218,8 @@ export default function App() {
                 onDelete={handleDeleteItem} 
                 onViewDetail={handleViewDetail}
                 onLike={handleLikeItem}
-                onDonate={handleViewDetail}
+                onDonate={(item) => setDonateItem(item)}
+                onDownload={(item) => setSafetyModalItem(item)}
                 onAddNew={() => { setEditingItem(null); setIsEditModalOpen(true); }}
               />
             </main>
@@ -220,9 +227,12 @@ export default function App() {
         } />
       </Routes>
 
-      <Footer />
+      <Footer onOpenPolicy={() => setShowPolicyModal(true)} />
       {showLogin && <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} auth={auth} adminEmail={ADMIN_EMAIL} />}
       <AdminModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} initialData={editingItem} onSave={handleSaveItem} />
+      <DownloadSafetyModal isOpen={!!safetyModalItem} onClose={() => setSafetyModalItem(null)} item={safetyModalItem} />
+      <PolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} />
+      <DonateModal isOpen={!!donateItem} onClose={() => setDonateItem(null)} item={donateItem} />
     </div>
   );
 }

@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Info, ShieldCheck, Sparkles, User } from 'lucide-react';
 import { type ResourceItem } from '../../types';
+import DownloadSafetyModal from './DownloadSafetyModal';
+import { getProviderName } from '../../utils';
 
 export default function DetailPage({ item, onClose, onDonate }: { item: ResourceItem | null; onClose: () => void; onDonate: () => void; }) {
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
   if (!item) return null;
 
   const defaultInstruction = `<p>Giải nén file và chép vào thư mục đồ họa Football Manager:</p>
@@ -9,6 +13,7 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
   <p class="mt-2">Vào game: <strong>Preferences (Tùy chọn) &gt; Advanced &gt; Interface &gt; Bỏ chọn 'Use caching' &gt; Bấm 'Reload Skin'</strong>.</p>`;
 
   const isFm26 = item.version === 'FM26';
+  const providerName = getProviderName(item.downloadLink);
 
   return (
     <div className="fixed inset-0 z-50 bg-[#110b22] overflow-y-auto">
@@ -33,14 +38,15 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
           >
             <Coffee size={15} /> <span>ỦNG HỘ TÁC GIẢ</span>
           </button>
-          <a 
-            href={item.downloadLink} 
-            target="_blank" 
-            rel="noreferrer" 
-            className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-lg shadow-violet-600/30 flex items-center gap-2 transition-all hover:-translate-y-0.5 border border-violet-400/30"
+          <button 
+            type="button"
+            onClick={() => setShowSafetyModal(true)}
+            className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-5 py-2 rounded-xl font-bold text-xs shadow-lg shadow-violet-600/30 flex items-center gap-2 transition-all hover:-translate-y-0.5 border border-violet-400/30 cursor-pointer"
+            title={`Tải về từ ${providerName}`}
           >
-            <Download size={16} className="text-cyan-300" /> <span>TẢI VỀ NGAY</span>
-          </a>
+            <Download size={16} className="text-cyan-300" /> 
+            <span>TẢI TỪ {providerName.toUpperCase()}</span>
+          </button>
         </div>
       </div>
 
@@ -161,19 +167,26 @@ export default function DetailPage({ item, onClose, onDonate }: { item: Resource
               >
                 <Coffee size={15} /> Ủng hộ
               </button>
-              <a 
-                href={item.downloadLink} 
-                target="_blank" 
-                rel="noreferrer" 
-                className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg shadow-violet-600/30 transition-all flex items-center justify-center gap-2 border border-violet-400/30 whitespace-nowrap"
+              <button 
+                type="button"
+                onClick={() => setShowSafetyModal(true)}
+                className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg shadow-violet-600/30 transition-all flex items-center justify-center gap-2 border border-violet-400/30 whitespace-nowrap cursor-pointer"
+                title={`Tải về từ ${providerName}`}
               >
-                <Download size={16} className="text-cyan-300" /> Tải Xuống
-              </a>
+                <Download size={16} className="text-cyan-300" /> Tải từ {providerName}
+              </button>
             </div>
           </div>
 
         </div>
       </div>
+
+      {/* Safety Interstitial Download Modal */}
+      <DownloadSafetyModal 
+        isOpen={showSafetyModal} 
+        onClose={() => setShowSafetyModal(false)} 
+        item={item} 
+      />
     </div>
   );
 }

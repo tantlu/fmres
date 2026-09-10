@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Community Fan Project for Football Manager
+# Non-commercial resource repository
+Sitemap: https://fmres.vercel.app/sitemap.xml

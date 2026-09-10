@@ -11,6 +11,7 @@ interface ResourceListProps {
   onViewDetail: (item: ResourceItem) => void;
   onLike: (item: ResourceItem) => void;
   onDonate: (item: ResourceItem) => void;
+  onDownload?: (item: ResourceItem) => void;
   onAddNew: () => void;
 }
 
@@ -23,6 +24,7 @@ export default function ResourceList({
   onViewDetail, 
   onLike, 
   onDonate, 
+  onDownload,
   onAddNew 
 }: ResourceListProps) {
   
@@ -80,6 +82,7 @@ export default function ResourceList({
             onViewDetail={onViewDetail} 
             onLike={onLike} 
             onDonate={onDonate} 
+            onDownload={onDownload}
           />
 
           {/* Nút Xóa: Chỉ render khi là Admin */}
