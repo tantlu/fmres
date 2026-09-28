@@ -39,6 +39,8 @@ export default function CompactTableView({
             const displayVersion = sanitizeGameVersion(item.version);
             const isFm26 = displayVersion === 'FM26';
             const provider = getProviderName(item.downloadLink);
+            const isArticle = item.category === 'Bài viết';
+            const isGuide = item.category === 'Guide';
 
             return (
               <tr 
@@ -59,9 +61,19 @@ export default function CompactTableView({
                     </div>
                     <div className="min-w-0 max-w-[280px] sm:max-w-md">
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#120a24] text-violet-300 border border-violet-500/20">
-                          {item.category}
-                        </span>
+                        {isArticle ? (
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+                            📰 Bài viết
+                          </span>
+                        ) : isGuide ? (
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">
+                            📖 Guide
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#120a24] text-violet-300 border border-violet-500/20">
+                            {item.category}
+                          </span>
+                        )}
                         {item.isHot && (
                           <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500 text-black">
                             HOT
@@ -115,18 +127,40 @@ export default function CompactTableView({
                   </div>
                 </td>
 
-                {/* 5. Storage Provider */}
+                {/* 5. Storage Provider / Article Info */}
                 <td className="py-3 px-3 whitespace-nowrap hidden lg:table-cell">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#140b28] border border-violet-500/20 text-slate-300 font-medium text-xs">
-                    <ShieldCheck size={13} className="text-emerald-400" />
-                    {provider}
-                  </span>
+                  {isArticle ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 font-medium text-xs">
+                      {item.readTime || 'Bài đọc FM'}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#140b28] border border-violet-500/20 text-slate-300 font-medium text-xs">
+                      <ShieldCheck size={13} className="text-emerald-400" />
+                      {provider}
+                    </span>
+                  )}
                 </td>
 
                 {/* 6. Action Buttons */}
                 <td className="py-3 px-4 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-1.5">
-                    {onDownload ? (
+                    {isArticle ? (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
+                        className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-cyan-600/20 border border-cyan-400/30 transition-all hover:scale-105"
+                      >
+                        <span>Đọc bài</span>
+                      </button>
+                    ) : isGuide ? (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
+                        className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-600/20 border border-amber-400/30 transition-all hover:scale-105"
+                      >
+                        <span>Xem Guide</span>
+                      </button>
+                    ) : onDownload ? (
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onDownload(item); }}
@@ -138,7 +172,7 @@ export default function CompactTableView({
                       </button>
                     ) : (
                       <a
-                        href={item.downloadLink}
+                        href={item.downloadLink || '#'}
                         target="_blank"
                         rel="nofollow noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}

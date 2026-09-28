@@ -6,6 +6,7 @@ import { useLocation, Routes, Route, useNavigate } from 'react-router-dom'; // T
 
 import { auth, db, getCollectionRef, checkIsSandbox, appId } from './firebase';
 import { CATEGORIES, GAME_VERSIONS, ADMIN_EMAIL, toSlug, type ResourceItem, type Category, type GameVersion } from './types';
+import { DEFAULT_RESOURCES } from './defaultData';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
@@ -16,11 +17,11 @@ import DownloadSafetyModal from './components/modals/DownloadSafetyModal';
 import PolicyModal from './components/modals/PolicyModal';
 import DonateModal from './components/modals/DonateModal';
 import CommandPalette from './components/CommandPalette';
-import ViewItem from './pages/ViewItem'; // Import trang chi tiết mới
+import ViewItem from './pages/ViewItem';
 
 export default function App() {
   // State quản lý dữ liệu danh sách
-  const [items, setItems] = useState<ResourceItem[]>([]);
+  const [items, setItems] = useState<ResourceItem[]>(DEFAULT_RESOURCES);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
@@ -63,7 +64,7 @@ export default function App() {
     return CATEGORIES.find(c => toSlug(c) === currentSlug) || 'All';
   }, [location.pathname]);
 
-  // 2. Auth & Data Logic (Giữ nguyên)
+  // 2. Auth & Data Logic
   useEffect(() => {
     const init = async () => {
       try {
@@ -95,10 +96,14 @@ export default function App() {
            return getTime(b) - getTime(a);
         });
         setItems(fetchedItems);
-      } else setItems([]);
+      } else {
+        // Fallback default sample items if database is clean
+        setItems(DEFAULT_RESOURCES);
+      }
     }, (error) => {
       setIsLoading(false);
       if (error.code === 'permission-denied') setPermissionError(true);
+      setItems(prev => prev.length === 0 ? DEFAULT_RESOURCES : prev);
     });
     return () => unsubscribe();
   }, [isAuthReady, user]);
@@ -122,15 +127,27 @@ export default function App() {
   };
 
   const handleDeleteItem = async (id: string) => {
-     if(!confirm("Xóa?")) return;
-     const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', id) : doc(db, 'fm_resources_v1', id);
-     await deleteDoc(docRef);
+     if(!confirm("Xác nhận xóa nội dung này?")) return;
+     try {
+       const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', id) : doc(db, 'fm_resources_v1', id);
+       await deleteDoc(docRef);
+       setItems(prev => prev.filter(item => item.id !== id));
+     } catch (e) {
+       console.error("Xóa thất bại:", e);
+       // Hỗ trợ xóa khỏi state nếu là mock data
+       setItems(prev => prev.filter(item => item.id !== id));
+     }
   };
   
   const handleLikeItem = async (item: ResourceItem) => {
     if (!item.id) return;
-    const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', item.id) : doc(db, 'fm_resources_v1', item.id);
-    await updateDoc(docRef, { likes: increment(1) });
+    try {
+      const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', item.id) : doc(db, 'fm_resources_v1', item.id);
+      await updateDoc(docRef, { likes: increment(1) });
+    } catch {
+      // Optimistic update
+      setItems(prev => prev.map(i => i.id === item.id ? { ...i, likes: (i.likes || 0) + 1 } : i));
+    }
   };
 
   // --- HÀM QUAN TRỌNG: CHUYỂN HƯỚNG SANG TRANG CHI TIẾT ---
@@ -138,7 +155,10 @@ export default function App() {
     if (item.id) {
        // Tăng view ở background
        const docRef = checkIsSandbox() ? doc(db, 'artifacts', appId, 'public', 'data', 'fm_resources_v1', item.id) : doc(db, 'fm_resources_v1', item.id);
-       updateDoc(docRef, { views: increment(1) }).catch(console.error);
+       updateDoc(docRef, { views: increment(1) }).catch(() => {
+         // Optimistic
+         setItems(prev => prev.map(i => i.id === item.id ? { ...i, views: (i.views || 0) + 1 } : i));
+       });
        
        // Chuyển hướng URL
        navigate(`/item/${item.id}`);
@@ -193,14 +213,31 @@ export default function App() {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-5 border-b border-violet-500/20 gap-4">
                 <div>
                   <div className="flex items-center gap-3">
-                    <span className="w-2 h-7 bg-gradient-to-b from-violet-500 via-purple-500 to-cyan-400 rounded-full block shadow-[0_0_12px_rgba(139,92,246,0.6)]"></span>
-                    <h3 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">
-                      {selectedCategory === 'All' ? 'Tất cả tài nguyên' : selectedCategory}
-                    </h3>
+                    <span className="w-2 h-8 bg-gradient-to-b from-violet-500 via-purple-500 to-cyan-400 rounded-full block shadow-[0_0_12px_rgba(139,92,246,0.6)]"></span>
+                    <div>
+                      <h3 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight flex items-center gap-2">
+                        {selectedCategory === 'All' 
+                          ? 'Tất cả tài nguyên & Bài viết' 
+                          : selectedCategory === 'Bài viết'
+                            ? 'Bài viết & Tin tức Football Manager'
+                            : selectedCategory === 'Guide'
+                              ? 'Guide của tôi & Cẩm nang chơi FM'
+                              : selectedCategory}
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {selectedCategory === 'Bài viết'
+                          ? 'Tin tức game, phân tích chuyển nhượng, match engine, đánh giá Wonderkids và cập nhật mới'
+                          : selectedCategory === 'Guide'
+                            ? 'Cẩm nang hướng dẫn chiến thuật, mẹo đào tạo trẻ và kinh nghiệm chơi FM đỉnh cao'
+                            : selectedCategory === 'All'
+                              ? 'Khám phá bài viết, cẩm nang guide, mod đồ họa và tactics mới nhất từ cộng đồng'
+                              : `Kho tài nguyên ${selectedCategory} cho Football Manager`}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Version Pill Filter */}
-                  <div className="flex items-center gap-2 mt-3.5 flex-wrap">
+                  <div className="flex items-center gap-2 mt-4 flex-wrap">
                     <span className="text-xs text-violet-300/70 uppercase font-bold tracking-wider mr-1">Phiên bản:</span>
                     {GAME_VERSIONS.map(ver => {
                       const isSelected = filterVersion === ver;
@@ -228,7 +265,7 @@ export default function App() {
                 {/* Counter Tag */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-violet-300 bg-[#1e153c] px-3.5 py-1.5 rounded-xl border border-violet-500/25 shadow-sm font-display">
-                    {isLoading ? 'Đang tải...' : `${filteredItems.length} tài nguyên`}
+                    {isLoading ? 'Đang tải...' : `${filteredItems.length} mục`}
                   </span>
                 </div>
               </div>

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db, checkIsSandbox, appId } from '../firebase';
 import { type ResourceItem } from '../types';
+import { DEFAULT_RESOURCES } from '../defaultData';
 import DetailPage from '../components/modals/DetailPage';
 import DonateModal from '../components/modals/DonateModal';
 
@@ -15,8 +16,6 @@ export default function ViewItem() {
 
   // --- HÀM XỬ LÝ QUAY LẠI THÔNG MINH ---
   const handleBack = () => {
-    // window.history.state.idx: Chỉ số lịch sử của React Router
-    // Nếu > 0 nghĩa là người dùng đã duyệt qua các trang trước đó trong web này
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1); // Quay lại trang trước (giữ vị trí scroll)
     } else {
@@ -37,12 +36,22 @@ export default function ViewItem() {
         if (docSnap.exists()) {
           setItem({ id: docSnap.id, ...docSnap.data() } as ResourceItem);
         } else {
-          // Nếu bài không tồn tại, tự động về trang chủ sau thông báo
-          alert("Bài viết không tồn tại hoặc đã bị xóa!");
-          navigate('/', { replace: true });
+          // Fallback tìm trong default resources
+          const defaultItem = DEFAULT_RESOURCES.find(d => d.id === id);
+          if (defaultItem) {
+            setItem(defaultItem);
+          } else {
+            alert("Bài viết không tồn tại hoặc đã bị xóa!");
+            navigate('/', { replace: true });
+          }
         }
       } catch (error) {
         console.error("Lỗi lấy dữ liệu:", error);
+        // Khi lỗi mạng hoặc quyền truy cập, thử tìm trong default items
+        const defaultItem = DEFAULT_RESOURCES.find(d => d.id === id);
+        if (defaultItem) {
+          setItem(defaultItem);
+        }
       } finally {
         setLoading(false);
       }

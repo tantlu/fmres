@@ -14,7 +14,8 @@ export default function DownloadSafetyModal({ isOpen, onClose, item }: Props) {
 
   if (!isOpen || !item) return null;
 
-  const getProviderInfo = (url: string) => {
+  const getProviderInfo = (url?: string) => {
+    if (!url) return { name: 'Tải về trực tiếp', color: 'text-violet-300', verified: true };
     try {
       const parsed = new URL(url);
       const host = parsed.hostname.toLowerCase();

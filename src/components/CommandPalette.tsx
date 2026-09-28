@@ -157,7 +157,7 @@ export default function CommandPalette({
                 {ver === 'FM26' ? '✨ FM26' : ver}
               </button>
             ))}
-            {['Face', 'Logo', 'Kits', 'Tactics', 'Việt hóa'].map(cat => (
+            {['Bài viết', 'Guide', 'Tactics', 'Việt hóa', 'Face', 'Logo', 'Kits'].map(cat => (
               <button
                 key={cat}
                 type="button"
@@ -165,9 +165,15 @@ export default function CommandPalette({
                   if (onSelectCategory) onSelectCategory(cat);
                   onClose();
                 }}
-                className="px-2.5 py-0.5 rounded-full font-medium text-[11px] bg-[#140b28] text-slate-300 hover:text-white border border-violet-500/20 hover:bg-violet-900/30 shrink-0"
+                className={`px-2.5 py-0.5 rounded-full font-medium text-[11px] border shrink-0 transition-all ${
+                  cat === 'Bài viết' 
+                    ? 'bg-cyan-950/70 text-cyan-300 border-cyan-500/30 hover:bg-cyan-900/40' 
+                    : cat === 'Guide'
+                      ? 'bg-amber-950/70 text-amber-300 border-amber-500/30 hover:bg-amber-900/40'
+                      : 'bg-[#140b28] text-slate-300 hover:text-white border-violet-500/20 hover:bg-violet-900/30'
+                }`}
               >
-                {cat}
+                {cat === 'Bài viết' ? '📰 Bài viết' : cat === 'Guide' ? '📖 Guide' : cat}
               </button>
             ))}
           </div>

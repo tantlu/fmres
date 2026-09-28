@@ -1,4 +1,5 @@
-import { Search, LogOut, User, Plus, Crown, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Search, LogOut, User, Plus, Crown, X, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, toSlug, type Category } from '../types';
 
@@ -20,6 +21,22 @@ export default function Header({
   onOpenCommandPalette
 }: HeaderProps) {
   const navigate = useNavigate();
+  const [isGraphicsMenuOpen, setIsGraphicsMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsGraphicsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const graphicsCategories: Category[] = ['Face', 'Logo', 'Kits', 'Database', 'Mods', 'FM Version'];
+  const isGraphicsActive = graphicsCategories.includes(selectedCategory);
 
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-[#130d25]/90 border-b border-violet-500/20 shadow-lg shadow-black/20">
@@ -49,24 +66,109 @@ export default function Header({
           </div>
         </div>
 
-        {/* Navigation Pills - Desktop */}
-        <nav className="hidden lg:flex items-center bg-[#1c1439]/80 p-1.5 rounded-full border border-violet-500/20 shadow-inner">
-          {CATEGORIES.slice(0, 8).map(cat => {
-            const isActive = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => cat === 'All' ? navigate('/') : navigate(`/${toSlug(cat)}`)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30 border border-violet-400/40'
-                    : 'text-slate-300 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {cat === 'All' ? 'Tất cả' : cat}
-              </button>
-            );
-          })}
+        {/* Navigation Bar - Desktop (Tối ưu gọn gàng, không icon rườm rà) */}
+        <nav className="hidden lg:flex items-center bg-[#1c1439]/90 p-1 rounded-full border border-violet-500/20 shadow-inner gap-1">
+          {/* 1. Trang chủ / Tất cả */}
+          <button
+            onClick={() => navigate('/')}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              selectedCategory === 'All'
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Tất cả
+          </button>
+
+          {/* 2. BÀI VIẾT */}
+          <button
+            onClick={() => navigate(`/${toSlug('Bài viết')}`)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              selectedCategory === 'Bài viết'
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Bài viết
+          </button>
+
+          {/* 3. GUIDE CỦA TÔI */}
+          <button
+            onClick={() => navigate(`/${toSlug('Guide')}`)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              selectedCategory === 'Guide'
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Guide của tôi
+          </button>
+
+          {/* 4. TACTICS */}
+          <button
+            onClick={() => navigate(`/${toSlug('Tactics')}`)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              selectedCategory === 'Tactics'
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Tactics
+          </button>
+
+          {/* 5. VIỆT HÓA */}
+          <button
+            onClick={() => navigate(`/${toSlug('Việt hóa')}`)}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              selectedCategory === 'Việt hóa'
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Việt hóa
+          </button>
+
+          {/* 6. DROPDOWN ĐỒ HỌA & MODS */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsGraphicsMenuOpen(prev => !prev)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                isGraphicsActive
+                  ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-600/30'
+                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>{isGraphicsActive ? selectedCategory : 'Đồ họa & Mods'}</span>
+              <ChevronDown size={13} className={`transform transition-transform opacity-70 ${isGraphicsMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isGraphicsMenuOpen && (
+              <div className="absolute right-0 mt-2 w-44 bg-[#181033] border border-violet-500/30 rounded-2xl shadow-2xl p-1 z-50 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="px-3 py-1.5 text-[10px] font-bold text-violet-300/60 uppercase tracking-wider border-b border-violet-500/20">
+                  Tài nguyên mod
+                </div>
+                {graphicsCategories.map(cat => {
+                  const isActive = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        navigate(`/${toSlug(cat)}`);
+                        setIsGraphicsMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                        isActive
+                          ? 'bg-violet-600 text-white font-bold'
+                          : 'text-slate-300 hover:text-white hover:bg-violet-900/40'
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Actions Area */}
@@ -76,7 +178,7 @@ export default function Header({
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-violet-300/60 group-focus-within:text-violet-400 transition-colors pointer-events-none" />
             <input
               type="text"
-              placeholder="Tìm kiếm tài nguyên..."
+              placeholder="Tìm kiếm bài viết, tài nguyên..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="bg-[#1c1439]/90 border border-violet-500/20 rounded-full py-2 pl-9 pr-14 sm:pr-16 text-xs text-white focus:ring-2 focus:ring-violet-500/50 focus:border-violet-400 outline-none w-36 sm:w-56 md:w-64 transition-all placeholder:text-slate-400/70 shadow-inner"
@@ -107,7 +209,7 @@ export default function Header({
                 onClick={onAddItemClick} 
                 className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-violet-600/30 border border-violet-400/30 flex items-center gap-1.5 transition-all hover:scale-105"
               >
-                <Plus size={15} /> <span className="hidden sm:inline">Thêm mới</span>
+                <Plus size={15} /> <span className="hidden sm:inline">Đăng mới</span>
               </button>
               <button 
                 onClick={onLogoutClick} 
@@ -130,22 +232,24 @@ export default function Header({
         </div>
       </div>
 
-      {/* Mobile Nav Scrollable */}
+      {/* Mobile Nav Scrollable: Gọn gàng, sạch sẽ */}
       <div className="lg:hidden border-t border-violet-500/20 bg-[#150e29]/95 backdrop-blur-md">
         <div className="flex overflow-x-auto px-3 py-2 gap-1.5 scrollbar-hide">
           {CATEGORIES.map(cat => {
             const isActive = selectedCategory === cat;
+            const isGuide = cat === 'Guide';
+
             return (
               <button
                 key={cat}
                 onClick={() => cat === 'All' ? navigate('/') : navigate(`/${toSlug(cat)}`)}
-                className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                   isActive 
                     ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-violet-400 shadow-md shadow-violet-600/25' 
                     : 'bg-[#1e153a] text-slate-300 border-violet-500/20 hover:bg-violet-900/30'
                 }`}
               >
-                {cat === 'All' ? 'Tất cả' : cat}
+                {cat === 'All' ? 'Tất cả' : isGuide ? 'Guide của tôi' : cat}
               </button>
             );
           })}

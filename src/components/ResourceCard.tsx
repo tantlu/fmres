@@ -1,5 +1,5 @@
 import { useState, type MouseEvent } from 'react';
-import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles, ShieldCheck } from 'lucide-react';
+import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles, ShieldCheck, Newspaper, BookOpen, Clock, ArrowRight } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import { getProviderName, sanitizeGameVersion } from '../utils';
 
@@ -30,6 +30,9 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
   const isFm26 = displayVersion === 'FM26';
   const providerName = getProviderName(item.downloadLink);
 
+  const isArticle = item.category === 'Bài viết';
+  const isGuide = item.category === 'Guide';
+
   // Detect tactical formation (e.g. 4-2-3-1, 4-3-3, 3-4-2-1)
   const formationMatch = item.title.match(/(\d-\d-\d-\d|\d-\d-\d)/);
   const formation = formationMatch ? formationMatch[0] : null;
@@ -37,9 +40,13 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
   return (
     <div
       className={`group relative flex flex-col bg-[#1e153c]/90 hover:bg-[#261b4a] backdrop-blur-md rounded-2xl border transition-all duration-300 hover:shadow-[0_12px_32px_-4px_rgba(124,58,237,0.4)] hover:-translate-y-1.5 overflow-hidden h-full cursor-pointer ${
-        isFm26 
-          ? 'border-violet-500/30 hover:border-cyan-400/60 ring-1 ring-violet-500/20' 
-          : 'border-violet-500/20 hover:border-violet-400/50'
+        isArticle
+          ? 'border-cyan-500/30 hover:border-cyan-400/70 ring-1 ring-cyan-500/20'
+          : isGuide
+            ? 'border-amber-500/30 hover:border-amber-400/70 ring-1 ring-amber-500/20'
+            : isFm26 
+              ? 'border-violet-500/30 hover:border-cyan-400/60 ring-1 ring-violet-500/20' 
+              : 'border-violet-500/20 hover:border-violet-400/50'
       }`}
       onClick={() => onViewDetail(item)}
     >
@@ -47,9 +54,20 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
       <div className="relative aspect-[16/10] overflow-hidden bg-[#241846]">
         {/* Badges Overlay */}
         <div className="absolute top-3 left-3 z-20 flex flex-wrap gap-1.5 items-center">
-          <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[#130d25]/90 backdrop-blur-md text-violet-200 rounded-lg border border-violet-400/30 shadow-sm">
-            {item.category}
-          </span>
+          {isArticle ? (
+            <span className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg shadow-md border border-cyan-400/40 flex items-center gap-1">
+              <Newspaper size={11} className="text-cyan-200" /> BÀI VIẾT
+            </span>
+          ) : isGuide ? (
+            <span className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg shadow-md border border-amber-400/40 flex items-center gap-1">
+              <BookOpen size={11} className="text-amber-200" /> GUIDE
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-[#130d25]/90 backdrop-blur-md text-violet-200 rounded-lg border border-violet-400/30 shadow-sm">
+              {item.category}
+            </span>
+          )}
+
           {formation && (
             <span className="px-2 py-1 text-[10px] font-black uppercase bg-[#0f172a]/90 text-emerald-300 rounded-lg border border-emerald-500/40 shadow-sm flex items-center gap-1 font-mono">
               ⚽ {formation}
@@ -102,12 +120,25 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         </div>
 
         {/* Title */}
-        <h3 className="text-base sm:text-lg font-bold text-white leading-snug group-hover:text-violet-300 transition-colors line-clamp-2 font-display">
+        <h3 className="text-base sm:text-lg font-bold text-white leading-snug group-hover:text-cyan-300 transition-colors line-clamp-2 font-display">
           {item.title}
         </h3>
 
-        {/* Tags & Version */}
+        {/* Summary Snippet for Articles */}
+        {item.summary && (
+          <p className="text-xs text-slate-300/90 line-clamp-2 leading-relaxed">
+            {item.summary}
+          </p>
+        )}
+
+        {/* Tags, Version & Read Time */}
         <div className="flex flex-wrap gap-1.5 mt-auto pt-2 items-center">
+          {isArticle && (
+            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/30 flex items-center gap-1">
+              <Clock size={10} /> {item.readTime || '4 phút đọc'}
+            </span>
+          )}
+
           {displayVersion && (
             <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-md flex items-center gap-1 ${
               isFm26 
@@ -123,16 +154,41 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
               #{tag}
             </span>
           ))}
-          <span className="ml-auto text-[10px] text-slate-400 font-medium flex items-center gap-1">
-            <ShieldCheck size={11} className="text-emerald-400" />
-            {providerName}
-          </span>
+
+          {!isArticle && (
+            <span className="ml-auto text-[10px] text-slate-400 font-medium flex items-center gap-1">
+              <ShieldCheck size={11} className="text-emerald-400" />
+              {providerName}
+            </span>
+          )}
         </div>
       </div>
 
       {/* === FOOTER ACTION === */}
       <div className="p-4 pt-0 mt-auto grid grid-cols-5 gap-2">
-        {onDownload ? (
+        {isArticle ? (
+          /* Nút Đọc Bài Viết */
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
+            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-cyan-600/25 hover:shadow-cyan-500/40 hover:-translate-y-0.5 border border-cyan-400/30"
+          >
+            <BookOpen size={14} className="text-cyan-200 shrink-0" />
+            <span>Đọc bài viết</span>
+            <ArrowRight size={13} className="text-cyan-200" />
+          </button>
+        ) : isGuide ? (
+          /* Nút Xem Guide */
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
+            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-600 via-orange-600 to-violet-600 hover:from-amber-500 hover:to-violet-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-amber-600/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 border border-amber-400/30"
+          >
+            <BookOpen size={14} className="text-amber-200 shrink-0" />
+            <span>Xem hướng dẫn</span>
+          </button>
+        ) : onDownload ? (
+          /* Nút Tải Tài nguyên */
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onDownload(item); }}
@@ -144,7 +200,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
           </button>
         ) : (
           <a
-            href={item.downloadLink}
+            href={item.downloadLink || '#'}
             target="_blank"
             rel="nofollow noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
