@@ -12,15 +12,27 @@ import {
   Plus, 
   Download, 
   Trash2,
-  Database
+  Database,
+  Edit,
+  Lock,
+  UserCheck
 } from 'lucide-react';
 import { FM26_PLAYERS, type PlayerProfile } from '../data/playerDatabase';
 import DatabaseManagerModal from './modals/DatabaseManagerModal';
+import PlayerEditModal from './modals/PlayerEditModal';
 import { exportPlayersToFile } from '../utils/excelImport';
 
 const STORAGE_KEY = 'fm26_player_database_v2';
 
-export default function PlayerDatabaseView() {
+interface PlayerDatabaseViewProps {
+  isAdmin?: boolean;
+  onLoginClick?: () => void;
+}
+
+export default function PlayerDatabaseView({
+  isAdmin = false,
+  onLoginClick
+}: PlayerDatabaseViewProps) {
   // State for players, initialized from localStorage if available
   const [players, setPlayers] = useState<PlayerProfile[]>(() => {
     try {
@@ -40,8 +52,13 @@ export default function PlayerDatabaseView() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<string>('All');
   const [selectedTier, setSelectedTier] = useState<string>('All');
+  
+  // Modals
   const [activePlayerModal, setActivePlayerModal] = useState<PlayerProfile | null>(null);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [playerToEdit, setPlayerToEdit] = useState<PlayerProfile | null>(null);
+
   const [toastMessage, setToastMessage] = useState<string>('');
 
   // Persist to localStorage
@@ -58,12 +75,72 @@ export default function PlayerDatabaseView() {
     setTimeout(() => setToastMessage(''), 3000);
   };
 
+  // Open modal to add a brand new player
+  const handleAddNewPlayerClick = () => {
+    if (!isAdmin) {
+      if (onLoginClick) onLoginClick();
+      return;
+    }
+    setPlayerToEdit(null);
+    setIsEditModalOpen(true);
+  };
+
+  // Open modal to edit an existing player
+  const handleEditPlayerClick = (player: PlayerProfile, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!isAdmin) {
+      if (onLoginClick) onLoginClick();
+      return;
+    }
+    setPlayerToEdit(player);
+    setIsEditModalOpen(true);
+  };
+
+  // Save (Create or Update) Player with full scout report
+  const handleSavePlayer = (savedPlayer: PlayerProfile) => {
+    setPlayers(prev => {
+      const index = prev.findIndex(p => p.id === savedPlayer.id);
+      if (index >= 0) {
+        // Update existing player
+        const updated = [...prev];
+        updated[index] = savedPlayer;
+        return updated;
+      } else {
+        // Create new player at beginning of list
+        return [savedPlayer, ...prev];
+      }
+    });
+
+    // If active player modal is currently viewing this player, update it as well
+    if (activePlayerModal && activePlayerModal.id === savedPlayer.id) {
+      setActivePlayerModal(savedPlayer);
+    }
+
+    showToast(`Đã lưu thành công cầu thủ & báo cáo trinh sát: ${savedPlayer.name}!`);
+  };
+
+  // Delete player
+  const handleDeletePlayer = (id: string, name: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!isAdmin) return;
+    
+    if (confirm(`Bạn có chắc chắn muốn xóa cầu thủ "${name}" khỏi cơ sở dữ liệu?`)) {
+      setPlayers(prev => prev.filter(p => p.id !== id));
+      if (activePlayerModal && activePlayerModal.id === id) {
+        setActivePlayerModal(null);
+      }
+      showToast(`Đã xóa cầu thủ "${name}" khỏi database`);
+    }
+  };
+
+  // Bulk Import
   const handleImportPlayers = (newPlayers: PlayerProfile[], mode: 'append' | 'replace') => {
+    if (!isAdmin) return;
+
     if (mode === 'replace') {
       setPlayers(newPlayers);
       showToast(`Đã thay thế database bằng ${newPlayers.length} cầu thủ mới!`);
     } else {
-      // Append without duplicating IDs
       setPlayers(prev => {
         const existingIds = new Set(prev.map(p => p.id));
         const toAdd = newPlayers.filter(p => !existingIds.has(p.id));
@@ -73,22 +150,10 @@ export default function PlayerDatabaseView() {
     }
   };
 
-  const handleAddSinglePlayer = (player: PlayerProfile) => {
-    setPlayers(prev => [player, ...prev]);
-    showToast(`Đã thêm cầu thủ ${player.name} vào Database!`);
-  };
-
   const handleResetToDefault = () => {
+    if (!isAdmin) return;
     setPlayers(FM26_PLAYERS);
     showToast('Đã khôi phục dữ liệu Wonderkids FM26 mặc định!');
-  };
-
-  const handleDeletePlayer = (id: string, name: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm(`Bạn có chắc chắn muốn xóa cầu thủ ${name} khỏi database?`)) {
-      setPlayers(prev => prev.filter(p => p.id !== id));
-      showToast(`Đã xóa cầu thủ ${name}`);
-    }
   };
 
   const positions = [
@@ -103,7 +168,8 @@ export default function PlayerDatabaseView() {
     { label: 'Tất cả phân loại', value: 'All' },
     { label: '⭐ Thần đồng (Wonderkid)', value: 'Wonderkid' },
     { label: '💎 Món hời giá mềm (Bargain)', value: 'Bargain' },
-    { label: '🔍 Viên ngọc ẩn (Hidden Gem)', value: 'Hidden Gem' }
+    { label: '🔍 Viên ngọc ẩn (Hidden Gem)', value: 'Hidden Gem' },
+    { label: '👑 Đẳng cấp (World Class)', value: 'World Class' }
   ];
 
   const filteredPlayers = useMemo(() => {
@@ -138,7 +204,7 @@ export default function PlayerDatabaseView() {
         </div>
       )}
 
-      {/* Header banner with Database Creation & Import Actions */}
+      {/* Header banner with Admin Action Controls */}
       <div className="relative rounded-2xl overflow-hidden border border-violet-500/25 bg-gradient-to-r from-[#1b103b] via-[#21144a] to-[#160d30] p-6 sm:p-8 shadow-xl">
         <div className="absolute -top-12 -right-12 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -149,30 +215,66 @@ export default function PlayerDatabaseView() {
               <Sparkles size={14} />
               <span>FM26 Scouting & Database Hub</span>
               <span aria-hidden="true">·</span>
-              <span className="text-violet-300">Quản lý & Nhập liệu Cầu thủ</span>
+              <span className="text-violet-300">Cơ sở dữ liệu trinh sát bóng đá</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-extrabold text-white font-display tracking-tight mb-2">
               Database Cầu thủ & Wonderkids FM26
             </h2>
             <p className="text-xs sm:text-sm text-violet-200/80 leading-relaxed">
-              Tuyển tập thần đồng tiềm năng cao (PA 180+), món hời giá mềm và cơ chế nhập file <strong>Excel (.xlsx) / CSV</strong> giúp bạn tự tạo và quản lý cơ sở dữ liệu tuyển trạch cá nhân.
+              Tra cứu hồ sơ chi tiết, báo cáo trinh sát, phân tích điểm mạnh/yếu và tiềm năng PA/CA chuẩn game Football Manager 2026.
             </p>
+
+            {/* Admin Status Pill */}
+            <div className="mt-3 flex items-center gap-2">
+              {isAdmin ? (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+                  <UserCheck size={13} />
+                  <span>Quyền Quản trị viên: Có thể tạo, sửa & xóa cầu thủ kèm báo cáo scout</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-900/30 border border-violet-500/20 text-violet-300/80 text-xs">
+                  <Lock size={12} />
+                  <span>Chế độ xem cộng đồng (Đăng nhập Admin để tạo hoặc sửa cầu thủ)</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Action Buttons for Database Creation */}
+          {/* Action Buttons: Only Admin Can Create or Import */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <button
-              onClick={() => setIsManagerModalOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-violet-600/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
-            >
-              <FileSpreadsheet size={16} />
-              <span>Tạo / Nhập Database (Excel / CSV)</span>
-            </button>
+            {isAdmin ? (
+              <>
+                <button
+                  onClick={handleAddNewPlayerClick}
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-violet-600/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+                >
+                  <Plus size={16} />
+                  <span>+ Thêm cầu thủ & Báo cáo Scout</span>
+                </button>
+
+                <button
+                  onClick={() => setIsManagerModalOpen(true)}
+                  className="px-3.5 py-2.5 rounded-xl bg-[#191036] hover:bg-[#22144d] text-cyan-300 hover:text-white border border-cyan-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
+                  title="Nhập file Excel hoặc CSV vào cơ sở dữ liệu"
+                >
+                  <FileSpreadsheet size={15} />
+                  <span>Nhập Excel / CSV</span>
+                </button>
+              </>
+            ) : onLoginClick ? (
+              <button
+                onClick={onLoginClick}
+                className="px-3.5 py-2 rounded-xl bg-[#191036] hover:bg-violet-900/40 text-violet-200 hover:text-white border border-violet-500/30 text-xs font-semibold transition-all flex items-center gap-1.5"
+              >
+                <Lock size={13} />
+                <span>Đăng nhập Admin để chỉnh sửa</span>
+              </button>
+            ) : null}
 
             <button
               onClick={() => exportPlayersToFile(players, 'xlsx')}
-              className="px-3.5 py-2.5 rounded-xl bg-[#191036] hover:bg-[#22144d] text-cyan-300 hover:text-white border border-cyan-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
+              className="px-3.5 py-2.5 rounded-xl bg-[#120a26] hover:bg-[#1a0f37] text-violet-200 hover:text-white border border-violet-500/20 text-xs font-bold transition-all flex items-center gap-1.5"
               title="Xuất cơ sở dữ liệu hiện tại sang file Excel"
             >
               <Download size={15} />
@@ -240,13 +342,15 @@ export default function PlayerDatabaseView() {
             <span className="text-violet-300/70 font-mono">
               Hiển thị <strong className="text-cyan-300">{filteredPlayers.length}</strong> / {players.length} cầu thủ
             </span>
-            <button
-              onClick={() => setIsManagerModalOpen(true)}
-              className="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 transition-colors"
-            >
-              <Plus size={13} />
-              <span>Quản lý database</span>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={handleAddNewPlayerClick}
+                className="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 transition-colors"
+              >
+                <Plus size={13} />
+                <span>Thêm cầu thủ mới</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -259,7 +363,7 @@ export default function PlayerDatabaseView() {
           </div>
           <h4 className="text-base font-bold text-white">Không tìm thấy cầu thủ nào phù hợp bộ lọc</h4>
           <p className="text-xs text-violet-300/70 max-w-md mx-auto">
-            Thử thay đổi từ khóa tìm kiếm hoặc bấm nút bên dưới để nhập thêm cầu thủ từ file Excel / CSV của bạn.
+            Thử thay đổi từ khóa tìm kiếm hoặc lọc lại theo vị trí khác.
           </p>
           <div className="flex items-center justify-center gap-3 pt-2">
             <button
@@ -268,13 +372,15 @@ export default function PlayerDatabaseView() {
             >
               Đặt lại bộ lọc
             </button>
-            <button
-              onClick={() => setIsManagerModalOpen(true)}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
-            >
-              <FileSpreadsheet size={14} />
-              <span>Nhập file Excel / CSV</span>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={handleAddNewPlayerClick}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Plus size={14} />
+                <span>Thêm cầu thủ mới</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -286,7 +392,7 @@ export default function PlayerDatabaseView() {
             <div
               key={player.id}
               onClick={() => setActivePlayerModal(player)}
-              className="group cursor-pointer rounded-xl bg-[#191035]/85 hover:bg-[#201544] border border-violet-500/20 hover:border-cyan-400/50 transition-all duration-200 overflow-hidden shadow-lg hover:shadow-violet-600/20 flex flex-col justify-between"
+              className="group cursor-pointer rounded-xl bg-[#191035]/85 hover:bg-[#201544] border border-violet-500/20 hover:border-cyan-400/50 transition-all duration-200 overflow-hidden shadow-lg hover:shadow-violet-600/20 flex flex-col justify-between relative"
             >
               {/* Card Top */}
               <div className="p-4 sm:p-5 space-y-3">
@@ -315,7 +421,7 @@ export default function PlayerDatabaseView() {
                     </div>
                   </div>
 
-                  {/* Position Badge & Delete */}
+                  {/* Position Badge & Admin Controls */}
                   <div className="flex items-center gap-1.5">
                     <span className={`px-2.5 py-1 rounded-md text-xs font-black font-mono shadow-sm ${
                       player.position === 'ST' 
@@ -329,14 +435,27 @@ export default function PlayerDatabaseView() {
                       {player.position}
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeletePlayer(player.id, player.name, e)}
-                      className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
-                      title="Xóa cầu thủ khỏi database"
-                    >
-                      <Trash2 size={13} />
-                    </button>
+                    {/* Admin Edit & Delete Quick Buttons */}
+                    {isAdmin && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={(e) => handleEditPlayerClick(player, e)}
+                          className="p-1.5 text-violet-300 hover:text-cyan-300 bg-violet-900/40 hover:bg-violet-800/60 rounded-md border border-violet-500/30 transition-colors"
+                          title="Sửa thông tin & báo cáo scout của cầu thủ này"
+                        >
+                          <Edit size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeletePlayer(player.id, player.name, e)}
+                          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/20 rounded-md transition-colors"
+                          title="Xóa cầu thủ khỏi database"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -368,10 +487,15 @@ export default function PlayerDatabaseView() {
                   </div>
                 </div>
 
-                {/* Short Role Excerpt */}
-                <p className="text-xs text-violet-200/70 line-clamp-2 leading-relaxed">
-                  {player.scoutReport}
-                </p>
+                {/* Scout Report Excerpt */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-[10px] font-bold text-cyan-400/90 uppercase tracking-wider">
+                    <TrendingUp size={11} /> Nhận định trinh sát:
+                  </div>
+                  <p className="text-xs text-violet-200/80 line-clamp-2 leading-relaxed">
+                    {player.scoutReport}
+                  </p>
+                </div>
               </div>
 
               {/* Card Footer */}
@@ -388,13 +512,27 @@ export default function PlayerDatabaseView() {
         })}
       </div>
 
-      {/* Database Manager Modal (Excel/CSV Import & Manual Creation) */}
+      {/* Admin Player Edit / Create Modal */}
+      {isEditModalOpen && (
+        <PlayerEditModal
+          key={playerToEdit ? playerToEdit.id : 'new-player'}
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setPlayerToEdit(null);
+          }}
+          playerToEdit={playerToEdit}
+          onSave={handleSavePlayer}
+        />
+      )}
+
+      {/* Database Manager Modal (Excel/CSV Import) */}
       <DatabaseManagerModal
         isOpen={isManagerModalOpen}
         onClose={() => setIsManagerModalOpen(false)}
         currentPlayers={players}
         onImportPlayers={handleImportPlayers}
-        onAddSinglePlayer={handleAddSinglePlayer}
+        onAddSinglePlayer={handleSavePlayer}
         onResetToDefault={handleResetToDefault}
       />
 
@@ -408,13 +546,36 @@ export default function PlayerDatabaseView() {
             className="bg-[#191035] rounded-2xl border border-violet-500/30 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-6 relative space-y-5"
             onClick={e => e.stopPropagation()}
           >
-            {/* Modal Close */}
-            <button
-              onClick={() => setActivePlayerModal(null)}
-              className="absolute top-4 right-4 p-1.5 text-violet-300/70 hover:text-white rounded-lg hover:bg-violet-900/40 transition-colors"
-            >
-              <X size={18} />
-            </button>
+            {/* Modal Top Actions */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                <Sparkles size={14} />
+                <span>Báo cáo Trinh sát FM26 (Scout Profile)</span>
+              </span>
+
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleEditPlayerClick(activePlayerModal);
+                    }}
+                    className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                    title="Chỉnh sửa thông tin & nhận định scout của cầu thủ này"
+                  >
+                    <Edit size={13} />
+                    <span>Sửa hồ sơ & Scout</span>
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => setActivePlayerModal(null)}
+                  className="p-1.5 text-violet-300/70 hover:text-white rounded-lg hover:bg-violet-900/40 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
 
             {/* Player Info Header */}
             <div className="flex items-start gap-4">
@@ -433,6 +594,11 @@ export default function PlayerDatabaseView() {
                   <span className="text-xs px-2 py-0.5 rounded bg-violet-800 text-violet-200 font-mono font-bold">
                     {activePlayerModal.position}
                   </span>
+                  {activePlayerModal.secondaryPositions && activePlayerModal.secondaryPositions.length > 0 && (
+                    <span className="text-[11px] text-violet-300 font-mono">
+                      ({activePlayerModal.secondaryPositions.join(', ')})
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-violet-300">
                   {activePlayerModal.club} · {activePlayerModal.nationality} · {activePlayerModal.age} tuổi
@@ -444,6 +610,8 @@ export default function PlayerDatabaseView() {
                   <span className="text-violet-300 font-mono">CA: {activePlayerModal.ca}</span>
                   <span className="text-slate-400">|</span>
                   <span className="text-white font-medium">Giá: {activePlayerModal.value}</span>
+                  <span className="text-slate-400">|</span>
+                  <span className="text-violet-300">Lương: {activePlayerModal.wage}</span>
                 </div>
               </div>
             </div>
@@ -467,10 +635,16 @@ export default function PlayerDatabaseView() {
 
             {/* Scout Report Section */}
             <div className="p-4 rounded-xl bg-[#120a26] border border-violet-500/20 space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-cyan-300 uppercase tracking-wider">
-                <TrendingUp size={14} /> Báo cáo Trinh sát (Scout Report)
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-cyan-300 uppercase tracking-wider">
+                  <TrendingUp size={14} /> Báo cáo Trinh sát (Scout Report)
+                </div>
+                <div className="text-[11px] text-violet-300">
+                  Sở trường: <strong>{activePlayerModal.role}</strong> · Chân: <strong>{activePlayerModal.foot}</strong>
+                </div>
               </div>
-              <p className="text-xs text-slate-200 leading-relaxed">
+              
+              <p className="text-xs text-slate-200 leading-relaxed bg-[#160c33] p-3 rounded-lg border border-violet-500/15">
                 {activePlayerModal.scoutReport}
               </p>
 
@@ -480,7 +654,7 @@ export default function PlayerDatabaseView() {
                   <ul className="space-y-1 text-slate-300">
                     {activePlayerModal.strengths.map((s, idx) => (
                       <li key={idx} className="flex items-center gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-emerald-400"></span> {s}
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> {s}
                       </li>
                     ))}
                   </ul>
@@ -490,7 +664,7 @@ export default function PlayerDatabaseView() {
                   <ul className="space-y-1 text-slate-300">
                     {activePlayerModal.weaknesses.map((w, idx) => (
                       <li key={idx} className="flex items-center gap-1.5">
-                        <span className="w-1 h-1 rounded-full bg-rose-400"></span> {w}
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span> {w}
                       </li>
                     ))}
                   </ul>
@@ -498,14 +672,38 @@ export default function PlayerDatabaseView() {
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex justify-end pt-2">
-              <button
-                onClick={() => setActivePlayerModal(null)}
-                className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-md"
-              >
-                Đóng hồ sơ
-              </button>
+            {/* Modal Bottom Actions */}
+            <div className="flex justify-between items-center pt-2">
+              <div>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePlayer(activePlayerModal.id, activePlayerModal.name)}
+                    className="px-3 py-1.5 rounded-lg text-rose-400 hover:text-white hover:bg-rose-500/20 text-xs font-semibold transition-colors flex items-center gap-1.5"
+                  >
+                    <Trash2 size={13} />
+                    <span>Xóa cầu thủ này</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <button
+                    onClick={() => handleEditPlayerClick(activePlayerModal)}
+                    className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                  >
+                    <Edit size={14} />
+                    <span>Sửa cầu thủ & Scout</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setActivePlayerModal(null)}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg text-xs font-semibold transition-all"
+                >
+                  Đóng hồ sơ
+                </button>
+              </div>
             </div>
           </div>
         </div>

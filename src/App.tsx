@@ -212,7 +212,7 @@ export default function App() {
               
               {/* Nếu người dùng chọn tab "Database cầu thủ" */}
               {selectedCategory === 'Database cầu thủ' ? (
-                <PlayerDatabaseView />
+                <PlayerDatabaseView isAdmin={isAdmin || false} onLoginClick={() => setShowLogin(true)} />
               ) : (
                 <>
                   {/* Filter & Section Bar (Khôi phục hiển thị ban đầu) */}
