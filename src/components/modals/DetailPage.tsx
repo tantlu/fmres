@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Clock, Share2, Check } from 'lucide-react';
+import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Clock, Share2, Check, FileText } from 'lucide-react';
 import { type ResourceItem } from '../../types';
 import DownloadSafetyModal from './DownloadSafetyModal';
 import InstallPathHelper from '../InstallPathHelper';
@@ -181,9 +181,21 @@ export default function DetailPage({ item, onClose, onDonate }: DetailPageProps)
 
           {/* Instructions or Source Notes */}
           {item.instructions && (
-            <div className="p-4 rounded-xl bg-[#191035] border border-violet-500/20 text-xs text-violet-200 space-y-1 mt-6">
-              <div className="font-bold text-cyan-300">Ghi chú & Hướng dẫn:</div>
-              <p className="whitespace-pre-line leading-relaxed">{item.instructions}</p>
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#160d31] border border-violet-500/25 text-xs text-violet-200 space-y-2.5 mt-6 shadow-lg shadow-violet-950/40">
+              <div className="font-bold text-cyan-300 text-sm flex items-center gap-2">
+                <FileText size={16} className="text-cyan-400" />
+                <span>Ghi chú & Hướng dẫn:</span>
+              </div>
+              {/<[a-z][\s\S]*>/i.test(item.instructions) ? (
+                <div 
+                  className="prose prose-invert prose-violet max-w-none text-xs text-violet-200 leading-relaxed [&>p]:mb-2 [&>ol]:list-decimal [&>ol]:pl-5 [&>ol]:space-y-1.5 [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:space-y-1.5 [&>ol>li]:text-violet-200 [&>ul>li]:text-violet-200 [&_code]:bg-[#100824] [&_code]:text-cyan-300 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:font-mono [&_code]:border [&_code]:border-violet-500/30 [&_strong]:text-white [&_strong]:font-bold"
+                  dangerouslySetInnerHTML={{ __html: item.instructions }}
+                />
+              ) : (
+                <p className="whitespace-pre-line leading-relaxed text-violet-200 text-xs font-sans">
+                  {item.instructions}
+                </p>
+              )}
             </div>
           )}
 

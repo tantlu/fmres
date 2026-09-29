@@ -133,14 +133,10 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
       <h2>4. Điều chỉnh khi bị đối phương bắt bài</h2>
       <p>Nếu đối thủ đá sơ đồ 5 hậu vệ tử thủ (Low Block), hãy hạ nhịp độ (Tempo) xuống mức Thường (Standard), mở rộng chiều ngang sân và khuyến khích các đường chuyền vào khoảng trống (Pass Into Space).</p>
     `,
-    instructions: `
-      <p><strong>Cách cài đặt file Tactic tải về:</strong></p>
-      <ol>
-        <li>Tải file tactic <code>.fmf</code> đính kèm về máy.</li>
-        <li>Chép vào thư mục <code>tactics</code> theo đường dẫn Sports Interactive/Football Manager...</li>
-        <li>Trong game, vào mục Tactic → Bấm biểu tượng dấu cộng (+) → Chọn Load Tactic → Chọn file vừa tải.</li>
-      </ol>
-    `
+    instructions: `Cách cài đặt file Tactic tải về:
+1. Tải file tactic .fmf đính kèm về máy.
+2. Chép vào thư mục "tactics" theo đường dẫn: Sports Interactive/Football Manager...
+3. Trong game, vào mục Tactic → Bấm biểu tượng dấu cộng (+) → Chọn Load Tactic → Chọn file vừa tải.`
   },
   {
     id: 'res-df11-facepack',
@@ -164,9 +160,7 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
         <li>Tương thích hoàn hảo với giao diện mặc định cũng như tất cả các bộ custom skin FM26 và FM24.</li>
       </ul>
     `,
-    instructions: `
-      <p>Giải nén toàn bộ thư mục ảnh vào đường dẫn <code>graphics/faces</code> trong thư mục Football Manager của bạn. Sau đó vào Tùy chọn game, bỏ tích Cache và bấm Tải lại giao diện (Reload Skin).</p>
-    `
+    instructions: 'Giải nén toàn bộ thư mục ảnh vào đường dẫn "graphics/faces" trong thư mục Football Manager của bạn. Sau đó vào Tùy chọn game (Preferences), bỏ tích Cache và bấm Tải lại giao diện (Reload Skin).'
   },
   {
     id: 'res-tcm-logos-2026',
@@ -190,9 +184,7 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
         <li>Tối ưu dung lượng nhẹ nhàng, không gây giật lag khi tải game.</li>
       </ul>
     `,
-    instructions: `
-      <p>Giải nén vào thư mục <code>graphics/logos</code>. Sau đó vào Preferences → Reload Skin trong game.</p>
-    `
+    instructions: 'Giải nén vào thư mục "graphics/logos" trong thư mục Football Manager. Sau đó vào Preferences → Reload Skin trong game.'
   },
   {
     id: 'res-viet-hoa-fm-chuan',
@@ -216,8 +208,6 @@ export const DEFAULT_RESOURCES: ResourceItem[] = [
         <li>Hỗ trợ font chữ tiếng Việt có dấu đẹp mắt, không lỗi vỡ chữ trên mọi độ phân giải màn hình.</li>
       </ul>
     `,
-    instructions: `
-      <p>Chép file ngôn ngữ <code>vietnamese.ltc</code> vào thư mục <code>languages</code> trong thư mục game. Sau đó vào Tùy chọn (Preferences) → Language → Chọn Tiếng Việt.</p>
-    `
+    instructions: 'Chép file ngôn ngữ vietnamese.ltc vào thư mục "languages" trong thư mục game. Sau đó vào Tùy chọn (Preferences) → Language → Chọn Tiếng Việt.'
   }
 ];

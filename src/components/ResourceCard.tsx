@@ -162,11 +162,11 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         {/* Đoạn trích dẫn tóm tắt */}
         {item.summary ? (
           <p className="text-xs text-violet-200/70 line-clamp-2 leading-relaxed">
-            {item.summary}
+            {item.summary.replace(/<[^>]*>/g, '')}
           </p>
         ) : item.instructions ? (
           <p className="text-xs text-slate-400/80 line-clamp-2 leading-relaxed">
-            {item.instructions}
+            {item.instructions.replace(/<[^>]*>/g, '')}
           </p>
         ) : null}
 
