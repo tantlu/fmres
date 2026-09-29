@@ -53,9 +53,11 @@ export default function Header({
           className="flex items-center gap-2.5 cursor-pointer select-none group" 
           onClick={() => navigate('/')}
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-800 p-0.5 shadow-md shadow-violet-700/30 flex items-center justify-center font-display font-black text-white text-xs tracking-wider group-hover:scale-105 transition-transform">
-            FM
-          </div>
+          <img 
+            src="/icon.png" 
+            alt="FM Resource Hub Logo" 
+            className="w-9 h-9 rounded-xl object-contain bg-[#191036] p-0.5 border border-violet-500/30 shadow-md shadow-violet-700/30 group-hover:scale-105 transition-transform"
+          />
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5 leading-none">
               <span className="font-display font-black text-base sm:text-lg tracking-tight text-white group-hover:text-cyan-300 transition-colors">

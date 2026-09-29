@@ -1,12 +1,95 @@
-import { useState, useMemo } from 'react';
-import { Search, Star, Zap, TrendingUp, X, Sparkles, Filter, ChevronRight } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { 
+  Search, 
+  Star, 
+  Zap, 
+  TrendingUp, 
+  X, 
+  Sparkles, 
+  Filter, 
+  ChevronRight, 
+  FileSpreadsheet, 
+  Plus, 
+  Download, 
+  Trash2,
+  Database
+} from 'lucide-react';
 import { FM26_PLAYERS, type PlayerProfile } from '../data/playerDatabase';
+import DatabaseManagerModal from './modals/DatabaseManagerModal';
+import { exportPlayersToFile } from '../utils/excelImport';
+
+const STORAGE_KEY = 'fm26_player_database_v2';
 
 export default function PlayerDatabaseView() {
+  // State for players, initialized from localStorage if available
+  const [players, setPlayers] = useState<PlayerProfile[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Lỗi đọc database từ localStorage:', e);
+    }
+    return FM26_PLAYERS;
+  });
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<string>('All');
   const [selectedTier, setSelectedTier] = useState<string>('All');
   const [activePlayerModal, setActivePlayerModal] = useState<PlayerProfile | null>(null);
+  const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>('');
+
+  // Persist to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+    } catch (e) {
+      console.error('Lỗi lưu database:', e);
+    }
+  }, [players]);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  const handleImportPlayers = (newPlayers: PlayerProfile[], mode: 'append' | 'replace') => {
+    if (mode === 'replace') {
+      setPlayers(newPlayers);
+      showToast(`Đã thay thế database bằng ${newPlayers.length} cầu thủ mới!`);
+    } else {
+      // Append without duplicating IDs
+      setPlayers(prev => {
+        const existingIds = new Set(prev.map(p => p.id));
+        const toAdd = newPlayers.filter(p => !existingIds.has(p.id));
+        return [...toAdd, ...prev];
+      });
+      showToast(`Đã thêm ${newPlayers.length} cầu thủ vào Database!`);
+    }
+  };
+
+  const handleAddSinglePlayer = (player: PlayerProfile) => {
+    setPlayers(prev => [player, ...prev]);
+    showToast(`Đã thêm cầu thủ ${player.name} vào Database!`);
+  };
+
+  const handleResetToDefault = () => {
+    setPlayers(FM26_PLAYERS);
+    showToast('Đã khôi phục dữ liệu Wonderkids FM26 mặc định!');
+  };
+
+  const handleDeletePlayer = (id: string, name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`Bạn có chắc chắn muốn xóa cầu thủ ${name} khỏi database?`)) {
+      setPlayers(prev => prev.filter(p => p.id !== id));
+      showToast(`Đã xóa cầu thủ ${name}`);
+    }
+  };
 
   const positions = [
     { label: 'Tất cả vị trí', value: 'All' },
@@ -24,7 +107,7 @@ export default function PlayerDatabaseView() {
   ];
 
   const filteredPlayers = useMemo(() => {
-    return FM26_PLAYERS.filter(player => {
+    return players.filter(player => {
       const matchesSearch = 
         player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         player.club.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,29 +126,59 @@ export default function PlayerDatabaseView() {
 
       return matchesSearch && matchesTier && matchesPos;
     });
-  }, [searchTerm, selectedPosition, selectedTier]);
+  }, [players, searchTerm, selectedPosition, selectedTier]);
 
   return (
     <section className="space-y-6">
-      {/* Header banner */}
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1e133e] border border-cyan-400 text-cyan-200 px-4 py-2.5 rounded-xl shadow-2xl shadow-cyan-950/60 flex items-center gap-2 text-xs font-bold animate-fadeIn">
+          <Sparkles size={16} className="text-cyan-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Header banner with Database Creation & Import Actions */}
       <div className="relative rounded-2xl overflow-hidden border border-violet-500/25 bg-gradient-to-r from-[#1b103b] via-[#21144a] to-[#160d30] p-6 sm:p-8 shadow-xl">
         <div className="absolute -top-12 -right-12 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-violet-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10 max-w-3xl">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
-            <Sparkles size={14} />
-            <span>FM26 Scouting Network</span>
-            <span aria-hidden="true">·</span>
-            <span className="text-violet-300">Cơ sở dữ liệu thần đồng & cầu thủ</span>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
+              <Sparkles size={14} />
+              <span>FM26 Scouting & Database Hub</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-violet-300">Quản lý & Nhập liệu Cầu thủ</span>
+            </div>
+
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white font-display tracking-tight mb-2">
+              Database Cầu thủ & Wonderkids FM26
+            </h2>
+            <p className="text-xs sm:text-sm text-violet-200/80 leading-relaxed">
+              Tuyển tập thần đồng tiềm năng cao (PA 180+), món hời giá mềm và cơ chế nhập file <strong>Excel (.xlsx) / CSV</strong> giúp bạn tự tạo và quản lý cơ sở dữ liệu tuyển trạch cá nhân.
+            </p>
           </div>
 
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-white font-display tracking-tight mb-2">
-            Database Cầu thủ & Wonderkids FM26
-          </h2>
-          <p className="text-sm text-violet-200/80 leading-relaxed">
-            Tuyển tập danh sách cầu thủ trẻ tiềm năng nhất (PA 180+), các món hời chuyển nhượng giá rẻ và báo cáo trinh sát chi tiết giúp bạn xây dựng đế chế thống trị trong Football Manager 2026.
-          </p>
+          {/* Action Buttons for Database Creation */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              onClick={() => setIsManagerModalOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 hover:from-violet-500 hover:to-cyan-400 text-white text-xs sm:text-sm font-extrabold shadow-lg shadow-violet-600/30 flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+            >
+              <FileSpreadsheet size={16} />
+              <span>Tạo / Nhập Database (Excel / CSV)</span>
+            </button>
+
+            <button
+              onClick={() => exportPlayersToFile(players, 'xlsx')}
+              className="px-3.5 py-2.5 rounded-xl bg-[#191036] hover:bg-[#22144d] text-cyan-300 hover:text-white border border-cyan-500/30 text-xs font-bold transition-all flex items-center gap-1.5"
+              title="Xuất cơ sở dữ liệu hiện tại sang file Excel"
+            >
+              <Download size={15} />
+              <span>Xuất Excel</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -102,7 +215,7 @@ export default function PlayerDatabaseView() {
           </div>
         </div>
 
-        {/* Tier Sub-filters */}
+        {/* Tier Sub-filters & Counter */}
         <div className="flex items-center justify-between pt-2 border-t border-violet-500/15 flex-wrap gap-2 text-xs">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-violet-300/60 flex items-center gap-1 mr-1">
@@ -123,11 +236,48 @@ export default function PlayerDatabaseView() {
             ))}
           </div>
 
-          <div className="text-violet-300/70 font-mono text-xs">
-            Tìm thấy <strong className="text-cyan-300">{filteredPlayers.length}</strong> cầu thủ
+          <div className="flex items-center gap-3 text-xs">
+            <span className="text-violet-300/70 font-mono">
+              Hiển thị <strong className="text-cyan-300">{filteredPlayers.length}</strong> / {players.length} cầu thủ
+            </span>
+            <button
+              onClick={() => setIsManagerModalOpen(true)}
+              className="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 transition-colors"
+            >
+              <Plus size={13} />
+              <span>Quản lý database</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Empty State */}
+      {filteredPlayers.length === 0 && (
+        <div className="text-center py-16 px-4 bg-[#140b2a] rounded-2xl border border-violet-500/20 space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-violet-900/30 border border-violet-500/30 flex items-center justify-center mx-auto text-violet-300">
+            <Database size={24} />
+          </div>
+          <h4 className="text-base font-bold text-white">Không tìm thấy cầu thủ nào phù hợp bộ lọc</h4>
+          <p className="text-xs text-violet-300/70 max-w-md mx-auto">
+            Thử thay đổi từ khóa tìm kiếm hoặc bấm nút bên dưới để nhập thêm cầu thủ từ file Excel / CSV của bạn.
+          </p>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => { setSearchTerm(''); setSelectedPosition('All'); setSelectedTier('All'); }}
+              className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-colors"
+            >
+              Đặt lại bộ lọc
+            </button>
+            <button
+              onClick={() => setIsManagerModalOpen(true)}
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+            >
+              <FileSpreadsheet size={14} />
+              <span>Nhập file Excel / CSV</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Player Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -165,18 +315,29 @@ export default function PlayerDatabaseView() {
                     </div>
                   </div>
 
-                  {/* Position Badge */}
-                  <span className={`px-2.5 py-1 rounded-md text-xs font-black font-mono shadow-sm ${
-                    player.position === 'ST' 
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                      : player.position.includes('AM') || player.position.includes('W')
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : player.position.includes('M')
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                  }`}>
-                    {player.position}
-                  </span>
+                  {/* Position Badge & Delete */}
+                  <div className="flex items-center gap-1.5">
+                    <span className={`px-2.5 py-1 rounded-md text-xs font-black font-mono shadow-sm ${
+                      player.position === 'ST' 
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                        : player.position.includes('AM') || player.position.includes('W')
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                          : player.position.includes('M')
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                    }`}>
+                      {player.position}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeletePlayer(player.id, player.name, e)}
+                      className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/20 rounded transition-colors opacity-0 group-hover:opacity-100"
+                      title="Xóa cầu thủ khỏi database"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
 
                 {/* PA Rating Bar */}
@@ -227,6 +388,16 @@ export default function PlayerDatabaseView() {
         })}
       </div>
 
+      {/* Database Manager Modal (Excel/CSV Import & Manual Creation) */}
+      <DatabaseManagerModal
+        isOpen={isManagerModalOpen}
+        onClose={() => setIsManagerModalOpen(false)}
+        currentPlayers={players}
+        onImportPlayers={handleImportPlayers}
+        onAddSinglePlayer={handleAddSinglePlayer}
+        onResetToDefault={handleResetToDefault}
+      />
+
       {/* Player Detail Scouting Modal */}
       {activePlayerModal && (
         <div 
@@ -256,47 +427,30 @@ export default function PlayerDatabaseView() {
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-display font-black text-xl sm:text-2xl text-white">
+                  <h3 className="font-display font-extrabold text-xl text-white">
                     {activePlayerModal.name}
                   </h3>
-                  <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold text-xs border border-cyan-500/30">
-                    {activePlayerModal.tier}
+                  <span className="text-xs px-2 py-0.5 rounded bg-violet-800 text-violet-200 font-mono font-bold">
+                    {activePlayerModal.position}
                   </span>
                 </div>
-                <div className="text-xs text-violet-300/80">
-                  {activePlayerModal.club} · {activePlayerModal.nationality} · {activePlayerModal.age} tuổi · Chân thuận: {activePlayerModal.foot}
-                </div>
-                <div className="text-xs text-violet-400 font-medium">
-                  Vai trò tối ưu: <strong className="text-white">{activePlayerModal.role}</strong> ({activePlayerModal.position})
+                <p className="text-xs text-violet-300">
+                  {activePlayerModal.club} · {activePlayerModal.nationality} · {activePlayerModal.age} tuổi
+                </p>
+                <div className="flex items-center gap-3 text-xs pt-1">
+                  <span className="text-amber-400 font-bold flex items-center gap-1">
+                    <Star size={13} fill="currentColor" /> PA: {activePlayerModal.pa}
+                  </span>
+                  <span className="text-violet-300 font-mono">CA: {activePlayerModal.ca}</span>
+                  <span className="text-slate-400">|</span>
+                  <span className="text-white font-medium">Giá: {activePlayerModal.value}</span>
                 </div>
               </div>
             </div>
 
-            {/* Financial & Ability Matrix */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
-              <div className="bg-[#110924] p-2.5 rounded-lg border border-violet-500/20">
-                <span className="text-violet-300/60 text-[10px] block uppercase">Chỉ số PA</span>
-                <strong className="text-amber-300 text-sm font-bold flex items-center justify-center gap-1">
-                  <Star size={14} fill="currentColor" /> {activePlayerModal.pa} / 200
-                </strong>
-              </div>
-              <div className="bg-[#110924] p-2.5 rounded-lg border border-violet-500/20">
-                <span className="text-violet-300/60 text-[10px] block uppercase">Chỉ số CA</span>
-                <strong className="text-cyan-300 text-sm font-bold">{activePlayerModal.ca}</strong>
-              </div>
-              <div className="bg-[#110924] p-2.5 rounded-lg border border-violet-500/20">
-                <span className="text-violet-300/60 text-[10px] block uppercase">Giá ước tính</span>
-                <strong className="text-white text-xs">{activePlayerModal.value}</strong>
-              </div>
-              <div className="bg-[#110924] p-2.5 rounded-lg border border-violet-500/20">
-                <span className="text-violet-300/60 text-[10px] block uppercase">Mức lương</span>
-                <strong className="text-white text-xs">{activePlayerModal.wage}</strong>
-              </div>
-            </div>
-
-            {/* Full Attributes Breakdown */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-violet-300/80 flex items-center gap-1.5">
+            {/* Attributes Matrix */}
+            <div className="p-4 rounded-xl bg-[#120a26] border border-violet-500/20 space-y-2">
+              <h4 className="text-xs font-bold text-violet-200 uppercase tracking-wider flex items-center gap-1.5">
                 <Zap size={14} className="text-cyan-400" /> Bộ chỉ số then chốt (FM26 Engine)
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-mono">
