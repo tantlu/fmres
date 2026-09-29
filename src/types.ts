@@ -2,6 +2,7 @@ export type Category =
   | 'All' 
   | 'Bài viết' 
   | 'Guide' 
+  | 'Database cầu thủ'
   | 'Tactics' 
   | 'Việt hóa' 
   | 'Face' 
@@ -45,6 +46,7 @@ export const CATEGORIES: Category[] = [
   'All', 
   'Bài viết', 
   'Guide', 
+  'Database cầu thủ',
   'Tactics', 
   'Việt hóa', 
   'Face', 

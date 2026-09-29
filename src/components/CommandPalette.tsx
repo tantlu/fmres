@@ -157,7 +157,7 @@ export default function CommandPalette({
                 {ver === 'FM26' ? '✨ FM26' : ver}
               </button>
             ))}
-            {['Bài viết', 'Guide', 'Tactics', 'Việt hóa', 'Face', 'Logo', 'Kits'].map(cat => (
+            {['Bài viết', 'Guide', 'Database cầu thủ', 'Tactics', 'Việt hóa', 'Face', 'Logo', 'Kits'].map(cat => (
               <button
                 key={cat}
                 type="button"
@@ -170,10 +170,12 @@ export default function CommandPalette({
                     ? 'bg-cyan-950/70 text-cyan-300 border-cyan-500/30 hover:bg-cyan-900/40' 
                     : cat === 'Guide'
                       ? 'bg-amber-950/70 text-amber-300 border-amber-500/30 hover:bg-amber-900/40'
-                      : 'bg-[#140b28] text-slate-300 hover:text-white border-violet-500/20 hover:bg-violet-900/30'
+                      : cat === 'Database cầu thủ'
+                        ? 'bg-violet-950/70 text-cyan-300 border-cyan-400/40 hover:bg-violet-900/50'
+                        : 'bg-[#140b28] text-slate-300 hover:text-white border-violet-500/20 hover:bg-violet-900/30'
                 }`}
               >
-                {cat === 'Bài viết' ? '📰 Bài viết' : cat === 'Guide' ? '📖 Guide' : cat}
+                {cat === 'Bài viết' ? '📰 Bài viết' : cat === 'Guide' ? '📖 Guide' : cat === 'Database cầu thủ' ? '⭐ Database cầu thủ' : cat}
               </button>
             ))}
           </div>

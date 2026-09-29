@@ -18,6 +18,7 @@ import PolicyModal from './components/modals/PolicyModal';
 import DonateModal from './components/modals/DonateModal';
 import CommandPalette from './components/CommandPalette';
 import ViewItem from './pages/ViewItem';
+import PlayerDatabaseView from './components/PlayerDatabaseView';
 
 export default function App() {
   // State quản lý dữ liệu danh sách
@@ -182,7 +183,7 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#110b22] font-sans text-slate-100 flex flex-col selection:bg-violet-600 selection:text-white">
+    <div className="min-h-screen bg-[#0d071d] font-sans text-slate-100 flex flex-col selection:bg-violet-600 selection:text-white">
       {/* Header luôn hiển thị */}
       <Header 
         selectedCategory={selectedCategory} 
@@ -193,8 +194,8 @@ export default function App() {
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
       {permissionError && (
-        <div className="bg-rose-500/10 border-b border-rose-500/30 p-4 text-rose-300 flex items-center justify-center gap-3 text-sm font-semibold">
-          <AlertTriangle className="text-rose-400 shrink-0" size={18} /> 
+        <div className="bg-rose-500/10 border-b border-rose-500/30 p-3 text-rose-300 flex items-center justify-center gap-2 text-xs font-medium">
+          <AlertTriangle className="text-rose-400 shrink-0" size={16} /> 
           <span>Không thể kết nối với Firestore. Vui lòng kiểm tra quyền truy cập hoặc kết nối mạng.</span>
         </div>
       )}
@@ -206,82 +207,89 @@ export default function App() {
         {/* Route 2: Trang Chủ (Mặc định) - Hiển thị danh sách */}
         <Route path="/*" element={
           <>
-            <Hero />
-            <main id="resource-list-section" className="flex-grow container mx-auto px-4 py-10 md:py-14">
+            <Hero items={items} onViewDetail={handleViewDetail} selectedCategory={selectedCategory} />
+            <main id="resource-list-section" className="flex-grow container mx-auto px-4 py-8 md:py-12">
               
-              {/* Filter & Section Bar */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-5 border-b border-violet-500/20 gap-4">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-8 bg-gradient-to-b from-violet-500 via-purple-500 to-cyan-400 rounded-full block shadow-[0_0_12px_rgba(139,92,246,0.6)]"></span>
+              {/* Nếu người dùng chọn tab "Database cầu thủ" */}
+              {selectedCategory === 'Database cầu thủ' ? (
+                <PlayerDatabaseView />
+              ) : (
+                <>
+                  {/* Filter & Section Bar (Khôi phục hiển thị ban đầu) */}
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-5 border-b border-violet-500/20 gap-4">
                     <div>
-                      <h3 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight flex items-center gap-2">
-                        {selectedCategory === 'All' 
-                          ? 'Tất cả tài nguyên & Bài viết' 
-                          : selectedCategory === 'Bài viết'
-                            ? 'Bài viết & Tin tức Football Manager'
-                            : selectedCategory === 'Guide'
-                              ? 'Guide của tôi & Cẩm nang chơi FM'
-                              : selectedCategory}
-                      </h3>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {selectedCategory === 'Bài viết'
-                          ? 'Tin tức game, phân tích chuyển nhượng, match engine, đánh giá Wonderkids và cập nhật mới'
-                          : selectedCategory === 'Guide'
-                            ? 'Cẩm nang hướng dẫn chiến thuật, mẹo đào tạo trẻ và kinh nghiệm chơi FM đỉnh cao'
-                            : selectedCategory === 'All'
-                              ? 'Khám phá bài viết, cẩm nang guide, mod đồ họa và tactics mới nhất từ cộng đồng'
-                              : `Kho tài nguyên ${selectedCategory} cho Football Manager`}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <span className="w-2 h-8 bg-gradient-to-b from-violet-500 via-purple-500 to-cyan-400 rounded-full block shadow-[0_0_12px_rgba(139,92,246,0.6)]"></span>
+                        <div>
+                          <h3 className="text-2xl sm:text-3xl font-black text-white font-display tracking-tight flex items-center gap-2">
+                            {selectedCategory === 'All' 
+                              ? 'Tất cả tài nguyên & Bài viết' 
+                              : selectedCategory === 'Bài viết'
+                                ? 'Bài viết & Tin tức Football Manager'
+                                : selectedCategory === 'Guide'
+                                  ? 'Guide của tôi & Cẩm nang chơi FM'
+                                  : selectedCategory}
+                          </h3>
+                          <p className="text-xs text-slate-400 mt-1">
+                            {selectedCategory === 'Bài viết'
+                              ? 'Tin tức game, phân tích chuyển nhượng, match engine, đánh giá Wonderkids và cập nhật mới'
+                              : selectedCategory === 'Guide'
+                                ? 'Cẩm nang hướng dẫn chiến thuật, mẹo đào tạo trẻ và kinh nghiệm chơi FM đỉnh cao'
+                                : selectedCategory === 'All'
+                                  ? 'Khám phá bài viết, cẩm nang guide, mod đồ họa và tactics mới nhất từ cộng đồng'
+                                  : `Kho tài nguyên ${selectedCategory} cho Football Manager`}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Version Pill Filter */}
+                      <div className="flex items-center gap-2 mt-4 flex-wrap">
+                        <span className="text-xs text-violet-300/70 uppercase font-bold tracking-wider mr-1">Phiên bản:</span>
+                        {GAME_VERSIONS.map(ver => {
+                          const isSelected = filterVersion === ver;
+                          const isFm26 = ver === 'FM26';
+                          return (
+                            <button 
+                              key={ver} 
+                              onClick={() => setFilterVersion(ver)} 
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                                isSelected 
+                                  ? isFm26
+                                    ? 'bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 text-white shadow-md shadow-violet-600/30 border border-violet-400'
+                                    : 'bg-violet-600 text-white shadow-md shadow-violet-600/30 border border-violet-400'
+                                  : 'bg-[#1c1439] text-slate-300 border border-violet-500/20 hover:bg-violet-900/30 hover:text-white'
+                              }`}
+                            >
+                              {isFm26 && <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse"></span>}
+                              {ver === 'All' ? 'TẤT CẢ' : ver === 'FM Cũ hơn' ? 'CŨ HƠN (<=FM22)' : ver}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Counter Tag */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-violet-300 bg-[#1e153c] px-3.5 py-1.5 rounded-xl border border-violet-500/25 shadow-sm font-display">
+                        {isLoading ? 'Đang tải...' : `${filteredItems.length} mục`}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Version Pill Filter */}
-                  <div className="flex items-center gap-2 mt-4 flex-wrap">
-                    <span className="text-xs text-violet-300/70 uppercase font-bold tracking-wider mr-1">Phiên bản:</span>
-                    {GAME_VERSIONS.map(ver => {
-                      const isSelected = filterVersion === ver;
-                      const isFm26 = ver === 'FM26';
-                      return (
-                        <button 
-                          key={ver} 
-                          onClick={() => setFilterVersion(ver)} 
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                            isSelected 
-                              ? isFm26
-                                ? 'bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 text-white shadow-md shadow-violet-600/30 border border-violet-400'
-                                : 'bg-violet-600 text-white shadow-md shadow-violet-600/30 border border-violet-400'
-                              : 'bg-[#1c1439] text-slate-300 border border-violet-500/20 hover:bg-violet-900/30 hover:text-white'
-                          }`}
-                        >
-                          {isFm26 && <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse"></span>}
-                          {ver === 'All' ? 'TẤT CẢ' : ver === 'FM Cũ hơn' ? 'CŨ HƠN (<=FM22)' : ver}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Counter Tag */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-violet-300 bg-[#1e153c] px-3.5 py-1.5 rounded-xl border border-violet-500/25 shadow-sm font-display">
-                    {isLoading ? 'Đang tải...' : `${filteredItems.length} mục`}
-                  </span>
-                </div>
-              </div>
-
-              <ResourceList 
-                isLoading={isLoading} 
-                items={filteredItems} 
-                isAdmin={isAdmin || false}
-                onEdit={(item) => { setEditingItem(item); setIsEditModalOpen(true); }}
-                onDelete={handleDeleteItem} 
-                onViewDetail={handleViewDetail}
-                onLike={handleLikeItem}
-                onDonate={(item) => setDonateItem(item)}
-                onDownload={(item) => setSafetyModalItem(item)}
-                onAddNew={() => { setEditingItem(null); setIsEditModalOpen(true); }}
-              />
+                  <ResourceList 
+                    isLoading={isLoading} 
+                    items={filteredItems} 
+                    isAdmin={isAdmin || false}
+                    onEdit={(item) => { setEditingItem(item); setIsEditModalOpen(true); }}
+                    onDelete={handleDeleteItem} 
+                    onViewDetail={handleViewDetail}
+                    onLike={handleLikeItem}
+                    onDonate={(item) => setDonateItem(item)}
+                    onDownload={(item) => setSafetyModalItem(item)}
+                    onAddNew={() => { setEditingItem(null); setIsEditModalOpen(true); }}
+                  />
+                </>
+              )}
             </main>
           </>
         } />

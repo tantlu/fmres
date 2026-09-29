@@ -1,128 +1,274 @@
-
-import { Sparkles, Download, Newspaper, BookOpen, Layers } from 'lucide-react';
+import { ArrowRight, Clock, Sparkles, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { toSlug } from '../types';
+import { type ResourceItem, type Category, toSlug } from '../types';
+import { DEFAULT_RESOURCES } from '../defaultData';
 
-export default function Hero() {
+interface HeroProps {
+  items?: ResourceItem[];
+  onViewDetail?: (item: ResourceItem) => void;
+  selectedCategory?: Category;
+}
+
+export default function Hero({ items = [], onViewDetail, selectedCategory = 'All' }: HeroProps) {
   const navigate = useNavigate();
 
-  const scrollToContent = () => {
-    const mainSection = document.getElementById('resource-list-section');
-    if (mainSection) {
-      mainSection.scrollIntoView({ behavior: 'smooth' });
+  // Pick top articles from items or fallback
+  const pool = items.length > 0 ? items : DEFAULT_RESOURCES;
+  const articles = pool.filter(i => i.category === 'Bài viết');
+  const guides = pool.filter(i => i.category === 'Guide');
+
+  // Lead featured story (Hot article or first article)
+  const leadArticle = articles.find(i => i.isHot) || articles[0] || pool[0];
+  
+  // Secondary stories
+  const secondaryStories = pool
+    .filter(i => i.id !== leadArticle?.id && (i.category === 'Bài viết' || i.category === 'Guide' || i.category === 'Tactics'))
+    .slice(0, 3);
+
+  const handleReadItem = (item: ResourceItem) => {
+    if (onViewDetail) {
+      onViewDetail(item);
+    } else {
+      navigate(`/item/${item.id}`);
     }
   };
 
+  // If viewing a specific category other than 'All', show a focused editorial header
+  if (selectedCategory !== 'All') {
+    const isArticles = selectedCategory === 'Bài viết';
+    const isGuide = selectedCategory === 'Guide';
+    const isPlayerDb = selectedCategory === 'Database cầu thủ';
+
+    return (
+      <section className="relative border-b border-violet-500/20 bg-gradient-to-b from-[#180f33] via-[#140c2b] to-[#0f0722] py-8 md:py-12 overflow-hidden">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
+              <Sparkles size={13} />
+              <span>Chuyên mục Football Manager</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-violet-300">FM26 Match Hub</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-black text-white font-display tracking-tight mb-2.5">
+              {isArticles 
+                ? 'Bài viết & Tin tức Football Manager' 
+                : isGuide 
+                  ? 'Cẩm nang & Guide của tôi' 
+                  : isPlayerDb
+                    ? 'Database Cầu thủ & Wonderkids FM26'
+                    : `Kho tài nguyên: ${selectedCategory}`}
+            </h1>
+            <p className="text-violet-200/80 text-xs sm:text-sm leading-relaxed max-w-2xl">
+              {isArticles
+                ? 'Tổng hợp các bài viết phân tích chuyên sâu về Match Engine, tin tức chuyển nhượng, đánh giá Wonderkids và cập nhật hệ thống game.'
+                : isGuide
+                  ? 'Cẩm nang hướng dẫn chiến thuật, giáo trình đào tạo cầu thủ trẻ, thiết lập ban huấn luyện và kinh nghiệm cầm quân thực chiến.'
+                  : isPlayerDb
+                    ? 'Dữ liệu chỉ số trinh sát, tiềm năng PA, mức phí giải phóng hợp đồng và các Wonderkids đáng mua nhất trong FM26.'
+                    : `Tất cả tài nguyên và nội dung ${selectedCategory} được chọn lọc kỹ lưỡng dành cho cộng đồng người chơi.`}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Home View: FM26 Lead Editorial Magazine Showcase
   return (
-    <div className="relative overflow-hidden border-b border-violet-500/20 bg-gradient-to-b from-[#190f33] via-[#150d2c] to-[#110b22]">
-      {/* Dynamic Stadium Ambient Glows */}
-      <div className="absolute -top-24 left-1/4 w-[500px] h-[500px] bg-violet-600/20 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute top-1/3 -right-20 w-[450px] h-[450px] bg-cyan-500/15 rounded-full blur-[130px] pointer-events-none"></div>
+    <section className="relative border-b border-violet-500/20 bg-gradient-to-b from-[#170e30] via-[#130b28] to-[#0d071e] py-8 md:py-12 overflow-hidden">
+      {/* Stadium Ambient Floodlights */}
+      <div className="absolute -top-20 left-1/3 w-[500px] h-[500px] bg-violet-600/15 rounded-full blur-[140px] pointer-events-none"></div>
+      <div className="absolute top-1/4 -right-20 w-[450px] h-[450px] bg-cyan-500/12 rounded-full blur-[130px] pointer-events-none"></div>
       <div className="absolute -bottom-20 left-10 w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-      {/* Decorative Tactical Grid overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
-        }}
-      ></div>
-
-      <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          {/* Main Hero Left Content */}
-          <div className="lg:col-span-7 text-center lg:text-left">
-            {/* FM26 Community Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-950/80 border border-violet-400/30 text-violet-200 text-xs font-bold mb-6 shadow-md backdrop-blur-md">
-              <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping"></span>
-              <Sparkles size={14} className="text-cyan-300" />
-              <span className="tracking-wide">TRUNG TÂM BÀI VIẾT, GUIDE & TÀI NGUYÊN FOOTBALL MANAGER</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black text-white mb-5 tracking-tight leading-[1.1] font-display">
-              NÂNG CẤP TRẢI NGHIỆM <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-purple-300 to-cyan-300">
-                FOOTBALL MANAGER
-              </span>
-            </h2>
-
-            <p className="text-slate-300 text-sm sm:text-base md:text-lg mb-8 max-w-2xl leading-relaxed mx-auto lg:mx-0 font-normal">
-              Cập nhật tin tức & bài viết phân tích chuyên sâu về Football Manager, các cẩm nang hướng dẫn chơi chi tiết cùng kho Facepack, Logo, Kits, Tactics và bản Việt hóa chất lượng cao cho FM26, FM24 và các phiên bản khác.
-            </p>
-
-            <div className="flex flex-wrap justify-center lg:justify-start gap-3">
-              <button 
-                onClick={scrollToContent}
-                className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white px-6 py-3 rounded-xl font-bold text-xs sm:text-sm shadow-lg shadow-violet-600/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 border border-violet-400/30"
-              >
-                <Download size={17} className="text-cyan-300" /> KHÁM PHÁ TÀI NGUYÊN
-              </button>
-              
-              <button 
-                onClick={() => navigate(`/${toSlug('Bài viết')}`)}
-                className="bg-[#241748] hover:bg-violet-900/50 text-cyan-300 px-5 py-3 rounded-xl font-bold text-xs sm:text-sm border border-cyan-500/30 transition-all flex items-center gap-2 hover:scale-105 shadow-md"
-              >
-                <Newspaper size={17} className="text-cyan-400" /> BÀI VIẾT & TIN TỨC
-              </button>
-
-              <button 
-                onClick={() => navigate(`/${toSlug('Guide')}`)}
-                className="bg-[#281b3d] hover:bg-violet-900/50 text-amber-300 px-5 py-3 rounded-xl font-bold text-xs sm:text-sm border border-amber-500/30 transition-all flex items-center gap-2 hover:scale-105 shadow-md"
-              >
-                <BookOpen size={17} className="text-amber-400" /> GUIDE CỦA TÔI
-              </button>
-            </div>
+      <div className="container mx-auto px-4 relative z-10">
+        
+        {/* FM26 Sub-bar ticker */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-violet-500/20 gap-3">
+          <div className="flex items-center gap-2 text-xs text-violet-300/80">
+            <span className="font-bold text-cyan-300 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+              FM26 LIVE HUB
+            </span>
+            <span aria-hidden="true" className="text-violet-500">·</span>
+            <span>Tin tức, Match Engine, Wonderkids & Tactics</span>
           </div>
-
-          {/* Hero Right: 3 Visual Info Tiles */}
-          <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3.5">
-            <div 
+          
+          <div className="flex items-center gap-3 text-xs font-semibold text-violet-200/80 flex-wrap">
+            <button 
               onClick={() => navigate(`/${toSlug('Bài viết')}`)}
-              className="bg-gradient-to-br from-[#231846]/90 to-[#1b1236]/90 p-4 rounded-2xl border border-violet-500/20 backdrop-blur-md shadow-lg flex items-center gap-4 hover:border-cyan-400/40 hover:bg-[#281c4e] transition-all cursor-pointer group"
+              className="hover:text-cyan-300 transition-colors"
             >
-              <div className="w-12 h-12 rounded-xl bg-cyan-600/20 border border-cyan-400/30 flex items-center justify-center shrink-0 text-cyan-300 group-hover:scale-110 transition-transform">
-                <Newspaper size={24} />
-              </div>
-              <div>
-                <h4 className="text-white font-bold text-sm font-display flex items-center gap-2">
-                  Bài viết & Thông tin mới
-                  <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold border border-cyan-500/30">MỚI</span>
-                </h4>
-                <p className="text-xs text-slate-400 mt-0.5">Tin game, phân tích chuyển nhượng, match engine và đánh giá chuyên môn</p>
-              </div>
-            </div>
-
-            <div 
+              Bài viết ({articles.length})
+            </button>
+            <span aria-hidden="true" className="text-violet-500/40">·</span>
+            <button 
               onClick={() => navigate(`/${toSlug('Guide')}`)}
-              className="bg-gradient-to-br from-[#231846]/90 to-[#1b1236]/90 p-4 rounded-2xl border border-violet-500/20 backdrop-blur-md shadow-lg flex items-center gap-4 hover:border-amber-400/40 hover:bg-[#281c4e] transition-all cursor-pointer group"
+              className="hover:text-cyan-300 transition-colors"
             >
-              <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-300 group-hover:scale-110 transition-transform">
-                <BookOpen size={24} />
+              Guide cẩm nang ({guides.length})
+            </button>
+            <span aria-hidden="true" className="text-violet-500/40">·</span>
+            <button 
+              onClick={() => navigate(`/${toSlug('Database cầu thủ')}`)}
+              className="text-cyan-400 hover:text-white transition-colors flex items-center gap-1 font-bold"
+            >
+              <Star size={11} fill="currentColor" /> Database cầu thủ
+            </button>
+          </div>
+        </div>
+
+        {/* 3-Tier Front Page Magazine Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Main Lead Story (Left 7 Cols) */}
+          {leadArticle && (
+            <article 
+              onClick={() => handleReadItem(leadArticle)}
+              className="lg:col-span-7 group cursor-pointer flex flex-col bg-[#191035]/90 hover:bg-[#201542] rounded-2xl border border-violet-500/25 hover:border-cyan-400/50 transition-all duration-300 overflow-hidden shadow-xl hover:shadow-[0_10px_35px_rgba(139,92,246,0.3)]"
+            >
+              {/* Featured Image */}
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#120a26]">
+                <img
+                  src={leadArticle.image}
+                  alt={leadArticle.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      parent.classList.add('bg-gradient-to-br', 'from-violet-950', 'to-slate-950');
+                    }
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#191035] via-transparent to-transparent opacity-90"></div>
+                
+                {/* Clean unboxed tag */}
+                <div className="absolute top-4 left-4 text-[11px] font-black tracking-wider text-cyan-300 uppercase bg-[#100724]/90 backdrop-blur-md px-3 py-1 rounded-lg border border-cyan-500/30 shadow-md flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                  Bài viết tiêu điểm FM26
+                </div>
               </div>
-              <div>
-                <h4 className="text-white font-bold text-sm font-display">Guide & Cẩm nang chơi</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Tuyển tập hướng dẫn chi tiết chiến thuật, quản lý tài chính và săn wonderkids</p>
+
+              {/* Lead Content */}
+              <div className="p-6 flex flex-col flex-grow justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-xs text-violet-300/80 mb-2">
+                    <span className="font-semibold text-cyan-400">{leadArticle.category}</span>
+                    <span aria-hidden="true" className="text-violet-500/40">·</span>
+                    <span>{leadArticle.version || 'FM26'}</span>
+                    {leadArticle.readTime && (
+                      <>
+                        <span aria-hidden="true" className="text-violet-500/40">·</span>
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} /> {leadArticle.readTime}
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-black font-display text-white group-hover:text-cyan-300 transition-colors leading-tight mb-3">
+                    {leadArticle.title}
+                  </h2>
+
+                  {leadArticle.summary && (
+                    <p className="text-violet-200/80 text-xs sm:text-sm leading-relaxed line-clamp-3">
+                      {leadArticle.summary}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-violet-500/20 text-xs text-violet-300/70">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-violet-900/60 border border-violet-500/30 flex items-center justify-center text-cyan-300 font-bold text-[10px]">
+                      {leadArticle.author ? leadArticle.author.charAt(0) : 'F'}
+                    </div>
+                    <span className="font-semibold text-white">{leadArticle.author}</span>
+                    <span aria-hidden="true" className="text-violet-500/40">·</span>
+                    <span>{leadArticle.date}</span>
+                  </div>
+
+                  <span className="inline-flex items-center gap-1 font-bold text-cyan-300 group-hover:translate-x-1 transition-transform">
+                    Đọc toàn văn <ArrowRight size={14} />
+                  </span>
+                </div>
               </div>
+            </article>
+          )}
+
+          {/* Secondary Highlight Stories (Right 5 Cols) */}
+          <div className="lg:col-span-5 flex flex-col gap-3.5">
+            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-violet-300/80 pb-1">
+              <span>Bài viết & Cẩm nang nổi bật</span>
+              <span className="text-[10px] text-cyan-400">FM26 META</span>
             </div>
 
-            <div 
-              onClick={scrollToContent}
-              className="bg-gradient-to-br from-[#231846]/90 to-[#1b1236]/90 p-4 rounded-2xl border border-violet-500/20 backdrop-blur-md shadow-lg flex items-center gap-4 hover:border-violet-400/40 hover:bg-[#281c4e] transition-all cursor-pointer group"
+            {secondaryStories.map((item) => (
+              <article
+                key={item.id}
+                onClick={() => handleReadItem(item)}
+                className="group cursor-pointer p-3.5 sm:p-4 bg-[#191035]/85 rounded-xl border border-violet-500/20 hover:border-cyan-400/50 hover:bg-[#201542] transition-all duration-200 flex gap-3.5 items-start shadow-md hover:shadow-violet-600/20"
+              >
+                {/* Thumbnail */}
+                <div className="w-24 h-20 sm:w-28 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-[#120a26] border border-violet-500/20 relative">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-col justify-between flex-grow min-w-0">
+                  <div className="flex items-center gap-1.5 text-[11px] text-violet-300/70 mb-1">
+                    <span className="text-cyan-400 font-semibold">{item.category}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{item.readTime || '4 phút đọc'}</span>
+                  </div>
+
+                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug">
+                    {item.title}
+                  </h3>
+
+                  <div className="flex items-center gap-2 text-[11px] text-violet-300/60 mt-2">
+                    <span>{item.author}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{item.date}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {/* Banner jump to Database Cầu thủ */}
+            <div
+              onClick={() => navigate(`/${toSlug('Database cầu thủ')}`)}
+              className="cursor-pointer p-3.5 rounded-xl bg-gradient-to-r from-cyan-950/80 via-[#1a123d] to-[#1d1045] border border-cyan-500/30 hover:border-cyan-400 transition-all flex items-center justify-between group shadow-md"
             >
-              <div className="w-12 h-12 rounded-xl bg-violet-600/20 border border-violet-400/30 flex items-center justify-center shrink-0 text-violet-300 group-hover:scale-110 transition-transform">
-                <Layers size={24} />
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300">
+                  <Star size={16} fill="currentColor" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    Khám phá Database Cầu thủ & Wonderkids
+                  </div>
+                  <div className="text-[11px] text-violet-300/70">
+                    Tra cứu PA, CA, mức giá và chỉ số FM26
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="text-white font-bold text-sm font-display">Tài nguyên Mod & Việt Hóa</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Facepack, Logo, Bộ Kits mùa giải mới, Tactic bất bại và tiếng Việt</p>
-              </div>
+              <ArrowRight size={15} className="text-cyan-400 group-hover:translate-x-1 transition-transform" />
             </div>
+
           </div>
 
         </div>
+
       </div>
-    </div>
+    </section>
   );
 }

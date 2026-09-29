@@ -1,13 +1,13 @@
-import { Eye, Heart, Download, Coffee, Edit, Sparkles, ShieldCheck } from 'lucide-react';
+import { Eye, Heart, Edit, ArrowRight, Coffee, Download, Newspaper, BookOpen } from 'lucide-react';
 import { type ResourceItem } from '../types';
-import { getProviderName, sanitizeGameVersion } from '../utils';
+import { sanitizeGameVersion, getProviderName } from '../utils';
 
 interface CompactTableProps {
   items: ResourceItem[];
-  isAdmin: boolean;
+  isAdmin?: boolean;
   onViewDetail: (item: ResourceItem) => void;
   onLike: (item: ResourceItem) => void;
-  onDonate: (item: ResourceItem) => void;
+  onDonate?: (item: ResourceItem) => void;
   onDownload?: (item: ResourceItem) => void;
   onEdit?: (item: ResourceItem) => void;
 }
@@ -22,68 +22,60 @@ export default function CompactTableView({
   onEdit,
 }: CompactTableProps) {
   return (
-    <div className="w-full overflow-x-auto bg-[#170e30]/90 rounded-2xl border border-violet-500/25 shadow-xl backdrop-blur-md">
+    <div className="w-full overflow-x-auto bg-[#180f33]/90 rounded-2xl border border-violet-500/25 shadow-xl backdrop-blur-md">
       <table className="w-full text-left border-collapse text-xs md:text-sm">
         <thead>
-          <tr className="border-b border-violet-500/20 bg-[#1e133d] text-violet-300 font-extrabold uppercase text-[11px] tracking-wider font-display">
-            <th className="py-3.5 px-4">Tài nguyên</th>
-            <th className="py-3.5 px-3 whitespace-nowrap">Phiên bản</th>
-            <th className="py-3.5 px-3 whitespace-nowrap hidden sm:table-cell">Tác giả</th>
-            <th className="py-3.5 px-3 whitespace-nowrap hidden md:table-cell">Thống kê</th>
-            <th className="py-3.5 px-3 whitespace-nowrap hidden lg:table-cell">Nguồn lưu trữ</th>
-            <th className="py-3.5 px-4 text-right">Tải / Thao tác</th>
+          <tr className="border-b border-violet-500/20 bg-[#130a28] text-violet-300 font-bold uppercase text-[11px] tracking-wider font-sans">
+            <th className="py-3 px-4">Tài nguyên / Bài viết</th>
+            <th className="py-3 px-3 whitespace-nowrap">Phiên bản</th>
+            <th className="py-3 px-3 whitespace-nowrap hidden sm:table-cell">Tác giả</th>
+            <th className="py-3 px-3 whitespace-nowrap hidden md:table-cell">Lượt xem & Thích</th>
+            <th className="py-3 px-3 whitespace-nowrap hidden lg:table-cell">Nguồn lưu trữ</th>
+            <th className="py-3 px-4 text-right">Tải / Thao tác</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-violet-500/10">
+        <tbody className="divide-y divide-violet-500/15">
           {items.map((item) => {
             const displayVersion = sanitizeGameVersion(item.version);
             const isFm26 = displayVersion === 'FM26';
-            const provider = getProviderName(item.downloadLink);
             const isArticle = item.category === 'Bài viết';
             const isGuide = item.category === 'Guide';
+            const hasDownload = Boolean(item.downloadLink && item.downloadLink.trim() !== '');
+            const providerName = getProviderName(item.downloadLink);
 
             return (
               <tr 
                 key={item.id || item.title}
                 onClick={() => onViewDetail(item)}
-                className="hover:bg-violet-950/40 cursor-pointer transition-colors group"
+                className="hover:bg-violet-900/30 cursor-pointer transition-colors group"
               >
                 {/* 1. Item Info */}
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-violet-950 overflow-hidden shrink-0 border border-violet-500/30 group-hover:border-violet-400 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-violet-950 overflow-hidden shrink-0 border border-violet-500/30">
                       <img 
                         src={item.image} 
                         alt={item.title} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        onError={(e) => { e.currentTarget.src = 'https://placehold.co/100x100/1e153c/a78bfa?text=FM'; }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     </div>
                     <div className="min-w-0 max-w-[280px] sm:max-w-md">
-                      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                        {isArticle ? (
-                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">
-                            📰 Bài viết
-                          </span>
-                        ) : isGuide ? (
-                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">
-                            📖 Guide
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#120a24] text-violet-300 border border-violet-500/20">
-                            {item.category}
-                          </span>
+                      <div className="flex items-center gap-1.5 text-[11px] text-violet-300/70 mb-0.5">
+                        <span className="text-cyan-400 font-semibold">{item.category}</span>
+                        {item.readTime && (
+                          <>
+                            <span aria-hidden="true" className="text-violet-500/40">·</span>
+                            <span>{item.readTime}</span>
+                          </>
                         )}
-                        {item.isHot && (
-                          <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-500 text-black">
-                            HOT
-                          </span>
-                        )}
-                        <span className="text-[11px] text-slate-400 sm:hidden">
-                          • {item.author}
+                        <span className="sm:hidden text-violet-400">
+                          · {item.author}
                         </span>
                       </div>
-                      <h4 className="font-bold text-white group-hover:text-cyan-300 transition-colors truncate font-display">
+                      <h4 className="font-bold text-white group-hover:text-cyan-300 transition-colors truncate">
                         {item.title}
                       </h4>
                     </div>
@@ -91,116 +83,117 @@ export default function CompactTableView({
                 </td>
 
                 {/* 2. Version */}
-                <td className="py-3 px-3 whitespace-nowrap">
+                <td className="py-3 px-3 whitespace-nowrap text-xs">
                   {displayVersion ? (
-                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-black rounded-lg ${
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
                       isFm26 
-                        ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm border border-cyan-300/40' 
-                        : 'bg-[#1e1338] text-cyan-300 border border-violet-500/30'
+                        ? 'bg-violet-600/30 text-cyan-300 border-cyan-400/40' 
+                        : 'bg-violet-950/60 text-violet-300 border-violet-500/30'
                     }`}>
-                      {isFm26 && <Sparkles size={11} className="text-cyan-200" />}
                       {displayVersion}
                     </span>
                   ) : (
-                    <span className="text-slate-500 text-xs">-</span>
+                    <span className="text-violet-300/60">Tất cả</span>
                   )}
                 </td>
 
-                {/* 3. Author & Date */}
-                <td className="py-3 px-3 whitespace-nowrap hidden sm:table-cell">
-                  <div className="font-semibold text-slate-200">{item.author}</div>
-                  <div className="text-[11px] text-slate-400 font-mono">{item.date}</div>
+                {/* 3. Author */}
+                <td className="py-3 px-3 whitespace-nowrap hidden sm:table-cell text-xs text-violet-300/70">
+                  {item.author}
                 </td>
 
-                {/* 4. Views & Likes */}
-                <td className="py-3 px-3 whitespace-nowrap hidden md:table-cell">
-                  <div className="flex items-center gap-3 text-xs text-slate-300 font-mono">
-                    <span className="flex items-center gap-1"><Eye size={13} className="text-violet-400" /> {item.views.toLocaleString()}</span>
-                    <button 
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onLike(item); }}
-                      className="flex items-center gap-1 text-rose-400 hover:text-rose-300 transition-colors"
-                      title="Yêu thích"
-                    >
-                      <Heart size={13} fill="currentColor" /> {item.likes}
-                    </button>
+                {/* 4. Stats */}
+                <td className="py-3 px-3 whitespace-nowrap hidden md:table-cell font-mono text-xs text-violet-300/80 tabular-nums">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <Eye size={12} className="text-violet-400" />
+                      {(item.views || 0).toLocaleString()}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Heart size={12} className="text-rose-400" />
+                      {(item.likes || 0).toLocaleString()}
+                    </span>
                   </div>
                 </td>
 
-                {/* 5. Storage Provider / Article Info */}
-                <td className="py-3 px-3 whitespace-nowrap hidden lg:table-cell">
+                {/* 5. Provider */}
+                <td className="py-3 px-3 whitespace-nowrap hidden lg:table-cell text-xs">
                   {isArticle ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 font-medium text-xs">
-                      {item.readTime || 'Bài đọc FM'}
+                    <span className="text-cyan-400 font-semibold text-[11px]">Bài viết</span>
+                  ) : isGuide ? (
+                    <span className="text-amber-400 font-semibold text-[11px]">Guide FM</span>
+                  ) : providerName ? (
+                    <span className="text-[11px] font-bold text-violet-300 uppercase px-2 py-0.5 rounded bg-violet-950/60 border border-violet-500/20">
+                      {providerName}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#140b28] border border-violet-500/20 text-slate-300 font-medium text-xs">
-                      <ShieldCheck size={13} className="text-emerald-400" />
-                      {provider}
-                    </span>
+                    <span className="text-violet-400/50">Trực tiếp</span>
                   )}
                 </td>
 
-                {/* 6. Action Buttons */}
+                {/* 6. Actions */}
                 <td className="py-3 px-4 text-right whitespace-nowrap">
-                  <div className="flex items-center justify-end gap-1.5">
-                    {isArticle ? (
+                  <div className="flex items-center justify-end gap-2">
+                    {onDonate && (
                       <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
-                        className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-cyan-600/20 border border-cyan-400/30 transition-all hover:scale-105"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDonate(item);
+                        }}
+                        className="p-1.5 rounded-lg text-amber-300 hover:bg-amber-500/20 transition-colors"
+                        title="Ủng hộ tác giả"
                       >
-                        <span>Đọc bài</span>
+                        <Coffee size={14} />
                       </button>
-                    ) : isGuide ? (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
-                        className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-amber-600/20 border border-amber-400/30 transition-all hover:scale-105"
-                      >
-                        <span>Xem Guide</span>
-                      </button>
-                    ) : onDownload ? (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onDownload(item); }}
-                        className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-violet-600/20 border border-violet-400/30 transition-all hover:scale-105"
-                        title={`Tải về từ ${provider}`}
-                      >
-                        <Download size={13} className="text-cyan-200" />
-                        <span className="hidden sm:inline">Tải về</span>
-                      </button>
-                    ) : (
-                      <a
-                        href={item.downloadLink || '#'}
-                        target="_blank"
-                        rel="nofollow noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md shadow-violet-600/20 border border-violet-400/30 transition-all hover:scale-105"
-                      >
-                        <Download size={13} className="text-cyan-200" />
-                        <span className="hidden sm:inline">Tải về</span>
-                      </a>
                     )}
 
                     <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onDonate(item); }}
-                      className="p-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 transition-all"
-                      title="Ủng hộ tác giả"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onLike(item);
+                      }}
+                      className="p-1.5 rounded-lg text-violet-300 hover:text-rose-400 transition-colors"
+                      title="Yêu thích"
                     >
-                      <Coffee size={14} />
+                      <Heart size={14} />
                     </button>
 
                     {isAdmin && onEdit && (
                       <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-                        className="p-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-500/30 transition-all"
-                        title="Chỉnh sửa (Admin)"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(item);
+                        }}
+                        className="p-1.5 rounded-lg text-violet-300 hover:text-cyan-300 transition-colors"
+                        title="Chỉnh sửa"
                       >
                         <Edit size={14} />
                       </button>
+                    )}
+
+                    {isArticle ? (
+                      <span className="text-xs font-bold text-cyan-300 group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1 pl-2">
+                        <Newspaper size={12} /> Đọc <ArrowRight size={13} />
+                      </span>
+                    ) : isGuide ? (
+                      <span className="text-xs font-bold text-amber-300 group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1 pl-2">
+                        <BookOpen size={12} /> Xem <ArrowRight size={13} />
+                      </span>
+                    ) : hasDownload ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (onDownload) onDownload(item);
+                          else onViewDetail(item);
+                        }}
+                        className="text-xs font-bold text-cyan-300 hover:text-white px-2.5 py-1 rounded-lg bg-violet-600/30 hover:bg-violet-600 border border-violet-400/30 transition-all inline-flex items-center gap-1"
+                      >
+                        <Download size={12} /> Tải về
+                      </button>
+                    ) : (
+                      <span className="text-xs font-bold text-violet-300 group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1 pl-2">
+                        Chi tiết <ArrowRight size={13} />
+                      </span>
                     )}
                   </div>
                 </td>

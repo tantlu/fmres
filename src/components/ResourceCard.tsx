@@ -1,5 +1,5 @@
 import { useState, type MouseEvent } from 'react';
-import { Download, Eye, Calendar, User, Heart, Coffee, Edit, CheckCircle2, Sparkles, ShieldCheck, Newspaper, BookOpen, Clock, ArrowRight } from 'lucide-react';
+import { Download, Eye, Calendar, User, Heart, Coffee, Edit, Newspaper, BookOpen, ArrowRight, Flame } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import { getProviderName, sanitizeGameVersion } from '../utils';
 
@@ -23,7 +23,24 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
 
   const handleLikeClick = (e: MouseEvent) => {
     e.stopPropagation();
-    if (!liked) { setLiked(true); onLike(item); }
+    if (!liked) {
+      setLiked(true);
+      onLike(item);
+    }
+  };
+
+  const handleDonateClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    onDonate(item);
+  };
+
+  const handleDownloadClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (onDownload) {
+      onDownload(item);
+    } else {
+      onViewDetail(item);
+    }
   };
 
   const displayVersion = sanitizeGameVersion(item.version);
@@ -32,6 +49,7 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
 
   const isArticle = item.category === 'Bài viết';
   const isGuide = item.category === 'Guide';
+  const hasDownload = Boolean(item.downloadLink && item.downloadLink.trim() !== '' && item.downloadLink !== '#');
 
   // Detect tactical formation (e.g. 4-2-3-1, 4-3-3, 3-4-2-1)
   const formationMatch = item.title.match(/(\d-\d-\d-\d|\d-\d-\d)/);
@@ -73,9 +91,10 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
               ⚽ {formation}
             </span>
           )}
+
           {item.isHot && (
-            <span className="px-2 py-1 text-[10px] font-extrabold uppercase bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg shadow-md animate-pulse">
-              HOT
+            <span className="px-2 py-1 text-[10px] font-extrabold uppercase bg-gradient-to-r from-amber-500 to-rose-500 text-white rounded-lg shadow-md flex items-center gap-1 animate-pulse">
+              <Flame size={11} /> HOT
             </span>
           )}
         </div>
@@ -97,7 +116,13 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
         <img
           src={item.image}
           alt={item.title}
-          onError={(e) => { e.currentTarget.src = 'https://placehold.co/600x400/1e153c/a78bfa?text=FM26+Resource'; }}
+          onError={(e) => { 
+            e.currentTarget.style.display = 'none';
+            const parent = e.currentTarget.parentElement;
+            if (parent) {
+              parent.classList.add('bg-gradient-to-br', 'from-violet-950', 'to-slate-950');
+            }
+          }}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
         />
 
@@ -108,130 +133,134 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
       {/* === CONTENT SECTION === */}
       <div className="flex flex-col p-4 sm:p-5 flex-grow gap-2.5">
         {/* Meta Info */}
-        <div className="flex items-center justify-between text-xs text-slate-400">
-          <div className="flex items-center gap-1.5 hover:text-cyan-300 transition-colors">
-            <User size={13} className="text-violet-400" />
-            <span className="font-semibold text-slate-300 truncate max-w-[120px]">{item.author}</span>
-            <CheckCircle2 size={13} className="text-cyan-400" />
+        <div className="flex items-center justify-between text-xs text-violet-300/80">
+          <div className="flex items-center gap-1.5">
+            {displayVersion ? (
+              <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
+                isFm26 
+                  ? 'bg-violet-600/30 text-cyan-300 border-cyan-400/40' 
+                  : 'bg-violet-950/60 text-violet-300 border-violet-500/30'
+              }`}>
+                {displayVersion}
+              </span>
+            ) : null}
+            <span className="flex items-center gap-1 text-[11px] text-slate-400">
+              <Calendar size={12} /> {item.date}
+            </span>
           </div>
-          <div className="flex items-center gap-1.5 bg-violet-950/60 px-2 py-0.5 rounded text-[11px] text-slate-400 border border-violet-500/15 font-mono">
-            <Calendar size={11} className="text-violet-400" /> {item.date}
+
+          <div className="flex items-center gap-1 text-[11px] text-slate-400 truncate max-w-[120px]">
+            <User size={12} /> <span className="truncate">{item.author}</span>
           </div>
         </div>
 
-        {/* Title */}
-        <h3 className="text-base sm:text-lg font-bold text-white leading-snug group-hover:text-cyan-300 transition-colors line-clamp-2 font-display">
+        {/* Tiêu đề */}
+        <h3 className="text-base sm:text-lg font-black text-white group-hover:text-cyan-300 transition-colors line-clamp-2 leading-snug font-display">
           {item.title}
         </h3>
 
-        {/* Summary Snippet for Articles */}
-        {item.summary && (
-          <p className="text-xs text-slate-300/90 line-clamp-2 leading-relaxed">
+        {/* Đoạn trích dẫn tóm tắt */}
+        {item.summary ? (
+          <p className="text-xs text-violet-200/70 line-clamp-2 leading-relaxed">
             {item.summary}
           </p>
-        )}
+        ) : item.instructions ? (
+          <p className="text-xs text-slate-400/80 line-clamp-2 leading-relaxed">
+            {item.instructions}
+          </p>
+        ) : null}
 
-        {/* Tags, Version & Read Time */}
-        <div className="flex flex-wrap gap-1.5 mt-auto pt-2 items-center">
-          {isArticle && (
-            <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/30 flex items-center gap-1">
-              <Clock size={10} /> {item.readTime || '4 phút đọc'}
+        {/* Provider Tag hoặc Thời lượng đọc */}
+        <div className="flex items-center justify-between mt-auto pt-2 border-t border-violet-500/15 text-xs">
+          <div className="flex items-center gap-2.5 text-violet-300/70 font-mono text-[11px]">
+            <span className="flex items-center gap-1" title="Lượt xem">
+              <Eye size={12} /> {(item.views || 0).toLocaleString()}
             </span>
-          )}
+            <span className="flex items-center gap-1" title="Yêu thích">
+              <Heart size={12} className={liked ? 'text-rose-400' : ''} fill={liked ? 'currentColor' : 'none'} />
+              {(item.likes || 0) + (liked ? 1 : 0)}
+            </span>
+          </div>
 
-          {displayVersion && (
-            <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-md flex items-center gap-1 ${
-              isFm26 
-                ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm border border-cyan-400/40' 
-                : 'bg-violet-950 text-cyan-300 border border-cyan-500/30'
-            }`}>
-              {isFm26 && <Sparkles size={10} className="text-cyan-200" />}
-              {displayVersion}
+          {isArticle || isGuide ? (
+            <span className="text-[11px] font-semibold text-cyan-400">
+              {item.readTime || '4 phút đọc'}
             </span>
-          )}
-          {item.tags?.slice(0, 2).map(tag => (
-            <span key={tag} className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-[#271d4b] text-violet-200 border border-violet-500/20">
-              #{tag}
-            </span>
-          ))}
-
-          {!isArticle && (
-            <span className="ml-auto text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <ShieldCheck size={11} className="text-emerald-400" />
+          ) : providerName ? (
+            <span className="text-[11px] font-bold text-violet-300 uppercase px-2 py-0.5 rounded bg-violet-950/60 border border-violet-500/20">
               {providerName}
             </span>
+          ) : null}
+        </div>
+
+        {/* === ACTION BUTTONS === */}
+        <div className="grid grid-cols-12 gap-2 pt-2">
+          {/* Nút ủng hộ */}
+          <button
+            onClick={handleDonateClick}
+            type="button"
+            className="col-span-3 sm:col-span-4 bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 hover:border-amber-400 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 shadow-sm"
+            title="Ủng hộ tác giả"
+          >
+            <Coffee size={13} />
+            <span className="hidden sm:inline">Ủng hộ</span>
+          </button>
+
+          {/* Nút Đọc bài viết HOẶC Tải về */}
+          {isArticle ? (
+            <button
+              onClick={() => onViewDetail(item)}
+              type="button"
+              className="col-span-9 sm:col-span-8 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-2 px-3 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-cyan-600/30 flex items-center justify-center gap-1.5 border border-cyan-400/40"
+            >
+              <Newspaper size={13} />
+              <span>ĐỌC BÀI VIẾT</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          ) : isGuide ? (
+            <button
+              onClick={() => onViewDetail(item)}
+              type="button"
+              className="col-span-9 sm:col-span-8 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white py-2 px-3 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-amber-600/30 flex items-center justify-center gap-1.5 border border-amber-400/40"
+            >
+              <BookOpen size={13} />
+              <span>XEM CẨM NANG</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          ) : hasDownload ? (
+            <button
+              onClick={handleDownloadClick}
+              type="button"
+              className="col-span-9 sm:col-span-8 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-2 px-3 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-violet-600/30 flex items-center justify-center gap-1.5 border border-violet-400/30"
+            >
+              <Download size={13} className="text-cyan-300" />
+              <span className="truncate">TẢI VỀ {providerName ? `(${providerName.toUpperCase()})` : ''}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => onViewDetail(item)}
+              type="button"
+              className="col-span-9 sm:col-span-8 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white py-2 px-3 rounded-xl text-xs font-extrabold transition-all shadow-md shadow-violet-600/30 flex items-center justify-center gap-1.5 border border-violet-400/30"
+            >
+              <span>XEM CHI TIẾT</span>
+              <ArrowRight size={13} />
+            </button>
+          )}
+
+          {/* Nút Admin Edit nếu có */}
+          {onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(item);
+              }}
+              className="absolute bottom-2 right-2 p-1.5 bg-[#120a26] hover:bg-violet-900/60 rounded-lg text-slate-400 hover:text-white border border-violet-500/20 transition-all opacity-0 group-hover:opacity-100"
+              title="Chỉnh sửa (Admin)"
+            >
+              <Edit size={12} />
+            </button>
           )}
         </div>
-      </div>
-
-      {/* === FOOTER ACTION === */}
-      <div className="p-4 pt-0 mt-auto grid grid-cols-5 gap-2">
-        {isArticle ? (
-          /* Nút Đọc Bài Viết */
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
-            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-cyan-600/25 hover:shadow-cyan-500/40 hover:-translate-y-0.5 border border-cyan-400/30"
-          >
-            <BookOpen size={14} className="text-cyan-200 shrink-0" />
-            <span>Đọc bài viết</span>
-            <ArrowRight size={13} className="text-cyan-200" />
-          </button>
-        ) : isGuide ? (
-          /* Nút Xem Guide */
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onViewDetail(item); }}
-            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-600 via-orange-600 to-violet-600 hover:from-amber-500 hover:to-violet-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-amber-600/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 border border-amber-400/30"
-          >
-            <BookOpen size={14} className="text-amber-200 shrink-0" />
-            <span>Xem hướng dẫn</span>
-          </button>
-        ) : onDownload ? (
-          /* Nút Tải Tài nguyên */
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onDownload(item); }}
-            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
-            title={`Tải từ ${providerName}`}
-          >
-            <Download size={14} className="text-cyan-300 shrink-0" />
-            <span className="truncate">Tải từ {providerName}</span>
-          </button>
-        ) : (
-          <a
-            href={item.downloadLink || '#'}
-            target="_blank"
-            rel="nofollow noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="col-span-3 flex items-center justify-center gap-1.5 bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md shadow-violet-600/25 hover:shadow-violet-500/40 hover:-translate-y-0.5 border border-violet-400/30"
-          >
-            <Download size={14} className="text-cyan-300 shrink-0" />
-            <span className="truncate">Tải từ {providerName}</span>
-          </a>
-        )}
-        <button
-          onClick={(e) => { e.stopPropagation(); onDonate(item); }}
-          className="col-span-1 flex items-center justify-center bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-black border border-amber-500/30 hover:border-amber-400 rounded-xl transition-all shadow-sm"
-          title="Donate tác giả"
-        >
-          <Coffee size={15} />
-        </button>
-        {onEdit && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit(item); }}
-            className="col-span-1 flex items-center justify-center bg-cyan-500/15 hover:bg-cyan-500 text-cyan-300 hover:text-black border border-cyan-500/30 hover:border-cyan-400 rounded-xl transition-all shadow-sm"
-            title="Chỉnh sửa (Admin)"
-          >
-            <Edit size={15} />
-          </button>
-        )}
-      </div>
-
-      {/* Stats Bar */}
-      <div className="bg-[#150e2c] px-4 py-2 flex items-center justify-between text-[11px] font-medium text-slate-400 border-t border-violet-500/15">
-        <span className="flex items-center gap-1.5"><Eye size={12} className="text-violet-400" /> {item.views.toLocaleString()} lượt xem</span>
-        <span className="flex items-center gap-1 text-rose-400 font-semibold"><Heart size={11} fill="currentColor" /> {item.likes}</span>
       </div>
     </div>
   );

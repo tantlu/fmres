@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Trash2, LayoutGrid, Table, ArrowUpDown, Flame, Sparkles } from 'lucide-react';
+import { Search, Plus, LayoutGrid, Table, ArrowUpDown, Flame, Sparkles } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import ResourceCard from './ResourceCard';
 import CompactTableView from './CompactTableView';
@@ -22,7 +22,6 @@ export default function ResourceList({
   items, 
   isAdmin, 
   onEdit, 
-  onDelete, 
   onViewDetail, 
   onLike, 
   onDonate, 
@@ -38,12 +37,11 @@ export default function ResourceList({
       if (sortBy === 'views') return (b.views || 0) - (a.views || 0);
       if (sortBy === 'likes') return (b.likes || 0) - (a.likes || 0);
       if (sortBy === 'title') return a.title.localeCompare(b.title, 'vi');
-      // Default: newest by date string (YYYY-MM-DD) or id
       return (b.date || '').localeCompare(a.date || '');
     });
   }, [items, sortBy]);
 
-  // 1. Hiệu ứng đang tải (Skeleton Loading)
+  // 1. Loading State
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -62,7 +60,7 @@ export default function ResourceList({
     );
   }
 
-  // 2. Trạng thái trống (Không có bài viết)
+  // 2. Empty State
   if (items.length === 0) {
     return (
       <div className="text-center py-20 px-4 bg-[#181033]/80 rounded-3xl border border-dashed border-violet-500/30 backdrop-blur-md">
@@ -72,7 +70,6 @@ export default function ResourceList({
         <h4 className="text-white text-lg font-bold font-display mb-1">Không tìm thấy tài nguyên phù hợp</h4>
         <p className="text-slate-400 text-sm max-w-md mx-auto">Thử tìm kiếm với từ khóa khác hoặc chuyển sang danh mục khác để khám phá thêm nội dung.</p>
         
-        {/* Chỉ Admin mới thấy nút Thêm mới khi danh sách trống */}
         {isAdmin && (
           <button 
             onClick={onAddNew} 
@@ -96,7 +93,7 @@ export default function ResourceList({
             <strong className="text-cyan-300 px-2 py-0.5 rounded-lg bg-[#241748] border border-violet-500/30">
               {items.length}
             </strong>
-            <span className="text-slate-400 font-normal lowercase">tài nguyên</span>
+            <span className="text-slate-400 font-normal lowercase">tài nguyên & bài viết</span>
           </span>
         </div>
 
@@ -165,7 +162,7 @@ export default function ResourceList({
                   ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md'
                   : 'text-slate-400 hover:text-white'
               }`}
-              title="Chế độ xem bảng dữ liệu (Compact Data Table)"
+              title="Chế độ xem bảng (Compact Table)"
             >
               <Table size={16} />
             </button>
@@ -173,8 +170,22 @@ export default function ResourceList({
         </div>
       </div>
 
-      {/* 3. Hiển thị danh sách theo View Mode đã chọn */}
-      {viewMode === 'table' ? (
+      {/* Main Content Layout */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {sortedItems.map((item) => (
+            <ResourceCard
+              key={item.id}
+              item={item}
+              onEdit={onEdit}
+              onViewDetail={onViewDetail}
+              onLike={onLike}
+              onDonate={onDonate}
+              onDownload={onDownload}
+            />
+          ))}
+        </div>
+      ) : (
         <CompactTableView 
           items={sortedItems}
           isAdmin={isAdmin}
@@ -182,34 +193,8 @@ export default function ResourceList({
           onLike={onLike}
           onDonate={onDonate}
           onDownload={onDownload}
-          onEdit={isAdmin ? onEdit : undefined}
+          onEdit={onEdit}
         />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {sortedItems.map((item) => (
-            <div key={item.id || item.title} className="relative group/card h-full">
-              <ResourceCard 
-                item={item} 
-                onEdit={isAdmin ? onEdit : undefined} 
-                onViewDetail={onViewDetail} 
-                onLike={onLike} 
-                onDonate={onDonate} 
-                onDownload={onDownload}
-              />
-
-              {/* Nút Xóa: Chỉ render khi là Admin */}
-              {isAdmin && item.id && onDelete && (
-                <button
-                  onClick={() => onDelete(item.id!)}
-                  className="absolute top-3 right-12 bg-rose-600 hover:bg-rose-500 text-white p-2 rounded-xl shadow-lg opacity-0 group-hover/card:opacity-100 transition-all z-30 hover:scale-110 border border-rose-400/40"
-                  title="Xóa bài viết"
-                >
-                  <Trash2 size={14} />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
       )}
     </div>
   );
