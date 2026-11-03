@@ -26,7 +26,7 @@ export default function CompactTableView({
   onDelete,
 }: CompactTableProps) {
   return (
-    <div className="w-full overflow-x-auto bg-[#180f33]/90 rounded-2xl border border-violet-500/25 shadow-xl backdrop-blur-md">
+    <div className="w-full overflow-x-auto bg-[#180f33] rounded-2xl border border-violet-500/25 shadow-xl card-optimize transform-gpu">
       <table className="w-full text-left border-collapse text-xs md:text-sm">
         <thead>
           <tr className="border-b border-violet-500/20 bg-[#130a28] text-violet-300 font-bold uppercase text-[11px] tracking-wider font-sans">
@@ -61,6 +61,8 @@ export default function CompactTableView({
                       <img 
                         src={item.image} 
                         alt={item.title} 
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';

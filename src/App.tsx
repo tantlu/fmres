@@ -251,7 +251,10 @@ export default function App() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0d071d] font-sans text-slate-100 flex flex-col selection:bg-violet-600 selection:text-white">
+    <div className="min-h-screen bg-[#0d071d] font-sans text-slate-100 flex flex-col selection:bg-violet-600 selection:text-white relative">
+      {/* High-Performance Fixed Background Layer */}
+      <div className="stadium-bg" aria-hidden="true" />
+
       {/* Header luôn hiển thị */}
       <Header 
         selectedCategory={selectedCategory} 

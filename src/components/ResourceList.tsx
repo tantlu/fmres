@@ -88,7 +88,7 @@ export default function ResourceList({
   return (
     <div className="space-y-4">
       {/* HUD Header Bar: Count + Sort + View Mode Switcher */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#181033]/80 p-3 sm:px-4 rounded-2xl border border-violet-500/20 backdrop-blur-md">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#181033] p-3 sm:px-4 rounded-2xl border border-violet-500/20">
         <div className="flex items-center gap-2">
           <span className="text-xs font-extrabold text-white uppercase tracking-wider font-display flex items-center gap-1.5">
             <Sparkles size={14} className="text-cyan-400" />

@@ -392,7 +392,7 @@ export default function PlayerDatabaseView({
             <div
               key={player.id}
               onClick={() => setActivePlayerModal(player)}
-              className="group cursor-pointer rounded-xl bg-[#191035]/85 hover:bg-[#201544] border border-violet-500/20 hover:border-cyan-400/50 transition-all duration-200 overflow-hidden shadow-lg hover:shadow-violet-600/20 flex flex-col justify-between relative"
+              className="group cursor-pointer rounded-xl bg-[#191035] hover:bg-[#201544] border border-violet-500/20 hover:border-cyan-400/50 transition-[transform,border-color,background-color] duration-200 card-optimize transform-gpu overflow-hidden shadow-lg hover:shadow-violet-600/20 flex flex-col justify-between relative"
             >
               {/* Card Top */}
               <div className="p-4 sm:p-5 space-y-3">
@@ -402,6 +402,8 @@ export default function PlayerDatabaseView({
                       <img
                         src={player.image}
                         alt={player.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         onError={(e) => {
                           e.currentTarget.src = 'https://placehold.co/100x100/1e123d/8b5cf6?text=FM26';

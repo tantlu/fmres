@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react';
+import { useState, memo, type MouseEvent } from 'react';
 import { Download, Eye, Calendar, User, Heart, Coffee, Edit, Newspaper, BookOpen, ArrowRight, Flame, Copy, Trash2 } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import { getProviderName, sanitizeGameVersion } from '../utils';
@@ -15,7 +15,7 @@ interface CardProps {
   onDownload?: (item: ResourceItem) => void;
 }
 
-export default function ResourceCard({ 
+const ResourceCard = memo(function ResourceCard({ 
   item, 
   isAdmin, 
   onEdit, 
@@ -71,13 +71,13 @@ export default function ResourceCard({
 
   return (
     <div
-      className={`group relative flex flex-col bg-[#1e153c]/90 hover:bg-[#261b4a] backdrop-blur-md rounded-2xl border transition-all duration-300 hover:shadow-[0_12px_32px_-4px_rgba(124,58,237,0.4)] hover:-translate-y-1.5 overflow-hidden h-full cursor-pointer ${
+      className={`group relative flex flex-col bg-[#1c133a] hover:bg-[#231846] rounded-2xl border transition-[transform,border-color,background-color] duration-200 transform-gpu card-optimize hover:-translate-y-1 overflow-hidden h-full cursor-pointer ${
         isArticle
           ? 'border-cyan-500/30 hover:border-cyan-400/70 ring-1 ring-cyan-500/20'
           : isGuide
             ? 'border-amber-500/30 hover:border-amber-400/70 ring-1 ring-amber-500/20'
             : isFm27
-              ? 'border-emerald-500/40 hover:border-emerald-400/80 ring-1 ring-emerald-500/30 shadow-[0_4px_20px_-2px_rgba(16,185,129,0.15)]'
+              ? 'border-emerald-500/40 hover:border-emerald-400/80 ring-1 ring-emerald-500/30'
               : isFm26 
                 ? 'border-violet-500/30 hover:border-cyan-400/60 ring-1 ring-violet-500/20' 
                 : 'border-violet-500/20 hover:border-violet-400/50'
@@ -170,10 +170,12 @@ export default function ResourceCard({
           <Heart size={15} fill={liked ? "currentColor" : "none"} />
         </button>
 
-        {/* Ảnh với hiệu ứng Zoom */}
+        {/* Ảnh với hiệu ứng Zoom và tải ngầm mượt mà */}
         <img
           src={item.image}
           alt={item.title}
+          loading="lazy"
+          decoding="async"
           onError={(e) => { 
             e.currentTarget.style.display = 'none';
             const parent = e.currentTarget.parentElement;
@@ -181,7 +183,7 @@ export default function ResourceCard({
               parent.classList.add('bg-gradient-to-br', 'from-violet-950', 'to-slate-950');
             }
           }}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
         {/* Gradient Overlay để text dễ đọc */}
@@ -324,4 +326,6 @@ export default function ResourceCard({
       </div>
     </div>
   );
-}
+});
+
+export default ResourceCard;

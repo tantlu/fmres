@@ -45,7 +45,7 @@ export default function Header({
   const isModActive = modCategories.includes(selectedCategory);
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-[#130b28]/95 border-b border-violet-500/20 shadow-lg shadow-black/30">
+    <header className="sticky top-0 z-50 w-full bg-[#130b28]/98 backdrop-blur-md border-b border-violet-500/20 shadow-lg shadow-black/30 transform-gpu">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
         
         {/* Zone 1: FM26 Signature Brand Logo & Wordmark */}

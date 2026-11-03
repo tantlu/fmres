@@ -41,7 +41,7 @@ export default function Hero({ items = [], onViewDetail, selectedCategory = 'All
 
     return (
       <section className="relative border-b border-violet-500/20 bg-gradient-to-b from-[#180f33] via-[#140c2b] to-[#0f0722] py-8 md:py-12 overflow-hidden">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 pointer-events-none opacity-40 bg-[radial-gradient(circle,rgba(139,92,246,0.2)_0%,transparent_70%)]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
@@ -77,10 +77,10 @@ export default function Hero({ items = [], onViewDetail, selectedCategory = 'All
   // Home View: FM26 Lead Editorial Magazine Showcase
   return (
     <section className="relative border-b border-violet-500/20 bg-gradient-to-b from-[#170e30] via-[#130b28] to-[#0d071e] py-8 md:py-12 overflow-hidden">
-      {/* Stadium Ambient Floodlights */}
-      <div className="absolute -top-20 left-1/3 w-[500px] h-[500px] bg-violet-600/15 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute top-1/4 -right-20 w-[450px] h-[450px] bg-cyan-500/12 rounded-full blur-[130px] pointer-events-none"></div>
-      <div className="absolute -bottom-20 left-10 w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* Stadium Ambient Floodlights - Fast GPU Radial Gradients */}
+      <div className="absolute -top-20 left-1/3 w-[500px] h-[500px] pointer-events-none opacity-40 bg-[radial-gradient(circle,rgba(139,92,246,0.22)_0%,transparent_70%)]"></div>
+      <div className="absolute top-1/4 -right-20 w-[450px] h-[450px] pointer-events-none opacity-30 bg-[radial-gradient(circle,rgba(6,182,212,0.18)_0%,transparent_70%)]"></div>
+      <div className="absolute -bottom-20 left-10 w-[350px] h-[350px] pointer-events-none opacity-25 bg-[radial-gradient(circle,rgba(16,185,129,0.16)_0%,transparent_70%)]"></div>
 
       <div className="container mx-auto px-4 relative z-10">
         
@@ -133,7 +133,9 @@ export default function Hero({ items = [], onViewDetail, selectedCategory = 'All
                 <img
                   src={leadArticle.image}
                   alt={leadArticle.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  decoding="async"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const parent = e.currentTarget.parentElement;
@@ -142,7 +144,7 @@ export default function Hero({ items = [], onViewDetail, selectedCategory = 'All
                     }
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#191035] via-transparent to-transparent opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#191035] via-transparent to-transparent opacity-90 pointer-events-none"></div>
                 
                 {/* Clean unboxed tag */}
                 <div className="absolute top-4 left-4 text-[11px] font-black tracking-wider text-cyan-300 uppercase bg-[#100724]/90 backdrop-blur-md px-3 py-1 rounded-lg border border-cyan-500/30 shadow-md flex items-center gap-1.5">
@@ -215,6 +217,8 @@ export default function Hero({ items = [], onViewDetail, selectedCategory = 'All
                   <img
                     src={item.image}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
