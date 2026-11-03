@@ -9,6 +9,7 @@ interface ResourceListProps {
   items: ResourceItem[];
   isAdmin: boolean;
   onEdit?: (item: ResourceItem) => void;
+  onDuplicate?: (item: ResourceItem) => void;
   onDelete?: (id: string) => void;
   onViewDetail: (item: ResourceItem) => void;
   onLike: (item: ResourceItem) => void;
@@ -22,6 +23,8 @@ export default function ResourceList({
   items, 
   isAdmin, 
   onEdit, 
+  onDuplicate,
+  onDelete,
   onViewDetail, 
   onLike, 
   onDonate, 
@@ -177,7 +180,10 @@ export default function ResourceList({
             <ResourceCard
               key={item.id}
               item={item}
+              isAdmin={isAdmin}
               onEdit={onEdit}
+              onDuplicate={onDuplicate}
+              onDelete={onDelete}
               onViewDetail={onViewDetail}
               onLike={onLike}
               onDonate={onDonate}
@@ -194,6 +200,8 @@ export default function ResourceList({
           onDonate={onDonate}
           onDownload={onDownload}
           onEdit={onEdit}
+          onDuplicate={onDuplicate}
+          onDelete={onDelete}
         />
       )}
     </div>

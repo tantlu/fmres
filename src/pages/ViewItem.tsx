@@ -7,7 +7,13 @@ import { DEFAULT_RESOURCES } from '../defaultData';
 import DetailPage from '../components/modals/DetailPage';
 import DonateModal from '../components/modals/DonateModal';
 
-export default function ViewItem() {
+interface ViewItemProps {
+  isAdmin?: boolean;
+  onDuplicate?: (item: ResourceItem) => void;
+  onEdit?: (item: ResourceItem) => void;
+}
+
+export default function ViewItem({ isAdmin, onDuplicate, onEdit }: ViewItemProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [item, setItem] = useState<ResourceItem | null>(null);
@@ -71,8 +77,11 @@ export default function ViewItem() {
     <>
       <DetailPage 
         item={item} 
-        onClose={handleBack} // <-- Sử dụng hàm xử lý mới ở đây
+        isAdmin={isAdmin}
+        onClose={handleBack}
         onDonate={() => setIsDonateOpen(true)}
+        onDuplicate={onDuplicate}
+        onEdit={onEdit}
       />
       <DonateModal 
         isOpen={isDonateOpen} 

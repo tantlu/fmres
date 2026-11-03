@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Save, Edit, Plus } from 'lucide-react';
+import { X, Save, Edit, Plus, Copy } from 'lucide-react';
 import { CATEGORIES, type ResourceItem, type GameVersion, type Category } from '../../types';
 import RichTextEditor from '../RichTextEditor';
 
@@ -10,7 +10,15 @@ const initialFormState: ResourceItem = {
   donateLink: '', bankName: '', bankAccount: '', bankOwner: ''
 };
 
-export default function AdminModal({ isOpen, onClose, initialData, onSave }: { isOpen: boolean; onClose: () => void; initialData?: ResourceItem | null; onSave: (data: ResourceItem) => void; }) {
+interface AdminModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialData?: ResourceItem | null;
+  onSave: (data: ResourceItem) => void;
+  onDuplicate?: (item: ResourceItem) => void;
+}
+
+export default function AdminModal({ isOpen, onClose, initialData, onSave, onDuplicate }: AdminModalProps) {
   const [prevData, setPrevData] = useState<{ isOpen: boolean; initialData?: ResourceItem | null }>({ isOpen, initialData });
   const [formData, setFormData] = useState<ResourceItem>(() => (
     initialData ? { ...initialData, tags: initialData.tags || [] } : initialFormState
@@ -289,24 +297,40 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave }: { i
         </div>
 
         {/* Footer actions */}
-        <div className="p-5 border-t border-violet-500/20 flex justify-end gap-3 sticky bottom-0 bg-[#180f33] z-20 backdrop-blur-md">
-          <button 
-            type="button"
-            onClick={onClose} 
-            className="px-4 py-2 rounded-xl text-xs font-bold text-violet-300 hover:text-white hover:bg-violet-900/40 transition-colors"
-          >
-            Hủy bỏ
-          </button>
-          <button 
-            type="button"
-            onClick={() => {
-              onSave(formData);
-              onClose();
-            }} 
-            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-md shadow-violet-600/30 flex items-center gap-1.5 transition-all border border-violet-400/30"
-          >
-            <Save size={14} /> <span>Lưu nội dung</span>
-          </button>
+        <div className="p-5 border-t border-violet-500/20 flex items-center justify-between gap-3 sticky bottom-0 bg-[#180f33] z-20 backdrop-blur-md">
+          {initialData && onDuplicate ? (
+            <button 
+              type="button"
+              onClick={() => {
+                onDuplicate(formData);
+                onClose();
+              }} 
+              className="bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 hover:text-white border border-cyan-500/30 hover:border-cyan-400 font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 transition-all shadow-sm"
+              title="Nhân đôi bài viết này thành bản sao mới"
+            >
+              <Copy size={14} /> <span>Nhân đôi bài này</span>
+            </button>
+          ) : <div />}
+
+          <div className="flex items-center gap-3">
+            <button 
+              type="button"
+              onClick={onClose} 
+              className="px-4 py-2 rounded-xl text-xs font-bold text-violet-300 hover:text-white hover:bg-violet-900/40 transition-colors"
+            >
+              Hủy bỏ
+            </button>
+            <button 
+              type="button"
+              onClick={() => {
+                onSave(formData);
+                onClose();
+              }} 
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs px-5 py-2 rounded-xl shadow-md shadow-violet-600/30 flex items-center gap-1.5 transition-all border border-violet-400/30"
+            >
+              <Save size={14} /> <span>Lưu nội dung</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

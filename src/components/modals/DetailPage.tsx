@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Clock, Share2, Check, FileText } from 'lucide-react';
+import { ArrowLeft, Coffee, Download, Eye, Heart, Calendar, Clock, Share2, Check, FileText, Copy, Edit } from 'lucide-react';
 import { type ResourceItem } from '../../types';
 import DownloadSafetyModal from './DownloadSafetyModal';
 import InstallPathHelper from '../InstallPathHelper';
@@ -7,11 +7,21 @@ import { getProviderName, sanitizeGameVersion } from '../../utils';
 
 interface DetailPageProps {
   item: ResourceItem | null;
+  isAdmin?: boolean;
   onClose: () => void;
   onDonate: () => void;
+  onDuplicate?: (item: ResourceItem) => void;
+  onEdit?: (item: ResourceItem) => void;
 }
 
-export default function DetailPage({ item, onClose, onDonate }: DetailPageProps) {
+export default function DetailPage({ 
+  item, 
+  isAdmin, 
+  onClose, 
+  onDonate, 
+  onDuplicate, 
+  onEdit 
+}: DetailPageProps) {
   const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -44,6 +54,29 @@ export default function DetailPage({ item, onClose, onDonate }: DetailPageProps)
         </button>
 
         <div className="flex items-center gap-2">
+          {/* Admin Quick Actions */}
+          {isAdmin && onDuplicate && (
+            <button
+              onClick={() => onDuplicate(item)}
+              className="flex items-center gap-1.5 text-xs text-cyan-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-cyan-500/40 bg-cyan-950/60 hover:bg-cyan-600/40 transition-colors font-bold shadow-sm"
+              title="Nhân đôi bài viết này thành bản sao mới"
+            >
+              <Copy size={14} />
+              <span>Nhân đôi bài viết</span>
+            </button>
+          )}
+
+          {isAdmin && onEdit && (
+            <button
+              onClick={() => onEdit(item)}
+              className="flex items-center gap-1.5 text-xs text-violet-300 hover:text-white px-2.5 py-1.5 rounded-lg border border-violet-500/30 bg-[#1c123d] hover:bg-violet-600/40 transition-colors font-semibold shadow-sm"
+              title="Chỉnh sửa bài viết này"
+            >
+              <Edit size={14} />
+              <span className="hidden sm:inline">Chỉnh sửa</span>
+            </button>
+          )}
+
           {/* Share */}
           <button
             onClick={handleShare}

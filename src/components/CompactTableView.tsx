@@ -1,4 +1,4 @@
-import { Eye, Heart, Edit, ArrowRight, Coffee, Download, Newspaper, BookOpen } from 'lucide-react';
+import { Eye, Heart, Edit, ArrowRight, Coffee, Download, Newspaper, BookOpen, Copy, Trash2 } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import { sanitizeGameVersion, getProviderName } from '../utils';
 
@@ -10,6 +10,8 @@ interface CompactTableProps {
   onDonate?: (item: ResourceItem) => void;
   onDownload?: (item: ResourceItem) => void;
   onEdit?: (item: ResourceItem) => void;
+  onDuplicate?: (item: ResourceItem) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function CompactTableView({
@@ -20,6 +22,8 @@ export default function CompactTableView({
   onDonate,
   onDownload,
   onEdit,
+  onDuplicate,
+  onDelete,
 }: CompactTableProps) {
   return (
     <div className="w-full overflow-x-auto bg-[#180f33]/90 rounded-2xl border border-violet-500/25 shadow-xl backdrop-blur-md">
@@ -158,16 +162,42 @@ export default function CompactTableView({
                       <Heart size={14} />
                     </button>
 
+                    {isAdmin && onDuplicate && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDuplicate(item);
+                        }}
+                        className="p-1.5 rounded-lg text-violet-300 hover:text-cyan-300 hover:bg-violet-900/40 transition-colors"
+                        title="Nhân đôi bài viết"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    )}
+
                     {isAdmin && onEdit && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onEdit(item);
                         }}
-                        className="p-1.5 rounded-lg text-violet-300 hover:text-cyan-300 transition-colors"
-                        title="Chỉnh sửa"
+                        className="p-1.5 rounded-lg text-violet-300 hover:text-white hover:bg-violet-900/40 transition-colors"
+                        title="Chỉnh sửa bài viết"
                       >
                         <Edit size={14} />
+                      </button>
+                    )}
+
+                    {isAdmin && onDelete && item.id && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(item.id!);
+                        }}
+                        className="p-1.5 rounded-lg text-violet-300 hover:text-rose-400 hover:bg-rose-950/40 transition-colors"
+                        title="Xóa bài viết"
+                      >
+                        <Trash2 size={14} />
                       </button>
                     )}
 

@@ -1,18 +1,31 @@
 import { useState, type MouseEvent } from 'react';
-import { Download, Eye, Calendar, User, Heart, Coffee, Edit, Newspaper, BookOpen, ArrowRight, Flame } from 'lucide-react';
+import { Download, Eye, Calendar, User, Heart, Coffee, Edit, Newspaper, BookOpen, ArrowRight, Flame, Copy, Trash2 } from 'lucide-react';
 import { type ResourceItem } from '../types';
 import { getProviderName, sanitizeGameVersion } from '../utils';
 
 interface CardProps {
   item: ResourceItem;
+  isAdmin?: boolean;
   onEdit?: (item: ResourceItem) => void;
+  onDuplicate?: (item: ResourceItem) => void;
+  onDelete?: (id: string) => void;
   onViewDetail: (item: ResourceItem) => void;
   onLike: (item: ResourceItem) => void;
   onDonate: (item: ResourceItem) => void;
   onDownload?: (item: ResourceItem) => void;
 }
 
-export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDonate, onDownload }: CardProps) {
+export default function ResourceCard({ 
+  item, 
+  isAdmin, 
+  onEdit, 
+  onDuplicate, 
+  onDelete, 
+  onViewDetail, 
+  onLike, 
+  onDonate, 
+  onDownload 
+}: CardProps) {
   const [prevItemId, setPrevItemId] = useState(item.id);
   const [liked, setLiked] = useState(false);
 
@@ -98,6 +111,48 @@ export default function ResourceCard({ item, onEdit, onViewDetail, onLike, onDon
             </span>
           )}
         </div>
+
+        {/* Admin Quick Action Group */}
+        {isAdmin && (
+          <div className="absolute top-3 right-12 z-20 flex items-center gap-1.5 opacity-95 group-hover:opacity-100 transition-opacity">
+            {onDuplicate && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicate(item);
+                }}
+                className="p-1.5 rounded-full bg-[#130d25]/90 hover:bg-cyan-600 text-cyan-300 hover:text-white border border-cyan-400/40 backdrop-blur-md transition-all shadow-md hover:scale-110"
+                title="Nhân đôi bài viết này"
+              >
+                <Copy size={13} />
+              </button>
+            )}
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(item);
+                }}
+                className="p-1.5 rounded-full bg-[#130d25]/90 hover:bg-violet-600 text-violet-300 hover:text-white border border-violet-400/40 backdrop-blur-md transition-all shadow-md hover:scale-110"
+                title="Chỉnh sửa bài viết"
+              >
+                <Edit size={13} />
+              </button>
+            )}
+            {onDelete && item.id && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item.id!);
+                }}
+                className="p-1.5 rounded-full bg-[#130d25]/90 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-400/40 backdrop-blur-md transition-all shadow-md hover:scale-110"
+                title="Xóa bài viết"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Nút Like nổi */}
         <button

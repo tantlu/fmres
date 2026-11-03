@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp, increment } from 'firebase/firestore';
 import { type User, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signOut } from 'firebase/auth';
-import { AlertTriangle } from 'lucide-react';
-import { useLocation, Routes, Route, useNavigate } from 'react-router-dom'; // Thêm Routes, Route, useNavigate
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
 
 import { auth, db, getCollectionRef, checkIsSandbox, appId } from './firebase';
 import { CATEGORIES, GAME_VERSIONS, ADMIN_EMAIL, toSlug, type ResourceItem, type Category, type GameVersion } from './types';
@@ -42,6 +42,15 @@ export default function App() {
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [donateItem, setDonateItem] = useState<ResourceItem | null>(null);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ text: string; actionItem?: ResourceItem } | null>(null);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   // Global Ctrl+K / Cmd+K listener
   useEffect(() => {
@@ -70,46 +79,62 @@ export default function App() {
     const init = async () => {
       try {
         const globalToken = (window as unknown as Record<string, unknown>)['__initial_auth_token'] as string | undefined;
-        if (globalToken) await signInWithCustomToken(auth, globalToken);
-        else await signInAnonymously(auth);
-      } catch (e) { console.error(e) }
+        if (globalToken) {
+          await signInWithCustomToken(auth, globalToken);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (e) {
+        console.error("Auth init notice:", e);
+        // Ensure auth ready flag is set even if anonymous sign in is not configured
+        setIsAuthReady(true);
+      }
     };
     init();
-    return onAuthStateChanged(auth, (u) => { setUser(u); setIsAuthReady(true); });
+    return onAuthStateChanged(auth, (u) => { 
+      setUser(u); 
+      setIsAuthReady(true); 
+    });
   }, []);
 
   useEffect(() => {
-    if (!isAuthReady || !user) return;
-    const unsubscribe = onSnapshot(getCollectionRef(), (snapshot) => {
-      setPermissionError(false);
-      setIsLoading(false);
-      if (!snapshot.empty) {
-        const fetchedItems = snapshot.docs.map(doc => ({ id: doc.id, likes: 0, ...doc.data() } as ResourceItem));
-        // Sắp xếp mới nhất lên đầu
-        fetchedItems.sort((a, b) => {
-           const getTime = (item: ResourceItem): number => {
-             if (item.createdAt && typeof item.createdAt === 'object' && 'seconds' in item.createdAt && typeof (item.createdAt as { seconds: number }).seconds === 'number') {
-               return (item.createdAt as { seconds: number }).seconds * 1000;
-             }
-             if (item.date) return new Date(item.date).getTime();
-             return 0;
-           };
-           return getTime(b) - getTime(a);
-        });
-        setItems(fetchedItems);
-      } else {
-        // Fallback default sample items if database is clean
-        setItems(DEFAULT_RESOURCES);
-      }
-    }, (error) => {
-      setIsLoading(false);
-      if (error.code === 'permission-denied') setPermissionError(true);
-      setItems(prev => prev.length === 0 ? DEFAULT_RESOURCES : prev);
-    });
-    return () => unsubscribe();
-  }, [isAuthReady, user]);
-
-  // 3. Action Handlers
+    if (!isAuthReady) return;
+    try {
+      const unsubscribe = onSnapshot(getCollectionRef(), (snapshot) => {
+        setPermissionError(false);
+        setIsLoading(false);
+        if (!snapshot.empty) {
+          const fetchedItems = snapshot.docs.map(doc => ({ id: doc.id, likes: 0, ...doc.data() } as ResourceItem));
+          // Sắp xếp mới nhất lên đầu
+          fetchedItems.sort((a, b) => {
+             const getTime = (item: ResourceItem): number => {
+               if (item.createdAt && typeof item.createdAt === 'object' && 'seconds' in item.createdAt && typeof (item.createdAt as { seconds: number }).seconds === 'number') {
+                 return (item.createdAt as { seconds: number }).seconds * 1000;
+               }
+               if (item.date) return new Date(item.date).getTime();
+               return 0;
+             };
+             return getTime(b) - getTime(a);
+          });
+          setItems(fetchedItems);
+        } else {
+          // Fallback default sample items if database is clean
+          setItems(DEFAULT_RESOURCES);
+        }
+      }, (error) => {
+        setIsLoading(false);
+        if (error.code === 'permission-denied') setPermissionError(true);
+        setItems(prev => prev.length === 0 ? DEFAULT_RESOURCES : prev);
+      });
+      return () => unsubscribe();
+    } catch (e) {
+      console.warn("Firestore listener fallback:", e);
+      queueMicrotask(() => {
+        setIsLoading(false);
+        setItems(prev => prev.length === 0 ? DEFAULT_RESOURCES : prev);
+      });
+    }
+  }, [isAuthReady]);
   const handleLogout = async () => { await signOut(auth); await signInAnonymously(auth); };
   
   const handleSaveItem = async (data: ResourceItem) => {
@@ -125,6 +150,49 @@ export default function App() {
       }
       setIsEditModalOpen(false); setEditingItem(null);
     } catch (error: unknown) { alert(error instanceof Error ? error.message : String(error)); }
+  };
+
+  const handleDuplicateItem = async (item: ResourceItem) => {
+    if (!isAdmin) return;
+    try {
+      const copyTitle = item.title.includes('(Bản sao)')
+        ? `${item.title} (Copy)`
+        : `${item.title} (Bản sao)`;
+
+      const newResourceData: Omit<ResourceItem, 'id'> = {
+        ...item,
+        title: copyTitle,
+        views: 0,
+        likes: 0,
+        date: new Date().toISOString().split('T')[0],
+      };
+      delete (newResourceData as Record<string, unknown>).id;
+
+      let newId = `dup-${Date.now()}`;
+      try {
+        const docRef = await addDoc(getCollectionRef(), {
+          ...newResourceData,
+          createdAt: serverTimestamp()
+        });
+        if (docRef?.id) newId = docRef.id;
+      } catch (firestoreErr) {
+        console.warn("Firestore duplicate fallback to local:", firestoreErr);
+      }
+
+      const newCreatedItem: ResourceItem = {
+        ...newResourceData,
+        id: newId,
+      };
+
+      setItems(prev => [newCreatedItem, ...prev.filter(i => i.id !== newCreatedItem.id)]);
+      setToastMessage({
+        text: `Đã nhân đôi: "${copyTitle}"`,
+        actionItem: newCreatedItem,
+      });
+    } catch (error: unknown) {
+      console.error("Lỗi nhân đôi:", error);
+      alert(error instanceof Error ? error.message : String(error));
+    }
   };
 
   const handleDeleteItem = async (id: string) => {
@@ -202,7 +270,19 @@ export default function App() {
 
       <Routes>
         {/* Route 1: Trang Chi tiết Item */}
-        <Route path="/item/:id" element={<ViewItem />} />
+        <Route 
+          path="/item/:id" 
+          element={
+            <ViewItem 
+              isAdmin={isAdmin || false} 
+              onDuplicate={handleDuplicateItem}
+              onEdit={(item) => {
+                setEditingItem(item);
+                setIsEditModalOpen(true);
+              }}
+            />
+          } 
+        />
 
         {/* Route 2: Trang Chủ (Mặc định) - Hiển thị danh sách */}
         <Route path="/*" element={
@@ -281,6 +361,7 @@ export default function App() {
                     items={filteredItems} 
                     isAdmin={isAdmin || false}
                     onEdit={(item) => { setEditingItem(item); setIsEditModalOpen(true); }}
+                    onDuplicate={handleDuplicateItem}
                     onDelete={handleDeleteItem} 
                     onViewDetail={handleViewDetail}
                     onLike={handleLikeItem}
@@ -297,7 +378,7 @@ export default function App() {
 
       <Footer onOpenPolicy={() => setShowPolicyModal(true)} />
       {showLogin && <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} auth={auth} adminEmail={ADMIN_EMAIL} />}
-      <AdminModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} initialData={editingItem} onSave={handleSaveItem} />
+      <AdminModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} initialData={editingItem} onSave={handleSaveItem} onDuplicate={handleDuplicateItem} />
       <DownloadSafetyModal isOpen={!!safetyModalItem} onClose={() => setSafetyModalItem(null)} item={safetyModalItem} />
       <PolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} />
       <DonateModal isOpen={!!donateItem} onClose={() => setDonateItem(null)} item={donateItem} />
@@ -309,6 +390,37 @@ export default function App() {
         onSelectCategory={(cat) => navigate(cat === 'All' ? '/' : `/${toSlug(cat as Category)}`)}
         onSelectVersion={(v) => setFilterVersion(v)}
       />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1e143b] text-white px-4 py-3 rounded-2xl border border-cyan-400/40 shadow-2xl shadow-cyan-950/60 backdrop-blur-xl">
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center shrink-0 border border-cyan-500/30">
+            <CheckCircle2 size={18} />
+          </div>
+          <div className="text-xs">
+            <p className="font-bold text-white line-clamp-1">{toastMessage.text}</p>
+            <p className="text-[11px] text-cyan-200/70">Bản sao đã được tạo với lượt xem & yêu thích đặt lại 0</p>
+          </div>
+          {toastMessage.actionItem && (
+            <button
+              onClick={() => {
+                setEditingItem(toastMessage.actionItem!);
+                setIsEditModalOpen(true);
+                setToastMessage(null);
+              }}
+              className="ml-2 text-xs font-bold text-cyan-300 hover:text-white bg-cyan-950/80 hover:bg-cyan-900 px-3 py-1.5 rounded-lg border border-cyan-500/30 transition-colors whitespace-nowrap"
+            >
+              Sửa ngay
+            </button>
+          )}
+          <button
+            onClick={() => setToastMessage(null)}
+            className="text-slate-400 hover:text-white p-1 rounded-lg ml-1"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }
