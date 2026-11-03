@@ -74,7 +74,7 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave, onDup
   const isGuide = contentType === 'guide' || formData.category === 'Guide';
 
   const articleTagSuggestions = [
-    'Tin tức FM', 'Cập nhật Patch', 'Wonderkids', 'Đánh giá & Review', 
+    'FM27', 'FM26', 'Tin tức FM', 'Cập nhật Patch', 'Wonderkids', 'Đánh giá & Review', 
     'Phân tích chiến thuật', 'Chuyển nhượng', 'Bản quyền', 'Kinh nghiệm chơi'
   ];
 
@@ -189,6 +189,7 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave, onDup
                     className="w-full bg-[#110926] border border-violet-500/25 rounded-xl p-2.5 text-xs text-white focus:border-cyan-400 focus:outline-none"
                   >
                     <option value="All">Tất cả phiên bản</option>
+                    <option value="FM27">FM27</option>
                     <option value="FM26">FM26</option>
                     <option value="FM24">FM24</option>
                     <option value="FM23">FM23</option>

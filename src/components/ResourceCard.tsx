@@ -57,6 +57,7 @@ export default function ResourceCard({
   };
 
   const displayVersion = sanitizeGameVersion(item.version);
+  const isFm27 = displayVersion === 'FM27';
   const isFm26 = displayVersion === 'FM26';
   const providerName = getProviderName(item.downloadLink);
 
@@ -75,9 +76,11 @@ export default function ResourceCard({
           ? 'border-cyan-500/30 hover:border-cyan-400/70 ring-1 ring-cyan-500/20'
           : isGuide
             ? 'border-amber-500/30 hover:border-amber-400/70 ring-1 ring-amber-500/20'
-            : isFm26 
-              ? 'border-violet-500/30 hover:border-cyan-400/60 ring-1 ring-violet-500/20' 
-              : 'border-violet-500/20 hover:border-violet-400/50'
+            : isFm27
+              ? 'border-emerald-500/40 hover:border-emerald-400/80 ring-1 ring-emerald-500/30 shadow-[0_4px_20px_-2px_rgba(16,185,129,0.15)]'
+              : isFm26 
+                ? 'border-violet-500/30 hover:border-cyan-400/60 ring-1 ring-violet-500/20' 
+                : 'border-violet-500/20 hover:border-violet-400/50'
       }`}
       onClick={() => onViewDetail(item)}
     >
@@ -192,9 +195,11 @@ export default function ResourceCard({
           <div className="flex items-center gap-1.5">
             {displayVersion ? (
               <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                isFm26 
-                  ? 'bg-violet-600/30 text-cyan-300 border-cyan-400/40' 
-                  : 'bg-violet-950/60 text-violet-300 border-violet-500/30'
+                isFm27
+                  ? 'bg-emerald-600/30 text-emerald-300 border-emerald-400/50 shadow-sm shadow-emerald-500/20'
+                  : isFm26 
+                    ? 'bg-violet-600/30 text-cyan-300 border-cyan-400/40' 
+                    : 'bg-violet-950/60 text-violet-300 border-violet-500/30'
               }`}>
                 {displayVersion}
               </span>

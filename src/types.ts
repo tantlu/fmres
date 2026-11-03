@@ -12,9 +12,9 @@ export type Category =
   | 'Mods' 
   | 'FM Version';
 
-export type GameVersion = 'All' | 'FM26' | 'FM24' | 'FM23' | 'FM Cũ hơn';
+export type GameVersion = 'All' | 'FM27' | 'FM26' | 'FM24' | 'FM23' | 'FM Cũ hơn';
 
-export const GAME_VERSIONS: GameVersion[] = ['All', 'FM26', 'FM24', 'FM23', 'FM Cũ hơn'];
+export const GAME_VERSIONS: GameVersion[] = ['All', 'FM27', 'FM26', 'FM24', 'FM23', 'FM Cũ hơn'];
 
 export interface ResourceItem {
   id?: string;

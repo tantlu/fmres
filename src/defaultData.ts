@@ -2,6 +2,33 @@ import { type ResourceItem } from './types';
 
 export const DEFAULT_RESOURCES: ResourceItem[] = [
   {
+    id: 'art-fm27-first-look-preview',
+    title: 'Football Manager 2027 (FM27): Dự phóng lộ trình nâng cấp Unity Engine 6, cải tiến Match Engine và tính năng mới',
+    category: 'Bài viết',
+    tags: ['FM27', 'Tin tức FM', 'Cập nhật Patch', 'Wonderkids'],
+    version: 'FM27',
+    author: 'Nguyễn Tấn',
+    image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=80',
+    summary: 'Tổng hợp các thông tin rò rỉ, lộ trình phát triển và kỳ vọng lớn nhất dành cho phiên bản FM27 thế hệ mới trên nền tảng Unity cải tiến.',
+    readTime: '5 phút đọc',
+    views: 940,
+    likes: 86,
+    date: '2026-10-15',
+    isHot: true,
+    description: `
+      <h2>1. Kỳ vọng thế hệ mới trên nền tảng Football Manager 2027</h2>
+      <p>Sau những bước khởi đầu với Unity Engine trên FM26, <strong>Football Manager 2027 (FM27)</strong> được định vị là phiên bản hoàn thiện toàn diện về mặt hiệu năng xử lý, chi tiết animation cầu thủ và giao diện trực quan.</p>
+      
+      <h2>2. Những điểm nâng cấp đáng chú ý</h2>
+      <ul>
+        <li><strong>Trí tuệ nhân tạo (AI Manager) thông minh hơn:</strong> Các HLV đối thủ sẽ biết thích ứng và đổi chiến thuật linh hoạt trong hiệp hai dựa trên diễn biến thực tế của trận đấu.</li>
+        <li><strong>Hệ thống chuyển nhượng và luật công bằng tài chính (PSR / FFP) sát thực tế:</strong> Mô phỏng chuẩn xác các điều khoản khấu hao hợp đồng và thưởng thành tích.</li>
+        <li><strong>Animation và biểu cảm cầu thủ mượt mà hơn:</strong> Giảm thiểu tối đa độ trễ trong các pha tranh chấp bóng hai và phản xạ của thủ môn.</li>
+      </ul>
+    `,
+    instructions: 'Tổng hợp từ diễn đàn cộng đồng Football Manager và nguồn tin công nghệ game.'
+  },
+  {
     id: 'art-fm26-unity-analysis',
     title: 'Phân tích Match Engine FM26: Bước chuyển mình sang Unity Engine và tác động đến Meta chiến thuật',
     category: 'Bài viết',

@@ -140,7 +140,7 @@ export default function CommandPalette({
           {/* Quick Version Jump Filter Pills */}
           <div className="flex items-center gap-1.5 mt-3 pt-2 border-t border-violet-500/15 overflow-x-auto scrollbar-hide text-xs">
             <span className="text-slate-400 text-[11px] font-semibold mr-1 shrink-0">Lọc nhanh:</span>
-            {(['FM26', 'FM24', 'FM23'] as GameVersion[]).map(ver => (
+            {(['FM27', 'FM26', 'FM24', 'FM23'] as GameVersion[]).map(ver => (
               <button
                 key={ver}
                 type="button"
@@ -149,12 +149,14 @@ export default function CommandPalette({
                   onClose();
                 }}
                 className={`px-2.5 py-0.5 rounded-full font-bold text-[11px] transition-all shrink-0 ${
-                  ver === 'FM26' 
-                    ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm border border-cyan-400/40 hover:scale-105'
-                    : 'bg-[#251949] text-violet-200 border border-violet-500/30 hover:bg-violet-800/40'
+                  ver === 'FM27'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-sm border border-emerald-400/40 hover:scale-105'
+                    : ver === 'FM26' 
+                      ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm border border-cyan-400/40 hover:scale-105'
+                      : 'bg-[#251949] text-violet-200 border border-violet-500/30 hover:bg-violet-800/40'
                 }`}
               >
-                {ver === 'FM26' ? '✨ FM26' : ver}
+                {ver === 'FM27' ? '🔥 FM27' : ver === 'FM26' ? '✨ FM26' : ver}
               </button>
             ))}
             {['Bài viết', 'Guide', 'Database cầu thủ', 'Tactics', 'Việt hóa', 'Face', 'Logo', 'Kits'].map(cat => (

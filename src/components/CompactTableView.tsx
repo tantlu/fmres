@@ -41,6 +41,7 @@ export default function CompactTableView({
         <tbody className="divide-y divide-violet-500/15">
           {items.map((item) => {
             const displayVersion = sanitizeGameVersion(item.version);
+            const isFm27 = displayVersion === 'FM27';
             const isFm26 = displayVersion === 'FM26';
             const isArticle = item.category === 'Bài viết';
             const isGuide = item.category === 'Guide';
@@ -90,9 +91,11 @@ export default function CompactTableView({
                 <td className="py-3 px-3 whitespace-nowrap text-xs">
                   {displayVersion ? (
                     <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase border ${
-                      isFm26 
-                        ? 'bg-violet-600/30 text-cyan-300 border-cyan-400/40' 
-                        : 'bg-violet-950/60 text-violet-300 border-violet-500/30'
+                      isFm27
+                        ? 'bg-emerald-600/30 text-emerald-300 border-emerald-400/50 shadow-sm shadow-emerald-500/20'
+                        : isFm26 
+                          ? 'bg-violet-600/30 text-cyan-300 border-cyan-400/40' 
+                          : 'bg-violet-950/60 text-violet-300 border-violet-500/30'
                     }`}>
                       {displayVersion}
                     </span>

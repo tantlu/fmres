@@ -243,9 +243,9 @@ export default function App() {
       const v = item.version;
       if (!v || v === 'All') return true;
       if (filterVersion === 'FM Cũ hơn') {
-        return v === 'FM Cũ hơn' || (v !== 'FM26' && v !== 'FM24' && v !== 'FM23');
+        return v === 'FM Cũ hơn' || (v !== 'FM27' && v !== 'FM26' && v !== 'FM24' && v !== 'FM23');
       }
-      return v === filterVersion;
+      return v === filterVersion || (item.tags && item.tags.some(t => t.toLowerCase() === filterVersion.toLowerCase()));
     })();
     return matchesCategory && matchesSearch && matchesVersion;
   });
@@ -327,6 +327,7 @@ export default function App() {
                         <span className="text-xs text-violet-300/70 uppercase font-bold tracking-wider mr-1">Phiên bản:</span>
                         {GAME_VERSIONS.map(ver => {
                           const isSelected = filterVersion === ver;
+                          const isFm27 = ver === 'FM27';
                           const isFm26 = ver === 'FM26';
                           return (
                             <button 
@@ -334,12 +335,17 @@ export default function App() {
                               onClick={() => setFilterVersion(ver)} 
                               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                                 isSelected 
-                                  ? isFm26
-                                    ? 'bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 text-white shadow-md shadow-violet-600/30 border border-violet-400'
-                                    : 'bg-violet-600 text-white shadow-md shadow-violet-600/30 border border-violet-400'
-                                  : 'bg-[#1c1439] text-slate-300 border border-violet-500/20 hover:bg-violet-900/30 hover:text-white'
+                                  ? isFm27
+                                    ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-500 text-white shadow-md shadow-emerald-600/30 border border-emerald-400'
+                                    : isFm26
+                                      ? 'bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-500 text-white shadow-md shadow-violet-600/30 border border-violet-400'
+                                      : 'bg-violet-600 text-white shadow-md shadow-violet-600/30 border border-violet-400'
+                                  : isFm27
+                                    ? 'bg-[#122327] text-emerald-300 border border-emerald-500/30 hover:bg-emerald-950/60 hover:text-white'
+                                    : 'bg-[#1c1439] text-slate-300 border border-violet-500/20 hover:bg-violet-900/30 hover:text-white'
                               }`}
                             >
+                              {isFm27 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>}
                               {isFm26 && <span className="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-pulse"></span>}
                               {ver === 'All' ? 'TẤT CẢ' : ver === 'FM Cũ hơn' ? 'CŨ HƠN (<=FM22)' : ver}
                             </button>
