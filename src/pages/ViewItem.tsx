@@ -87,6 +87,8 @@ export default function ViewItem({ isAdmin, onDuplicate, onEdit }: ViewItemProps
         isOpen={isDonateOpen} 
         onClose={() => setIsDonateOpen(false)} 
         item={item} 
+        isAdmin={isAdmin}
+        onEdit={onEdit}
       />
     </>
   );

@@ -1,8 +1,16 @@
-import { X, Coffee, ExternalLink, CreditCard, Copy, Check } from 'lucide-react';
+import { X, Coffee, ExternalLink, CreditCard, Copy, Check, Edit } from 'lucide-react';
 import { useState } from 'react';
 import { type ResourceItem } from '../../types';
 
-export default function DonateModal({ isOpen, onClose, item }: { isOpen: boolean; onClose: () => void; item: ResourceItem | null; }) {
+interface DonateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  item: ResourceItem | null;
+  isAdmin?: boolean;
+  onEdit?: (item: ResourceItem) => void;
+}
+
+export default function DonateModal({ isOpen, onClose, item, isAdmin, onEdit }: DonateModalProps) {
   const [copied, setCopied] = useState(false);
 
   if (!isOpen || !item) return null;
@@ -107,6 +115,20 @@ export default function DonateModal({ isOpen, onClose, item }: { isOpen: boolean
               <CreditCard size={44} className="mx-auto mb-2 text-violet-400/50" />
               <p className="text-sm">Tác giả chưa cập nhật thông tin Donate cho tài nguyên này.</p>
             </div>
+          )}
+
+          {isAdmin && onEdit && (
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onEdit(item);
+              }}
+              className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-3 rounded-xl transition-all text-xs border border-amber-400/40 flex items-center justify-center gap-1.5 shadow-md shadow-amber-600/30"
+            >
+              <Edit size={14} />
+              <span>Chỉnh sửa thông tin Donate (Admin)</span>
+            </button>
           )}
 
           <button

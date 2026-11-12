@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Save, Edit, Plus, Copy } from 'lucide-react';
+import { X, Save, Edit, Plus, Copy, Coffee, ExternalLink, QrCode } from 'lucide-react';
 import { CATEGORIES, type ResourceItem, type GameVersion, type Category } from '../../types';
 import RichTextEditor from '../RichTextEditor';
 
@@ -294,6 +294,131 @@ export default function AdminModal({ isOpen, onClose, initialData, onSave, onDup
               className="w-full bg-[#110926] border border-violet-500/25 rounded-xl p-2.5 text-xs text-white focus:border-cyan-400 focus:outline-none" 
               placeholder="Ghi chú nguồn bài viết hoặc đường dẫn cài đặt..." 
             />
+          </div>
+
+          {/* Section: Thông tin Donate & Ủng hộ tác giả */}
+          <div className="bg-[#120926] p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-4">
+            <div className="flex items-center justify-between border-b border-violet-500/20 pb-2.5">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  <Coffee size={16} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <span>Thông tin Donate & Ủng hộ tác giả</span>
+                    <span className="text-[10px] text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full font-medium">VietQR tự động</span>
+                  </h4>
+                  <p className="text-[11px] text-violet-300/70">Hiển thị mã QR ngân hàng hoặc link donate khi người xem bấm nút "Ủng hộ tác giả"</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Tên ngân hàng */}
+              <div>
+                <label className="block text-xs font-bold text-violet-300 mb-1.5 uppercase tracking-wider">
+                  Ngân hàng / Ví điện tử
+                </label>
+                <input 
+                  type="text" 
+                  value={formData.bankName || ''} 
+                  onChange={e => setFormData({ ...formData, bankName: e.target.value })} 
+                  className="w-full bg-[#180f33] border border-violet-500/25 rounded-xl p-2.5 text-xs text-white focus:border-amber-400 focus:outline-none placeholder:text-violet-300/40" 
+                  placeholder="MBBank, VCB, Techcombank..." 
+                />
+                {/* Gợi ý ngân hàng nhanh */}
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {['MBBank', 'Vietcombank', 'Techcombank', 'VPBank', 'BIDV', 'TPBank', 'ACB', 'MoMo'].map(b => (
+                    <button
+                      key={b}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, bankName: b })}
+                      className={`text-[10px] px-2 py-0.5 rounded-md transition-colors border ${
+                        formData.bankName?.toUpperCase() === b.toUpperCase()
+                          ? 'bg-amber-500/30 text-amber-200 border-amber-400/50 font-bold'
+                          : 'bg-[#180f33] text-violet-300/70 hover:text-white border-violet-500/20'
+                      }`}
+                    >
+                      {b}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Số tài khoản */}
+              <div>
+                <label className="block text-xs font-bold text-violet-300 mb-1.5 uppercase tracking-wider">
+                  Số tài khoản (STK)
+                </label>
+                <input 
+                  type="text" 
+                  value={formData.bankAccount || ''} 
+                  onChange={e => setFormData({ ...formData, bankAccount: e.target.value })} 
+                  className="w-full bg-[#180f33] border border-violet-500/25 rounded-xl p-2.5 text-xs text-white focus:border-amber-400 focus:outline-none placeholder:text-violet-300/40 font-mono tracking-wider" 
+                  placeholder="Ví dụ: 0987654321..." 
+                />
+                <span className="text-[10px] text-violet-400/70 mt-1 block">Dùng để tạo mã quét VietQR chuẩn</span>
+              </div>
+
+              {/* Chủ tài khoản */}
+              <div>
+                <label className="block text-xs font-bold text-violet-300 mb-1.5 uppercase tracking-wider">
+                  Tên chủ tài khoản
+                </label>
+                <input 
+                  type="text" 
+                  value={formData.bankOwner || ''} 
+                  onChange={e => setFormData({ ...formData, bankOwner: e.target.value })} 
+                  className="w-full bg-[#180f33] border border-violet-500/25 rounded-xl p-2.5 text-xs text-white focus:border-amber-400 focus:outline-none placeholder:text-violet-300/40 uppercase" 
+                  placeholder="Ví dụ: NGUYEN VAN A..." 
+                />
+                <span className="text-[10px] text-violet-400/70 mt-1 block">Họ tên in trên thẻ / app ngân hàng</span>
+              </div>
+            </div>
+
+            {/* Link cổng quyên góp */}
+            <div>
+              <label className="block text-xs font-bold text-violet-300 mb-1.5 uppercase tracking-wider">
+                Link cổng Donate trực tuyến khác (tùy chọn)
+              </label>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={formData.donateLink || ''} 
+                  onChange={e => setFormData({ ...formData, donateLink: e.target.value })} 
+                  className="w-full bg-[#180f33] border border-violet-500/25 rounded-xl p-2.5 pl-8 text-xs text-white focus:border-amber-400 focus:outline-none placeholder:text-violet-300/40" 
+                  placeholder="https://playerduo.net/... hoặc https://buymeacoffee.com/..." 
+                />
+                <ExternalLink size={13} className="absolute left-2.5 top-3 text-violet-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Live VietQR Preview Card */}
+            {formData.bankName && formData.bankAccount && (
+              <div className="pt-2 flex items-center gap-3.5 bg-amber-500/10 p-3 rounded-xl border border-amber-500/25">
+                <div className="w-16 h-16 bg-white p-1 rounded-lg shrink-0 overflow-hidden shadow-md flex items-center justify-center">
+                  <img 
+                    src={`https://img.vietqr.io/image/${formData.bankName.trim().toUpperCase()}-${formData.bankAccount.trim()}-compact2.png?amount=0&addInfo=${encodeURIComponent(`Donate ${formData.author || 'tac gia'}`)}&accountName=${encodeURIComponent(formData.bankOwner || '')}`}
+                    alt="VietQR Preview"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="text-xs space-y-0.5">
+                  <p className="font-bold text-white flex items-center gap-1.5">
+                    <QrCode size={13} className="text-amber-400" />
+                    <span>Mã VietQR đã sẵn sàng</span>
+                  </p>
+                  <p className="text-[11px] text-amber-200/90 font-mono">
+                    {formData.bankName.toUpperCase()} · STK: <span className="font-bold text-white">{formData.bankAccount}</span>
+                  </p>
+                  {formData.bankOwner && (
+                    <p className="text-[10px] text-amber-300/70 font-semibold uppercase">
+                      Chủ TK: {formData.bankOwner}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

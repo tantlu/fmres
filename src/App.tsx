@@ -390,7 +390,16 @@ export default function App() {
       <AdminModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} initialData={editingItem} onSave={handleSaveItem} onDuplicate={handleDuplicateItem} />
       <DownloadSafetyModal isOpen={!!safetyModalItem} onClose={() => setSafetyModalItem(null)} item={safetyModalItem} />
       <PolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} />
-      <DonateModal isOpen={!!donateItem} onClose={() => setDonateItem(null)} item={donateItem} />
+      <DonateModal 
+        isOpen={!!donateItem} 
+        onClose={() => setDonateItem(null)} 
+        item={donateItem} 
+        isAdmin={isAdmin || false}
+        onEdit={(item) => {
+          setEditingItem(item);
+          setIsEditModalOpen(true);
+        }}
+      />
       <CommandPalette 
         isOpen={isCommandPaletteOpen} 
         onClose={() => setIsCommandPaletteOpen(false)} 
